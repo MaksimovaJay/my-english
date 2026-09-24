@@ -35,5 +35,6 @@ export const seedGrammarTopics: GrammarTopic[] = [
         ],
       },
     ],
+    dateAdded: '2026-09-24',
   },
 ];
