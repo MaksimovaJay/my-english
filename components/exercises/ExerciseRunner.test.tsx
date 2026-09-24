@@ -22,6 +22,19 @@ describe('ExerciseRunner', () => {
     expect(onComplete).toHaveBeenCalledWith({ correct: 1, total: 1 });
   });
 
+  it('does not call onComplete again on re-click of already-checked item', () => {
+    const onComplete = vi.fn();
+    render(<ExerciseRunner exercise={fillBlankExercise} onComplete={onComplete} />);
+    fireEvent.change(screen.getByLabelText('blank-0-0'), { target: { value: 'was' } });
+    // First click: should call onComplete
+    fireEvent.click(screen.getByRole('button', { name: /check answer/i }));
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(onComplete).toHaveBeenCalledWith({ correct: 1, total: 1 });
+    // Second click: should NOT call onComplete again
+    fireEvent.click(screen.getByRole('button', { name: /check answer/i }));
+    expect(onComplete).toHaveBeenCalledTimes(1);
+  });
+
   it('reveals the correct answer on demand', () => {
     render(<ExerciseRunner exercise={fillBlankExercise} />);
     fireEvent.click(screen.getByRole('button', { name: /check answer/i }));
