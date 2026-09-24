@@ -7,12 +7,27 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('Nav', () => {
-  it('renders a link for every top-level section', () => {
+  it('renders a link for every top-level section with correct href', () => {
     render(<Nav />);
-    ['Home', 'Vocabulary', 'Phrases', 'Grammar', 'Exercises', 'Homework', 'Review', 'Progress', 'Add New'].forEach((label) => {
-      const links = screen.getAllByRole('link', { name: new RegExp(label, 'i') });
-      expect(links.length).toBeGreaterThanOrEqual(1);
-      expect(links[0]).toBeInTheDocument();
+
+    const links = [
+      { href: '/', label: 'Home' },
+      { href: '/vocabulary', label: 'Vocabulary' },
+      { href: '/phrases', label: 'Phrases' },
+      { href: '/grammar', label: 'Grammar' },
+      { href: '/exercises', label: 'Exercises' },
+      { href: '/homework', label: 'Homework' },
+      { href: '/review', label: 'Review' },
+      { href: '/progress', label: 'Progress' },
+      { href: '/add', label: 'Add New' },
+    ];
+
+    links.forEach(({ href, label }) => {
+      const renderedLinks = screen.getAllByRole('link', { name: label });
+      expect(renderedLinks.length).toBeGreaterThanOrEqual(1);
+      renderedLinks.forEach((link) => {
+        expect(link).toHaveAttribute('href', href);
+      });
     });
   });
 });
