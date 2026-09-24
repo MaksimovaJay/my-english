@@ -33,10 +33,26 @@ describe('speak', () => {
     delete window.speechSynthesis;
   });
 
-  it('cancels any ongoing speech and speaks the given text', () => {
+  it('cancels any ongoing speech and speaks the given text with correct arguments', () => {
     speak('mother', 'en-US');
     expect(window.speechSynthesis.cancel).toHaveBeenCalled();
-    expect(window.speechSynthesis.speak).toHaveBeenCalled();
+    expect(window.speechSynthesis.speak).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'mother', lang: 'en-US' })
+    );
+  });
+
+  it('calls cancel before speak', () => {
+    speak('mother', 'en-US');
+    const cancelCallOrder = window.speechSynthesis.cancel.mock.invocationCallOrder[0];
+    const speakCallOrder = window.speechSynthesis.speak.mock.invocationCallOrder[0];
+    expect(cancelCallOrder).toBeLessThan(speakCallOrder);
+  });
+
+  it('uses default language (en-US) when not specified', () => {
+    speak('mother');
+    expect(window.speechSynthesis.speak).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'mother', lang: 'en-US' })
+    );
   });
 
   it('does nothing when speech is unsupported', () => {

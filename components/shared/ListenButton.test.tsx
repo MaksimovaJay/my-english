@@ -10,10 +10,12 @@ describe('ListenButton', () => {
     window.SpeechSynthesisUtterance = vi.fn().mockImplementation((text: string) => ({ text, lang: '' }));
   });
 
-  it('speaks the given text on click', () => {
+  it('speaks the given text on click with correct arguments', () => {
     render(<ListenButton text="mother" />);
     fireEvent.click(screen.getByRole('button', { name: /listen/i }));
-    expect(window.speechSynthesis.speak).toHaveBeenCalled();
+    expect(window.speechSynthesis.speak).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'mother', lang: 'en-US' })
+    );
   });
 
   it('renders nothing when speech is unsupported', () => {
