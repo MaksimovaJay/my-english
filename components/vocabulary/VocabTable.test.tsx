@@ -23,6 +23,15 @@ describe('VocabTable', () => {
     expect(screen.getAllByText('???').length).toBeGreaterThan(0);
   });
 
+  it('keeps the column header visible when its column is toggled off', () => {
+    render(<VocabTable items={items} onEdit={vi.fn()} onDelete={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /english/i }));
+    const table = screen.getByRole('table');
+    const thead = table.querySelector('thead');
+    expect(thead).toBeInTheDocument();
+    expect(thead?.textContent).toContain('English');
+  });
+
   it('reveals a hidden cell on click', () => {
     render(<VocabTable items={items} onEdit={vi.fn()} onDelete={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: /english/i }));
@@ -49,5 +58,15 @@ describe('VocabTable', () => {
     render(<VocabTable items={items} onEdit={vi.fn()} onDelete={onDelete} />);
     fireEvent.click(screen.getAllByRole('button', { name: /delete/i })[0]);
     expect(onDelete).toHaveBeenCalledWith('1');
+  });
+
+  it('reverts a previously-revealed cell to ??? after clicking Hide All', () => {
+    render(<VocabTable items={items} onEdit={vi.fn()} onDelete={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /english/i }));
+    fireEvent.click(screen.getAllByText('???')[0]);
+    expect(screen.getByText('mother')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /hide all/i }));
+    expect(screen.queryByText('mother')).not.toBeInTheDocument();
+    expect(screen.getAllByText('???').length).toBeGreaterThan(0);
   });
 });
