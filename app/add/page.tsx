@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { VocabForm } from '@/components/vocabulary/VocabForm';
+import { GrammarTopicForm } from '@/components/grammar/GrammarTopicForm';
 import { useWordsStore } from '@/lib/storage/wordsStore';
 import { usePhrasesStore } from '@/lib/storage/phrasesStore';
+import { useGrammarStore } from '@/lib/storage/grammarStore';
 import { cn } from '@/lib/utils';
 
 type MaterialType = 'Word' | 'Phrase' | 'Grammar' | 'Exercise' | 'Note';
@@ -14,6 +16,7 @@ export default function AddPage() {
   const [type, setType] = useState<MaterialType>('Word');
   const addWord = useWordsStore((s) => s.add);
   const addPhrase = usePhrasesStore((s) => s.add);
+  const addGrammarTopic = useGrammarStore((s) => s.add);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   return (
@@ -41,7 +44,14 @@ export default function AddPage() {
           }}
         />
       )}
-      {type === 'Grammar' && <p className="text-sm text-gray-500">Grammar topics are authored from the Grammar page (Task 19).</p>}
+      {type === 'Grammar' && (
+        <GrammarTopicForm
+          onSubmit={(topic) => {
+            addGrammarTopic(topic);
+            setSavedMessage('Grammar topic saved.');
+          }}
+        />
+      )}
       {type === 'Exercise' && <p className="text-sm text-gray-500">Exercise authoring is available from the Exercises page (Task 20).</p>}
       {type === 'Note' && <p className="text-sm text-gray-500">Free-form notes are not part of Phase 1.</p>}
 
