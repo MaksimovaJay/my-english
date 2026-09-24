@@ -73,7 +73,7 @@ export function VocabForm({ initial, onSubmit, onCancel }: VocabFormProps) {
         <input className="rounded border px-2 py-1" value={example} onChange={(e) => setExample(e.target.value)} />
       </label>
       <label className="flex flex-col gap-1 text-sm">
-        Example meaning
+        Example translation
         <input className="rounded border px-2 py-1" value={exampleTranslation} onChange={(e) => setExampleTranslation(e.target.value)} />
       </label>
       <label className="flex flex-col gap-1 text-sm">

@@ -16,7 +16,7 @@ describe('VocabForm', () => {
     const onSubmit = vi.fn();
     render(<VocabForm onSubmit={onSubmit} />);
     fireEvent.change(screen.getByLabelText(/english/i), { target: { value: 'dog' } });
-    fireEvent.change(screen.getByLabelText(/translation/i), { target: { value: 'собака' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Translation' }), { target: { value: 'собака' } });
     fireEvent.change(screen.getByLabelText(/category/i), { target: { value: 'Other' } });
     fireEvent.click(screen.getByRole('button', { name: /save/i }));
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -34,6 +34,33 @@ describe('VocabForm', () => {
     };
     render(<VocabForm initial={existing} onSubmit={vi.fn()} />);
     expect(screen.getByLabelText(/english/i)).toHaveValue('cat');
-    expect(screen.getByLabelText(/translation/i)).toHaveValue('кот');
+    expect(screen.getByRole('textbox', { name: 'Translation' })).toHaveValue('кот');
+  });
+
+  it('preserves id, dateAdded, tags, and review when editing an existing item', () => {
+    const onSubmit = vi.fn();
+    const existing = {
+      id: 'w-original-123',
+      english: 'dog',
+      translation: 'собака',
+      category: 'Other',
+      tags: ['animals', 'common'],
+      dateAdded: '2026-09-20',
+      review: { status: 'learning' as const, level: 2, lastReviewed: '2026-09-23', nextReviewDate: '2026-09-25', correctCount: 5, mistakeCount: 1 },
+    };
+    render(<VocabForm initial={existing} onSubmit={onSubmit} />);
+    // Change the translation field
+    fireEvent.change(screen.getByRole('textbox', { name: 'Translation' }), { target: { value: 'пёс' } });
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    const submitted = onSubmit.mock.calls[0][0];
+    // Verify unchanged fields
+    expect(submitted.id).toBe('w-original-123');
+    expect(submitted.dateAdded).toBe('2026-09-20');
+    expect(submitted.tags).toEqual(['animals', 'common']);
+    expect(submitted.review).toEqual(existing.review);
+    // Verify the changed field
+    expect(submitted.translation).toBe('пёс');
   });
 });
