@@ -21,7 +21,11 @@ export function updateReviewState(state: ReviewState, outcome: ReviewOutcome, to
   if (outcome === 'again') level = Math.max(0, level - 2);
   else if (outcome === 'know') level = Math.min(5, level + 1);
 
-  const status: ReviewStatus = level >= 5 ? 'known' : outcome === 'again' ? 'learning' : 'review';
+  const status: ReviewStatus =
+    outcome === 'again' ? 'learning' :
+    level >= 5 ? 'known' :
+    outcome === 'hard' ? state.status :
+    'review';
 
   return {
     status,

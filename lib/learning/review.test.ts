@@ -41,6 +41,20 @@ describe('updateReviewState', () => {
     expect(next.status).toBe('review');
   });
 
+  it('preserves status on "hard" when status is "new"', () => {
+    const state = { status: 'new' as const, level: 0, lastReviewed: null, nextReviewDate: '2026-09-24', correctCount: 0, mistakeCount: 0 };
+    const next = updateReviewState(state, 'hard', TODAY);
+    expect(next.level).toBe(0);
+    expect(next.status).toBe('new');
+  });
+
+  it('preserves status on "hard" when status is "learning"', () => {
+    const state = { status: 'learning' as const, level: 1, lastReviewed: null, nextReviewDate: null, correctCount: 0, mistakeCount: 0 };
+    const next = updateReviewState(state, 'hard', TODAY);
+    expect(next.level).toBe(1);
+    expect(next.status).toBe('learning');
+  });
+
   it('raises level by 1 (capped at 5) and increments correctCount on "know"', () => {
     const state = { status: 'review' as const, level: 4, lastReviewed: null, nextReviewDate: null, correctCount: 2, mistakeCount: 0 };
     const next = updateReviewState(state, 'know', TODAY);
