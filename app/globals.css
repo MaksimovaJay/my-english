@@ -49,3 +49,9 @@ html.dark option { background-color: #111827; color: #f3f4f6; }
     @apply rounded-2xl border bg-white/80 backdrop-blur-sm dark:bg-white/[0.03];
   }
 }
+
+/* Installed on iPhone (full-screen): keep content clear of the notch and the home indicator. */
+@layer base {
+  body { padding-top: env(safe-area-inset-top); }
+}
+.safe-bottom { padding-bottom: calc(0.25rem + env(safe-area-inset-bottom)); }

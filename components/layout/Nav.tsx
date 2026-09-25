@@ -47,7 +47,7 @@ export function Nav() {
           );
         })}
       </nav>
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex justify-around border-t bg-white/90 p-1 backdrop-blur md:hidden dark:bg-black/80">
+      <nav className="safe-bottom fixed inset-x-0 bottom-0 z-10 flex justify-around border-t bg-white/90 px-1 pt-1 backdrop-blur md:hidden dark:bg-black/80">
         {LINKS.map(({ href, label, icon: Icon }) => {
           const active = isActive(pathname, href);
           return (
