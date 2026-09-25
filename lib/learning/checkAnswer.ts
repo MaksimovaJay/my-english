@@ -1,7 +1,13 @@
 import { FillBlankItem, MultipleChoiceItem } from '@/types/models';
 
 export function normalizeAnswer(input: string): string {
-  return input.trim().toLowerCase().replace(/\s+/g, ' ');
+  return input
+    .trim()
+    .toLowerCase()
+    .replace(/[‘’`]/g, "'")
+    .replace(/[.?!]+$/, '')
+    .trim()
+    .replace(/\s+/g, ' ');
 }
 
 export function isAnswerCorrect(userInput: string, accepted: string[]): boolean {

@@ -8,7 +8,7 @@ import { useGrammarStore } from '@/lib/storage/grammarStore';
 import { useExercisesStore } from '@/lib/storage/exercisesStore';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { useSettingsStore } from '@/lib/storage/settingsStore';
-import { loadSeedIfEmpty } from '@/lib/seed/loadSeedIfEmpty';
+import { mergeSeed } from '@/lib/seed/mergeSeed';
 
 export function StoreHydrator() {
   useEffect(() => {
@@ -18,7 +18,7 @@ export function StoreHydrator() {
     useExercisesStore.getState().hydrate();
     useHomeworkStore.getState().hydrate();
     useSettingsStore.getState().hydrate();
-    loadSeedIfEmpty();
+    mergeSeed();
     useSettingsStore.getState().recordActivity();
   }, []);
 

@@ -9,7 +9,7 @@ export function GrammarTopicCard({ topic }: GrammarTopicCardProps) {
   return (
     <div className="mb-4 rounded-xl border p-4">
       <h2 className="text-lg font-bold">{topic.title}</h2>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{topic.explanation}</p>
+      <p className="mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">{topic.explanation}</p>
       <ul className="mt-2 list-inside list-disc text-sm">
         {topic.examples.map((ex, i) => <li key={i}>{ex}</li>)}
       </ul>

@@ -4,16 +4,78 @@ import { createInitialReviewState } from '@/lib/learning/review';
 function p(partial: Omit<Phrase, 'id' | 'dateAdded' | 'review' | 'tags'> & { tags?: string[] }): Phrase {
   return {
     id: `seed-phrase-${partial.english.replace(/\s+/g, '-').toLowerCase()}`,
-    dateAdded: '2026-09-24',
+    dateAdded: '2026-09-25',
     tags: partial.tags ?? [],
-    review: createInitialReviewState(new Date('2026-09-24T00:00:00Z')),
+    review: createInitialReviewState(new Date('2026-09-25T00:00:00Z')),
     ...partial,
   };
 }
 
 export const seedPhrases: Phrase[] = [
-  p({ english: 'How are you?', translation: 'Как дела?', ipa: 'haʊ ɑːr juː', ruPronunciation: 'хау ар ю', category: 'Phrases' }),
-  p({ english: 'Nice to meet you.', translation: 'Приятно познакомиться.', ipa: 'naɪs tuː miːt juː', ruPronunciation: 'найс ту мит ю', category: 'Phrases' }),
-  p({ english: 'What time is it?', translation: 'Который час?', ipa: 'wɒt taɪm ɪz ɪt', ruPronunciation: 'вот тайм из ит', category: 'Phrases' }),
-  p({ english: 'I have no idea.', translation: 'Понятия не имею.', ipa: 'aɪ hæv noʊ aɪˈdiːə', ruPronunciation: 'ай хэв ноу айдиа', category: 'Phrases' }),
+  // was / were
+  p({ english: 'I was hungry.', translation: 'Я была голодная.', category: 'was / were' }),
+  p({ english: 'He was my friend.', translation: 'Он был моим другом.', category: 'was / were' }),
+  p({ english: 'She was in the USA.', translation: 'Она была в США.', category: 'was / were' }),
+  p({ english: "I wasn't hungry.", translation: 'Я не была голодной.', category: 'was / were' }),
+  p({ english: "He wasn't my friend.", translation: 'Он не был моим другом.', category: 'was / were' }),
+  p({ english: "You weren't there.", translation: 'Тебя / вас там не было.', category: 'was / were' }),
+  p({ english: "We weren't at home.", translation: 'Нас не было дома.', category: 'was / were' }),
+  p({ english: "They weren't ready.", translation: 'Они не были готовы.', category: 'was / were' }),
+
+  // Предлоги
+  p({ english: 'The book is on the table.', translation: 'Книга на столе.', category: 'Prepositions' }),
+  p({ english: 'The cat is under the table.', translation: 'Кошка под столом.', category: 'Prepositions' }),
+  p({ english: 'The sofa is in the living room.', translation: 'Диван в гостиной.', category: 'Prepositions' }),
+
+  // There is / There are
+  p({ english: 'There is a chair.', translation: 'Есть стул.', category: 'There is / There are' }),
+  p({ english: 'There are two chairs.', translation: 'Есть два стула.', category: 'There is / There are' }),
+  p({ english: "There isn't a chair.", translation: 'Нет стула.', category: 'There is / There are' }),
+  p({ english: "There aren't any chairs.", translation: 'Нет стульев.', category: 'There is / There are' }),
+  p({ english: 'Is there a sofa?', translation: 'Есть ли диван?', category: 'There is / There are' }),
+  p({ english: 'Are there any chairs?', translation: 'Есть ли стулья?', category: 'There is / There are' }),
+  p({ english: 'There are some chairs.', translation: 'Есть несколько стульев.', category: 'There is / There are' }),
+
+  // Вопросы и просьбы с can
+  p({ english: 'Can you drive a car?', translation: 'Ты умеешь водить машину?', category: 'Can' }),
+  p({ english: 'Can you swim?', translation: 'Ты умеешь плавать?', category: 'Can' }),
+  p({ english: 'Can you help me, please?', translation: 'Можешь мне помочь, пожалуйста?', category: 'Can' }),
+  p({ english: 'Can you repeat, please?', translation: 'Можешь повторить, пожалуйста?', category: 'Can' }),
+  p({ english: 'Can you speak more slowly?', translation: 'Можешь говорить помедленнее?', category: 'Can' }),
+  p({ english: 'Can you show me, please?', translation: 'Можешь показать мне, пожалуйста?', category: 'Can' }),
+  p({ english: 'Can you send me this?', translation: 'Можешь отправить мне это?', category: 'Can' }),
+  p({ english: 'Can you wait a minute?', translation: 'Можешь подождать минуту?', category: 'Can' }),
+
+  // Направления
+  p({ english: 'Go straight on.', translation: 'Идите прямо.', category: 'Directions' }),
+  p({ english: 'Turn left.', translation: 'Поверните налево.', category: 'Directions' }),
+  p({ english: 'Turn right.', translation: 'Поверните направо.', category: 'Directions' }),
+  p({ english: 'Go past the bank.', translation: 'Пройдите мимо банка.', category: 'Directions' }),
+  p({ english: 'Cross the street.', translation: 'Перейдите улицу.', category: 'Directions' }),
+  p({ english: 'On the corner.', translation: 'На углу.', category: 'Directions' }),
+  p({ english: 'On the left.', translation: 'Слева.', category: 'Directions' }),
+  p({ english: 'On the right.', translation: 'Справа.', category: 'Directions' }),
+  p({ english: "I don't know where it is.", translation: 'Я не знаю, где это.', notes: 'После where порядок слов как в утверждении: where it is, а не where is it.', category: 'Directions' }),
+
+  // Present Simple: Do you...?
+  p({ english: 'Do you work?', translation: 'Ты работаешь?', category: 'Do you...?' }),
+  p({ english: 'Do you live in Bishkek?', translation: 'Ты живёшь в Бишкеке?', category: 'Do you...?' }),
+  p({ english: 'Do you drink coffee?', translation: 'Ты пьёшь кофе?', category: 'Do you...?' }),
+  p({ english: 'Do you like your work?', translation: 'Тебе нравится твоя работа?', category: 'Do you...?' }),
+  p({ english: 'Do you want coffee?', translation: 'Ты хочешь кофе?', category: 'Do you...?' }),
+  p({ english: 'Do you have a dog?', translation: 'У тебя есть собака?', category: 'Do you...?' }),
+  p({ english: 'Do you go to work?', translation: 'Ты ходишь на работу?', category: 'Do you...?' }),
+  p({ english: 'Do you play games every day?', translation: 'Ты играешь в игры каждый день?', category: 'Do you...?' }),
+  p({ english: 'No, I prefer tea.', translation: 'Нет, я предпочитаю чай.', category: 'Do you...?' }),
+  p({ english: 'Give me the book, please.', translation: 'Дай мне книгу, пожалуйста.', category: 'Do you...?' }),
+
+  // О себе
+  p({ english: 'I am 27 years old.', translation: 'Мне 27 лет.', category: 'About me' }),
+  p({ english: 'I am at home.', translation: 'Я дома.', category: 'About me' }),
+  p({ english: 'I am hungry.', translation: 'Я голодная.', category: 'About me' }),
+  p({ english: 'My name is Julia.', translation: 'Меня зовут Юлия.', category: 'About me' }),
+  p({ english: 'I am Jenya.', translation: 'Я Женя.', category: 'About me' }),
+  p({ english: 'I am from Kyrgyzstan.', translation: 'Я из Кыргызстана.', category: 'About me' }),
+  p({ english: 'I live in Kyrgyzstan.', translation: 'Я живу в Кыргызстане.', category: 'About me' }),
+  p({ english: 'He is 4 years old.', translation: 'Ему 4 года.', category: 'About me' }),
 ];

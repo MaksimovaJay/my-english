@@ -6,6 +6,15 @@ describe('normalizeAnswer', () => {
     expect(normalizeAnswer('  Was   ')).toBe('was');
     expect(normalizeAnswer('I  am   home')).toBe('i am home');
   });
+
+  it('treats curly and straight apostrophes the same', () => {
+    expect(normalizeAnswer('wasn’t')).toBe("wasn't");
+  });
+
+  it('ignores trailing sentence punctuation', () => {
+    expect(normalizeAnswer('Was your exam difficult?')).toBe('was your exam difficult');
+    expect(normalizeAnswer('Was your exam difficult ')).toBe('was your exam difficult');
+  });
 });
 
 describe('isAnswerCorrect', () => {
