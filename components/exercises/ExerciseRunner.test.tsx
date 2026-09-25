@@ -43,3 +43,26 @@ describe('ExerciseRunner', () => {
     expect(screen.getByText('was')).toBeInTheDocument();
   });
 });
+
+describe('ExerciseRunner multiple choice', () => {
+  const mc = {
+    id: 'mc1', type: 'multiple-choice' as const, instruction: 'Выберите.',
+    items: [
+      { question: 'I ___ hungry.', options: ['am', 'is'], correctIndex: 0 },
+      { question: 'She ___ here.', options: ['am', 'is'], correctIndex: 1 },
+    ],
+  };
+
+  it('checks on tap and scores the first try, even if a mistake is fixed afterwards', () => {
+    const onComplete = vi.fn();
+    render(<ExerciseRunner exercise={mc} onComplete={onComplete} />);
+    const am = screen.getAllByRole('button', { name: 'am' });
+    const is = screen.getAllByRole('button', { name: 'is' });
+    fireEvent.click(is[0]); // wrong first try on item 1
+    expect(screen.getByText('❌ Попробуйте ещё раз')).toBeInTheDocument();
+    fireEvent.click(am[0]); // fixed afterwards
+    fireEvent.click(is[1]); // item 2 right the first time
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(onComplete).toHaveBeenCalledWith({ correct: 1, total: 2 });
+  });
+});

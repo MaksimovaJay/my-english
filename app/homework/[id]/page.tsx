@@ -48,10 +48,17 @@ export default function HomeworkRunnerPage() {
     persist({ ...homework!, progress: { ...homework!.progress, [exerciseId]: { ...progress, userAnswers } } });
   }
 
-  function handleSelect(exerciseId: string, itemIndex: number, optionIndex: number) {
+  // Tapping an option answers it at once. It can be changed until right, but `correct` keeps the first try (that is the score).
+  function handleMcAnswer(exerciseId: string, itemIndex: number, optionIndex: number) {
+    const ex = homework!.exercises.find((e) => e.id === exerciseId)!;
     const progress = homework!.progress[exerciseId];
+    const firstTry = !progress.checked[itemIndex];
     const userAnswers = (progress.userAnswers as (number | null)[]).map((v, idx) => (idx === itemIndex ? optionIndex : v));
-    persist({ ...homework!, progress: { ...homework!.progress, [exerciseId]: { ...progress, userAnswers } } });
+    const checked = progress.checked.map((v, idx) => (idx === itemIndex ? true : v));
+    const correct = firstTry
+      ? progress.correct.map((v, idx) => (idx === itemIndex ? isMultipleChoiceItemCorrect(ex.items[itemIndex] as MultipleChoiceItem, optionIndex) : v))
+      : progress.correct;
+    persist({ ...homework!, progress: { ...homework!.progress, [exerciseId]: { ...progress, userAnswers, checked, correct } } });
   }
 
   function handleCheck(exerciseId: string, itemIndex: number) {
@@ -120,8 +127,7 @@ export default function HomeworkRunnerPage() {
                 items={ex.items as MultipleChoiceItem[]}
                 selected={progress.userAnswers as (number | null)[]}
                 checked={progress.checked}
-                onSelect={(i, oi) => handleSelect(ex.id, i, oi)}
-                onCheck={(i) => handleCheck(ex.id, i)}
+                onAnswer={(i, oi) => handleMcAnswer(ex.id, i, oi)}
               />
             )}
           </div>

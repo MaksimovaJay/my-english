@@ -53,3 +53,12 @@ describe('blankWidthCh', () => {
     expect(blankWidthCh(['Where were Sue and Chris last week?'])).toBe(38);
   });
 });
+
+describe('FillBlankExercise Enter key', () => {
+  it('checks the item on Enter', () => {
+    const onCheck = vi.fn();
+    render(<FillBlankExercise items={[{ text: 'She ___ 22.', blanks: [['was']] }]} userAnswers={[['was']]} checked={[false]} onAnswerChange={vi.fn()} onCheck={onCheck} />);
+    fireEvent.keyDown(screen.getByLabelText('blank-0-0'), { key: 'Enter' });
+    expect(onCheck).toHaveBeenCalledWith(0);
+  });
+});

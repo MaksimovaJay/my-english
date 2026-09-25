@@ -44,6 +44,15 @@ export function FillBlankExercise({ items, userAnswers, checked, onAnswerChange,
                       )}
                       value={userAnswers[i]?.[pi] ?? ''}
                       onChange={(e) => onAnswerChange(i, pi, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          onCheck(i);
+                        }
+                      }}
+                      enterKeyHint="done"
+                      autoCapitalize="none"
+                      autoCorrect="off"
                     />
                   )}
                 </span>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Exercise, FillBlankItem, MultipleChoiceItem } from '@/types/models';
-import { initFillBlankAnswers, initMultipleChoiceAnswers, scoreFillBlank, scoreMultipleChoice } from '@/lib/learning/exerciseProgress';
+import { initFillBlankAnswers, initMultipleChoiceAnswers, scoreFillBlank } from '@/lib/learning/exerciseProgress';
 import { FillBlankExercise } from './FillBlankExercise';
 import { MultipleChoiceExercise } from './MultipleChoiceExercise';
 
@@ -21,14 +21,29 @@ export function ExerciseRunner({ exercise, onComplete }: ExerciseRunnerProps) {
   const [mcAnswers, setMcAnswers] = useState<(number | null)[]>(() => initMultipleChoiceAnswers(mcItems));
   const [checked, setChecked] = useState<boolean[]>(() => exercise.items.map(() => false));
   const [showCorrect, setShowCorrect] = useState<boolean[]>(() => exercise.items.map(() => false));
+  // Multiple choice can be retried until right; the score counts the first try.
+  const [firstTryCorrect, setFirstTryCorrect] = useState<boolean[]>(() => exercise.items.map(() => false));
 
   function handleCheck(i: number) {
     const wasComplete = checked.every(Boolean);
     const nextChecked = checked.map((v, idx) => (idx === i ? true : v));
     setChecked(nextChecked);
     if (!wasComplete && nextChecked.every(Boolean) && onComplete) {
-      const score = isFillBlank ? scoreFillBlank(fillItems, fillAnswers) : scoreMultipleChoice(mcItems, mcAnswers);
+      const score = scoreFillBlank(fillItems, fillAnswers); // fill-blank only; multiple choice scores in handleMcAnswer
       onComplete(score);
+    }
+  }
+
+  function handleMcAnswer(i: number, optionIndex: number) {
+    const firstTry = !checked[i];
+    setMcAnswers((prev) => prev.map((v, idx) => (idx === i ? optionIndex : v)));
+    if (!firstTry) return;
+    const nextFirstTry = firstTryCorrect.map((v, idx) => (idx === i ? optionIndex === mcItems[i].correctIndex : v));
+    setFirstTryCorrect(nextFirstTry);
+    const nextChecked = checked.map((v, idx) => (idx === i ? true : v));
+    setChecked(nextChecked);
+    if (nextChecked.every(Boolean) && onComplete) {
+      onComplete({ correct: nextFirstTry.filter(Boolean).length, total: mcItems.length });
     }
   }
 
@@ -54,14 +69,13 @@ export function ExerciseRunner({ exercise, onComplete }: ExerciseRunnerProps) {
           items={mcItems}
           selected={mcAnswers}
           checked={checked}
-          onSelect={(i, oi) => setMcAnswers((prev) => prev.map((v, idx) => (idx === i ? oi : v)))}
-          onCheck={handleCheck}
+          onAnswer={handleMcAnswer}
         />
       )}
       <div className="mt-2 flex flex-col gap-2">
         {Array.from({ length: itemCount }).map(
           (_, i) =>
-            checked[i] && (
+            isFillBlank && checked[i] && (
               <div key={i} className="flex flex-col gap-1 text-xs text-gray-500">
                 <button type="button" className="w-fit underline" onClick={() => toggleShowCorrect(i)}>
                   Показать правильный ответ

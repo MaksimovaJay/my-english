@@ -1,5 +1,5 @@
 import { Exercise, ExerciseProgress, FillBlankItem, Homework, MultipleChoiceItem } from '@/types/models';
-import { initFillBlankAnswers, initMultipleChoiceAnswers, scoreFillBlank, scoreMultipleChoice } from './exerciseProgress';
+import { initFillBlankAnswers, initMultipleChoiceAnswers, scoreFillBlank } from './exerciseProgress';
 import { generateId } from '@/lib/utils';
 
 export function initHomeworkProgress(exercises: Exercise[]): Record<string, ExerciseProgress> {
@@ -26,9 +26,10 @@ export function computeHomeworkScore(homework: Homework): { correct: number; tot
     const progress = homework.progress[ex.id];
     // Free-text answers have no answer key: the teacher checks them.
     if (!progress || ex.type === 'free-text') continue;
+    // Multiple choice may be retried until right, so it scores the first try (progress.correct).
     const score = ex.type === 'fill-blank'
       ? scoreFillBlank(ex.items as FillBlankItem[], progress.userAnswers as string[][])
-      : scoreMultipleChoice(ex.items as MultipleChoiceItem[], progress.userAnswers as (number | null)[]);
+      : { correct: progress.correct.filter(Boolean).length, total: ex.items.length };
     correct += score.correct;
     total += score.total;
   }

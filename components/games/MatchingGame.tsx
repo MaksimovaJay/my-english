@@ -46,7 +46,7 @@ export function MatchingGame({ items, count = 5, random = Math.random }: Matchin
           <button
             key={item.id}
             disabled={matched.has(item.id)}
-            className={cn('rounded border px-3 py-1 text-sm', selectedLeft === item.id && 'border-violet-600 bg-violet-50', matched.has(item.id) && 'opacity-40')}
+            className={cn('rounded border px-3 py-1 text-sm', selectedLeft === item.id && 'border-violet-600 bg-violet-50 text-violet-900 dark:bg-violet-500/25 dark:text-violet-100', matched.has(item.id) && 'opacity-40')}
             onClick={() => handleLeftClick(item.id)}
           >
             {item.english}
@@ -58,7 +58,7 @@ export function MatchingGame({ items, count = 5, random = Math.random }: Matchin
           <button
             key={item.id}
             disabled={matched.has(item.id)}
-            className={cn('rounded border px-3 py-1 text-sm', wrongRightId === item.id && 'border-red-500 bg-red-50', matched.has(item.id) && 'opacity-40')}
+            className={cn('rounded border px-3 py-1 text-sm', wrongRightId === item.id && 'border-red-500 bg-red-50 text-red-900 dark:bg-red-950/40 dark:text-red-200', matched.has(item.id) && 'opacity-40')}
             onClick={() => handleRightClick(item)}
           >
             {item.translation}
