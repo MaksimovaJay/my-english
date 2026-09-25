@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, RotateCcw, ClipboardList, BarChart3 } from 'lucide-react';
+import { Home, BookOpen, RotateCcw, Gamepad2, ClipboardList, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -10,6 +10,7 @@ const LINKS = [
   { href: '/', label: 'Главная', icon: Home },
   { href: '/topics', label: 'Темы', icon: BookOpen },
   { href: '/review', label: 'Повторение', icon: RotateCcw },
+  { href: '/games', label: 'Игры', icon: Gamepad2 },
   { href: '/homework', label: 'Домашка', icon: ClipboardList },
   { href: '/progress', label: 'Прогресс', icon: BarChart3 },
 ];

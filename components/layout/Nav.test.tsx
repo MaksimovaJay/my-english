@@ -10,12 +10,13 @@ const LINKS = [
   { href: '/', label: 'Главная' },
   { href: '/topics', label: 'Темы' },
   { href: '/review', label: 'Повторение' },
+  { href: '/games', label: 'Игры' },
   { href: '/homework', label: 'Домашка' },
   { href: '/progress', label: 'Прогресс' },
 ];
 
 describe('Nav', () => {
-  it('renders the five sections in desktop and mobile bars', () => {
+  it('renders the six sections in desktop and mobile bars', () => {
     render(<Nav />);
     expect(screen.getAllByRole('link')).toHaveLength(LINKS.length * 2);
     LINKS.forEach(({ href, label }) => {
