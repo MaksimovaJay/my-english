@@ -91,16 +91,6 @@ export interface ExerciseProgress {
   correct: boolean[];
 }
 
-export type Verdict = 'correct' | 'incorrect' | null;
-
-/** Teacher's review, stored separately from the homework so teacher and student never overwrite each other. */
-export interface HomeworkReview {
-  id: string; // = homework.id
-  items: Record<string, { verdict: Verdict[]; comment: string[] }>; // key = exercise.id, arrays index-aligned with items
-  overallComment: string;
-  updatedAt: string;
-}
-
 export interface Homework {
   id: string;
   number?: number; // ДЗ N
@@ -115,5 +105,4 @@ export interface Homework {
   sourceNote?: string;
   teacherNotes?: string;
   images?: string[]; // compressed JPEG data URLs of book pages / screenshots
-  submittedAt?: string; // ISO datetime of «Сдать домашку»
 }
