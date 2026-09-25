@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import { AUTO_ADVANCE_MS } from '@/components/exercises/useAutoAdvance';
 import { FloatingWords } from './FloatingWords';
 
 const items = [
@@ -17,19 +18,30 @@ describe('FloatingWords', () => {
     });
   });
 
-  it('shows Correct when the bubble matching the target translation is clicked', () => {
+  afterEach(() => vi.useRealTimers());
+
+  const targetOf = () => {
+    const prompt = screen.getByText(/найди слово:/i).textContent ?? '';
+    return items.find((i) => prompt.includes(i.translation.toUpperCase()))!;
+  };
+
+  it('asks to try again on a wrong bubble and stays on the word', () => {
     render(<FloatingWords items={items} random={() => 0} />);
-    const heading = screen.getByText(/найди слово:/i).textContent!;
-    const targetItem = items.find((i) => heading.toUpperCase().includes(i.translation.toUpperCase()))!;
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(targetItem.english) }));
-    expect(screen.getByText(/верно/i)).toBeInTheDocument();
+    const prompt = screen.getByText(/найди слово:/i).textContent;
+    const target = targetOf();
+    const wrong = items.find((i) => i.id !== target.id && screen.queryByRole('button', { name: new RegExp(i.english) }))!;
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(wrong.english) }));
+    expect(screen.getByText('❌ Попробуйте ещё раз')).toBeInTheDocument();
+    expect(screen.getByText(/найди слово:/i).textContent).toBe(prompt);
+    expect(screen.queryByRole('button', { name: /следующее слово/i })).not.toBeInTheDocument();
   });
 
-  it('shows Try again when a non-target bubble is clicked', () => {
+  it('goes to the next word by itself after the right bubble', () => {
+    vi.useFakeTimers();
     render(<FloatingWords items={items} random={() => 0} />);
-    const heading = screen.getByText(/найди слово:/i).textContent!;
-    const wrongItem = items.find((i) => !heading.toUpperCase().includes(i.translation.toUpperCase()))!;
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(wrongItem.english) }));
-    expect(screen.getByText(/попробуй ещё/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(targetOf().english) }));
+    expect(screen.getByText('✅ Верно!')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(AUTO_ADVANCE_MS));
+    expect(screen.queryByText('✅ Верно!')).not.toBeInTheDocument();
   });
 });

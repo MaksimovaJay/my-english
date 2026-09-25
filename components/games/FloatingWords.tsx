@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { VocabItem } from '@/types/models';
 import { pickFloatingRound, DIFFICULTY_CONFIG, bubbleLayout, floatingAreaHeightPx } from '@/lib/learning/floatingWords';
 import { cn } from '@/lib/utils';
+import { useAutoAdvance } from '@/components/exercises/useAutoAdvance';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -17,19 +18,27 @@ interface FloatingWordsProps {
 export function FloatingWords({ items, random = Math.random }: FloatingWordsProps) {
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [roundKey, setRoundKey] = useState(0);
-  const [result, setResult] = useState<'correct' | 'wrong' | null>(null);
+  const [wrong, setWrong] = useState<Set<string>>(new Set());
+  const [solved, setSolved] = useState(false);
+  const advance = useAutoAdvance();
 
   const config = DIFFICULTY_CONFIG[difficulty];
   const round = useMemo(() => pickFloatingRound(items, config.poolSize, random), [items, config.poolSize, random, roundKey]);
 
-  function handleGuess(id: string) {
-    if (!round) return;
-    setResult(id === round.target.id ? 'correct' : 'wrong');
+  function nextRound() {
+    setWrong(new Set());
+    setSolved(false);
+    setRoundKey((k) => k + 1);
   }
 
-  function nextRound() {
-    setResult(null);
-    setRoundKey((k) => k + 1);
+  function handleGuess(id: string) {
+    if (!round || solved) return;
+    if (id === round.target.id) {
+      setSolved(true);
+      advance(nextRound);
+    } else {
+      setWrong((prev) => new Set(prev).add(id));
+    }
   }
 
   if (!round) return <p className="text-sm text-gray-500">Здесь пока нет слов.</p>;
@@ -47,14 +56,22 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
           </button>
         ))}
       </div>
-      <p className="mb-3 text-center text-lg font-bold">Найди слово: {round.target.translation.toUpperCase()}</p>
+      <p className="text-center text-lg font-bold">Найди слово: {round.target.translation.toUpperCase()}</p>
+      {/* Feedback sits above the field so it is visible without scrolling on a phone. */}
+      <p className="mb-2 h-6 text-center" aria-live="polite">
+        {solved ? <span className="text-green-600">✅ Верно!</span> : wrong.size > 0 && <span className="text-red-600">❌ Попробуйте ещё раз</span>}
+      </p>
       <div className="relative overflow-hidden rounded-xl border" style={{ height: floatingAreaHeightPx(round.bubbles.length) }}>
         {round.bubbles.map((bubble, i) => {
           const { leftPct, topPx } = bubbleLayout(i, round.bubbles.length);
           return (
             <button
               key={bubble.id}
-              className="absolute animate-float whitespace-nowrap rounded-full bg-violet-100 px-3 py-1 text-sm dark:bg-violet-500/25"
+              className={cn(
+                'absolute animate-float whitespace-nowrap rounded-full bg-violet-100 px-3 py-1 text-sm dark:bg-violet-500/25',
+                wrong.has(bubble.id) && 'bg-red-100 opacity-50 dark:bg-red-500/25',
+                solved && bubble.id === round.target.id && 'bg-green-100 ring-2 ring-green-500 dark:bg-green-500/25'
+              )}
               style={{ left: `max(4px, min(${leftPct}%, calc(100% - ${bubble.english.length * 8 + 56}px)))`, top: topPx, animationDuration: `${config.speedSeconds}s`, animationDelay: `${-i * 1.3}s` }}
               onClick={() => handleGuess(bubble.id)}
             >
@@ -63,9 +80,6 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
           );
         })}
       </div>
-      {result === 'correct' && <p className="mt-3 text-green-600">✅ Верно!</p>}
-      {result === 'wrong' && <p className="mt-3 text-red-600">❌ Попробуй ещё</p>}
-      {result && <button className="mt-2 rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-3 py-1 text-sm text-white" onClick={nextRound}>Следующее слово</button>}
     </div>
   );
 }
