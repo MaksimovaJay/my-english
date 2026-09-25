@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { mergeSeed } from './mergeSeed';
+import { mergeSeed, RETIRED_SEED_IDS } from './mergeSeed';
 import { seedWords } from './words';
 import { seedGrammarTopics } from './grammar';
 import { useWordsStore } from '@/lib/storage/wordsStore';
@@ -61,6 +61,34 @@ describe('mergeSeed', () => {
     useWordsStore.getState().remove(id);
     mergeSeed();
     expect(useWordsStore.getState().items.some((i) => i.id === id)).toBe(false);
+  });
+
+  it('refreshes content of an existing seed word but keeps its review progress', () => {
+    const seed = seedWords.find((w) => w.id === 'seed-word-chair')!;
+    useWordsStore.getState().add({
+      ...seed,
+      translation: 'старый перевод',
+      category: 'Home',
+      review: { ...seed.review, level: 3, status: 'review' },
+    });
+    mergeSeed();
+    const chair = useWordsStore.getState().items.find((i) => i.id === 'seed-word-chair')!;
+    expect(chair.translation).toBe(seed.translation);
+    expect(chair.category).toBe('home');
+    expect(chair.review.level).toBe(3);
+  });
+
+  it('removes retired sample items', () => {
+    useWordsStore.getState().add({ ...userWord, id: 'seed-word-deadline' });
+    mergeSeed();
+    expect(RETIRED_SEED_IDS).toContain('seed-word-deadline');
+    expect(useWordsStore.getState().items.some((i) => i.id === 'seed-word-deadline')).toBe(false);
+  });
+
+  it('leaves user words untouched', () => {
+    useWordsStore.getState().add(userWord);
+    mergeSeed();
+    expect(useWordsStore.getState().items.find((i) => i.id === userWord.id)).toEqual(userWord);
   });
 
   it('replaces an outdated seed grammar topic with the current version', () => {

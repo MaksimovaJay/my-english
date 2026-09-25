@@ -22,23 +22,43 @@ function writeSeen(seen: Set<string>): void {
   window.localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]));
 }
 
+// Old sample data from the first version; removed from devices that still have it.
+export const RETIRED_SEED_IDS = [
+  'seed-word-window', 'seed-word-friend', 'seed-word-teacher', 'seed-word-street', 'seed-word-airport',
+  'seed-word-meeting', 'seed-word-deadline', 'seed-word-morning',
+  'seed-phrase-how-are-you?', 'seed-phrase-nice-to-meet-you.', 'seed-phrase-what-time-is-it?', 'seed-phrase-i-have-no-idea.',
+];
+
+const CONTENT_FIELDS = ['english', 'translation', 'ipa', 'ruPronunciation', 'example', 'exampleTranslation', 'category', 'notes'] as const;
+
 /**
  * Brings seed content (lesson material that ships with the app) into the
  * local stores. New seed items are added on every device, even one that
- * already has data. Seed words/phrases the user has already seen are never
- * re-added or overwritten, so their review progress and any deletions stick.
- * Seed grammar topics are not editable in the UI, so they are always
- * replaced with the latest version from the code.
+ * already has data. Seed words/phrases already present get their content
+ * (text, translation, topic) refreshed from the code but keep their review
+ * progress; ones the user deleted are not re-added. Seed grammar topics are
+ * not editable in the UI, so they are always replaced with the latest version.
  */
 export function mergeSeed(): void {
   const seen = readSeen();
 
   for (const store of [useWordsStore, usePhrasesStore]) {
     const state = store.getState();
-    const existing = new Set(state.items.map((i) => i.id));
     const seed = store === useWordsStore ? seedWords : seedPhrases;
+    for (const id of RETIRED_SEED_IDS) {
+      if (state.items.some((i) => i.id === id)) state.remove(id);
+    }
     for (const item of seed) {
-      if (!existing.has(item.id) && !seen.has(item.id)) state.add(item);
+      const current = store.getState().items.find((i) => i.id === item.id);
+      if (current) {
+        if (CONTENT_FIELDS.some((f) => current[f] !== item[f])) {
+          const refreshed = { ...current };
+          for (const f of CONTENT_FIELDS) (refreshed as Record<string, unknown>)[f] = item[f];
+          state.update(refreshed);
+        }
+      } else if (!seen.has(item.id)) {
+        state.add(item);
+      }
       seen.add(item.id);
     }
   }
