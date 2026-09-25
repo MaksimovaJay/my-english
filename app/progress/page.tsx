@@ -5,10 +5,11 @@ import { usePhrasesStore } from '@/lib/storage/phrasesStore';
 import { useSettingsStore } from '@/lib/storage/settingsStore';
 import { computeProgressStats } from '@/lib/learning/progressStats';
 import { pluralRu } from '@/lib/utils';
+import { ReminderToggle } from '@/components/reminders/ReminderToggle';
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border p-4 text-center">
+    <div className="card p-4 text-center">
       <p className="text-2xl font-bold">{value}</p>
       <p className="text-xs text-gray-500">{label}</p>
     </div>
@@ -34,6 +35,7 @@ export default function ProgressPage() {
         <p>Точность ответов: <strong>{stats.accuracy}%</strong></p>
         <p>Серия: <strong>🔥 {streak} {pluralRu(streak, ['день', 'дня', 'дней'])}</strong></p>
       </div>
+      <ReminderToggle />
     </div>
   );
 }
