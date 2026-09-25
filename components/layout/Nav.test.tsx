@@ -20,6 +20,8 @@ describe('Nav', () => {
       { href: '/review', label: 'Review' },
       { href: '/progress', label: 'Progress' },
       { href: '/add', label: 'Add New' },
+      { href: '/games/floating-words', label: 'Floating Words' },
+      { href: '/games/matching', label: 'Matching Game' },
     ];
 
     links.forEach(({ href, label }) => {

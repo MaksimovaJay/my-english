@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, MessageSquare, GraduationCap, PenLine, ClipboardList, RotateCcw, BarChart3, PlusCircle } from 'lucide-react';
+import { Home, BookOpen, MessageSquare, GraduationCap, PenLine, ClipboardList, RotateCcw, BarChart3, PlusCircle, Gamepad2, Puzzle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -16,6 +16,8 @@ const LINKS = [
   { href: '/review', label: 'Review', icon: RotateCcw },
   { href: '/progress', label: 'Progress', icon: BarChart3 },
   { href: '/add', label: 'Add New', icon: PlusCircle },
+  { href: '/games/floating-words', label: 'Floating Words', icon: Gamepad2 },
+  { href: '/games/matching', label: 'Matching Game', icon: Puzzle },
 ];
 
 export function Nav() {
