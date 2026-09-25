@@ -3,6 +3,7 @@ import { GrammarTopic } from '@/types/models';
 export const seedGrammarTopics: GrammarTopic[] = [
   {
     id: 'seed-grammar-to-be-present',
+    topicId: 'pronouns-to-be',
     title: 'to be: am / is / are',
     explanation:
       'am — с I.\nis — с he / she / it.\nare — с you / we / they.\n\nI am · you are · he is · she is · it is · we are · they are',
@@ -25,6 +26,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
   },
   {
     id: 'seed-grammar-was-were',
+    topicId: 'was-were',
     title: 'was / were (прошедшее время to be)',
     explanation:
       'was — с I / he / she / it.\nwere — с you / we / they.\n\nwasn\'t = was not\nweren\'t = were not\n\nВ вопросе was/were ставится перед подлежащим: Why were you late? Was your exam difficult?',
@@ -76,6 +78,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
   },
   {
     id: 'seed-grammar-there-is-are',
+    topicId: 'there-is-are',
     title: 'There is / There are',
     explanation:
       'There is + один предмет.\nThere are + несколько предметов.\n\nThere isn\'t — нет одного предмета.\nThere aren\'t — нет нескольких предметов.\n\nIs there ...? / Are there ...? — Есть ли ...?',
@@ -98,6 +101,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
   },
   {
     id: 'seed-grammar-some-any',
+    topicId: 'there-is-are',
     title: 'some / any',
     explanation: 'some — обычно в утверждениях.\nany — часто в вопросах и отрицаниях.',
     examples: ['There are some chairs.', 'Are there any chairs?', "There aren't any chairs."],
@@ -117,6 +121,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
   },
   {
     id: 'seed-grammar-can',
+    topicId: 'can',
     title: "can / can't",
     explanation:
       "can / can't + глагол без to.\n\nI can swim. — Я умею плавать.\nI can't drive. — Я не умею водить.\n\nВопрос и просьба: Can you ...?",
@@ -137,6 +142,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
   },
   {
     id: 'seed-grammar-prepositions',
+    topicId: 'prepositions',
     title: 'Предлоги места: in / on / under ...',
     explanation:
       'in — в / внутри\non — на\nunder — под\nin front of — перед\nnext to — рядом с\nopposite — напротив\naround — вокруг',
@@ -159,6 +165,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
   },
   {
     id: 'seed-grammar-do-you',
+    topicId: 'present-simple',
     title: 'Do you ...? (Present Simple)',
     explanation: 'В вопросе Do you ...? используется базовая форма глагола (без -s и без to).\n\nОтветы: Yes, I do. / No, I don\'t. / No, I prefer tea.',
     examples: ['Do you work?', 'Do you live in Bishkek?', 'Do you drink coffee?', 'No, I prefer tea.'],
@@ -177,6 +184,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
   },
   {
     id: 'seed-grammar-where-word-order',
+    topicId: 'directions',
     title: "I don't know where it is",
     explanation:
       'После where внутри предложения порядок слов как в утверждении: where + подлежащее + глагол.\n\n✔ I don\'t know where it is.\n✘ I don\'t know where is it.',
@@ -195,6 +203,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
   },
   {
     id: 'seed-grammar-main-rules',
+    topicId: 'rules',
     title: 'Главные правила (шпаргалка)',
     explanation:
       "1) После can/can't — глагол без to.\n2) am — с I; is — с he/she/it; are — с you/we/they.\n3) В прошедшем: was — I/he/she/it; were — you/we/they.\n4) wasn't = was not; weren't = were not.\n5) There is — один предмет; There are — несколько.\n6) some — в утверждениях; any — в вопросах и отрицаниях.\n7) В вопросах Do you...? — базовая форма глагола.\n8) I don't know where it is — where + подлежащее + глагол.\n9) in = в, on = на, under = под; in front of, next to, opposite.",

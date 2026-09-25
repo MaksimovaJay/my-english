@@ -60,8 +60,17 @@ export interface Exercise {
   relatedGrammarTopicId?: string;
 }
 
+export interface Topic {
+  id: string;
+  title: string;
+  emoji: string;
+  group: 'class' | 'extra'; // 'class' = пройдено на уроках, 'extra' = новое / не изученное
+  order: number;
+}
+
 export interface GrammarTopic {
   id: string;
+  topicId?: string;
   title: string;
   explanation: string;
   examples: string[];
