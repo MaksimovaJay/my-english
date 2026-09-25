@@ -3,7 +3,9 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
-import { parseHomeworkImport, homeworkProgressFraction, homeworkLabel } from '@/lib/learning/homework';
+import { parseHomeworkImport, homeworkProgressFraction, homeworkLabel, buildAssignedHomework, nextHomeworkNumber, AssignHomeworkInput } from '@/lib/learning/homework';
+import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
+import { AssignHomeworkForm } from '@/components/homework/AssignHomeworkForm';
 import { Homework } from '@/types/models';
 
 // jsdom's File/Blob implementation does not provide `.text()` (or `.arrayBuffer()`/`.stream()`),
@@ -29,6 +31,17 @@ export default function HomeworkPage() {
   const removeHomework = useHomeworkStore((s) => s.remove);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [assigning, setAssigning] = useState(false);
+
+  function handleAssign(input: AssignHomeworkInput) {
+    const homework = buildAssignedHomework(input, nextHomeworkNumber(homeworks));
+    try {
+      addHomework(homework);
+    } catch (err) {
+      throw isQuotaError(err) ? new Error(QUOTA_MESSAGE) : err;
+    }
+    setAssigning(false);
+  }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -48,14 +61,20 @@ export default function HomeworkPage() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-bold">📝 Домашка</h1>
-        <div>
+        <div className="flex items-center gap-3">
           <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleFile} />
-          <button className="rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={() => fileInputRef.current?.click()}>
-            Загрузить домашку (JSON)
+          <button className="text-xs text-gray-500 underline" onClick={() => fileInputRef.current?.click()}>
+            Загрузить JSON
           </button>
+          {!assigning && (
+            <button className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white" onClick={() => setAssigning(true)}>
+              + Задать домашку
+            </button>
+          )}
         </div>
       </div>
       {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+      {assigning && <AssignHomeworkForm onSave={handleAssign} onCancel={() => setAssigning(false)} />}
       {homeworks.length === 0 && (
         <p className="text-sm text-gray-500">Домашек пока нет — пришлите фото задания в чат Claude.</p>
       )}

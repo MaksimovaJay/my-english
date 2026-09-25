@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import HomeworkPage from './page';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
@@ -47,5 +47,17 @@ describe('HomeworkPage', () => {
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     await userEvent.upload(input, file);
     expect(screen.getByText(/invalid homework file/i)).toBeInTheDocument();
+  });
+});
+
+describe('HomeworkPage assign', () => {
+  it('creates the next numbered homework from the form', () => {
+    useHomeworkStore.setState({ items: [{ id: 'hw1', number: 1, title: 'Unit 11', assignedDate: '2026-09-24', status: 'not-started', exercises, progress: initHomeworkProgress(exercises) }], hydrated: true });
+    render(<HomeworkPage />);
+    fireEvent.click(screen.getByRole('button', { name: '+ Задать домашку' }));
+    fireEvent.change(screen.getByLabelText('Номер 1'), { target: { value: '12.1' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    expect(screen.getByRole('link', { name: 'ДЗ 2 · Упражнения 12.1' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Сохранить' })).not.toBeInTheDocument();
   });
 });

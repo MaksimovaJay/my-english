@@ -39,6 +39,10 @@ export interface MultipleChoiceItem {
   correctIndex: number;
 }
 
+export interface FreeTextItem {
+  prompt: string; // optional extra hint; the exercise instruction names the book number
+}
+
 export type ExerciseType =
   | 'fill-blank'
   | 'multiple-choice'
@@ -49,13 +53,14 @@ export type ExerciseType =
   | 'listening'
   | 'writing'
   | 'reading'
-  | 'image';
+  | 'image'
+  | 'free-text';
 
 export interface Exercise {
   id: string;
   type: ExerciseType;
   instruction: string;
-  items: FillBlankItem[] | MultipleChoiceItem[];
+  items: FillBlankItem[] | MultipleChoiceItem[] | FreeTextItem[];
   explanation?: string;
   relatedGrammarTopicId?: string;
 }
@@ -98,4 +103,6 @@ export interface Homework {
   progress: Record<string, ExerciseProgress>; // key = exercise.id
   score?: { correct: number; total: number };
   sourceNote?: string;
+  teacherNotes?: string;
+  images?: string[]; // compressed JPEG data URLs of book pages / screenshots
 }

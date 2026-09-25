@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initHomeworkProgress, computeHomeworkScore, homeworkProgressFraction, parseHomeworkImport } from './homework';
+import { initHomeworkProgress, computeHomeworkScore, homeworkProgressFraction, parseHomeworkImport, nextHomeworkNumber, buildAssignedHomework, withFreeTextAnswer } from './homework';
 import { Exercise, Homework } from '@/types/models';
 
 const exercises: Exercise[] = [
@@ -93,5 +93,45 @@ describe('parseHomeworkImport', () => {
       ],
     });
     expect(() => parseHomeworkImport(raw)).toThrow(/invalid options\/correctIndex/i);
+  });
+});
+
+describe('assigned homework (free-text)', () => {
+  const base = { assignedDate: '2026-09-26', dueDate: '', teacherNotes: 'Сделать письменно', images: ['data:image/jpeg;base64,xx'] };
+
+  it('numbers after the highest existing homework', () => {
+    expect(nextHomeworkNumber([])).toBe(1);
+    expect(nextHomeworkNumber([{ number: 1 }, { number: 4 }, {}] as Homework[])).toBe(5);
+  });
+
+  it('builds one free-text exercise per non-empty book number', () => {
+    const hw = buildAssignedHomework({ ...base, bookNumbers: ['12.1', '  ', '12.3 '] }, 2);
+    expect(hw.number).toBe(2);
+    expect(hw.title).toBe('Упражнения 12.1, 12.3');
+    expect(hw.exercises.map((e) => [e.type, e.instruction])).toEqual([['free-text', 'Упражнение 12.1'], ['free-text', 'Упражнение 12.3']]);
+    expect(hw.teacherNotes).toBe('Сделать письменно');
+    expect(hw.images).toHaveLength(1);
+    expect(hw.dueDate).toBeUndefined();
+    expect(hw.progress[hw.exercises[0].id]).toEqual({ userAnswers: [['']], checked: [false], correct: [false] });
+  });
+
+  it('rejects an assignment with no book numbers', () => {
+    expect(() => buildAssignedHomework({ ...base, bookNumbers: ['', ' '] }, 1)).toThrow('Добавьте хотя бы один номер');
+  });
+
+  it('marks a free-text item done when the answer is non-empty and leaves score to the teacher', () => {
+    const hw = buildAssignedHomework({ ...base, bookNumbers: ['12.1'] }, 2);
+    const exId = hw.exercises[0].id;
+    const answered = withFreeTextAnswer(hw, exId, 0, 'I was at home.');
+    expect(answered.progress[exId].checked).toEqual([true]);
+    expect(answered.status).toBe('in-progress');
+    expect(homeworkProgressFraction(answered)).toEqual({ done: 1, total: 1 });
+    expect(computeHomeworkScore(answered)).toEqual({ correct: 0, total: 0 });
+    expect(withFreeTextAnswer(answered, exId, 0, '   ').progress[exId].checked).toEqual([false]);
+  });
+
+  it('accepts free-text exercises in JSON import', () => {
+    const hw = parseHomeworkImport(JSON.stringify({ title: 'X', exercises: [{ type: 'free-text', instruction: 'Write', items: [{ prompt: '' }] }] }));
+    expect(hw.exercises[0].type).toBe('free-text');
   });
 });

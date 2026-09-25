@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import HomeworkRunnerPage from './page';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
-import { initHomeworkProgress } from '@/lib/learning/homework';
+import { initHomeworkProgress, buildAssignedHomework } from '@/lib/learning/homework';
 
 vi.mock('next/navigation', () => ({
   useParams: () => ({ id: 'hw1' }),
@@ -35,5 +35,19 @@ describe('HomeworkRunnerPage', () => {
     const updated = useHomeworkStore.getState().items[0];
     expect(updated.status).toBe('completed');
     expect(updated.score).toEqual({ correct: 1, total: 1 });
+  });
+});
+
+describe('HomeworkRunnerPage with free-text homework', () => {
+  it('shows notes, saves a typed answer, and submits for review', () => {
+    const hw = buildAssignedHomework({ bookNumbers: ['12.1'], teacherNotes: 'Письменно в тетради', images: [], assignedDate: '2026-09-26', dueDate: '' }, 2);
+    useHomeworkStore.setState({ items: [{ ...hw, id: 'hw1' }], hydrated: true });
+    render(<HomeworkRunnerPage />);
+    expect(screen.getByRole('link', { name: /Ко всем домашкам/ })).toHaveAttribute('href', '/homework');
+    expect(screen.getByText('Письменно в тетради')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Ответ: Упражнение 12.1'), { target: { value: 'I was at home.' } });
+    expect(useHomeworkStore.getState().items[0].status).toBe('in-progress');
+    fireEvent.click(screen.getByRole('button', { name: /сдать домашку/i }));
+    expect(screen.getByText('✅ Отправлено на проверку')).toBeInTheDocument();
   });
 });

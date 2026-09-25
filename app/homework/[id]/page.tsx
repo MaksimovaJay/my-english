@@ -1,19 +1,40 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { FillBlankExercise } from '@/components/exercises/FillBlankExercise';
 import { MultipleChoiceExercise } from '@/components/exercises/MultipleChoiceExercise';
 import { FillBlankItem, Homework, MultipleChoiceItem } from '@/types/models';
-import { computeHomeworkScore, homeworkLabel } from '@/lib/learning/homework';
+import { computeHomeworkScore, homeworkLabel, withFreeTextAnswer } from '@/lib/learning/homework';
+import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
+import { ImagePicker } from '@/components/homework/ImagePicker';
+import { BackLink } from '@/components/shared/BackLink';
 import { isFillBlankItemCorrect, isMultipleChoiceItemCorrect } from '@/lib/learning/checkAnswer';
 
 export default function HomeworkRunnerPage() {
   const { id } = useParams<{ id: string }>();
   const homework = useHomeworkStore((s) => s.items.find((h) => h.id === id));
-  const update = useHomeworkStore((s) => s.update);
+  const updateStore = useHomeworkStore((s) => s.update);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  if (!homework) return <p className="text-sm text-gray-500">Домашка не найдена.</p>;
+  if (!homework) {
+    return (
+      <div>
+        <BackLink href="/homework" label="Ко всем домашкам" />
+        <p className="text-sm text-gray-500">Домашка не найдена.</p>
+      </div>
+    );
+  }
+
+  function update(next: Homework) {
+    try {
+      updateStore(next);
+      setSaveError(null);
+    } catch (err) {
+      setSaveError(isQuotaError(err) ? QUOTA_MESSAGE : 'Не удалось сохранить.');
+    }
+  }
 
   function persist(next: Homework) {
     update(next.status === 'not-started' ? { ...next, status: 'in-progress' } : next);
@@ -51,19 +72,42 @@ export default function HomeworkRunnerPage() {
   }
 
   const allChecked = homework.exercises.every((ex) => homework.progress[ex.id]?.checked.every(Boolean));
+  const hasAutoChecked = homework.exercises.some((ex) => ex.type !== 'free-text');
 
   return (
     <div className="mx-auto max-w-2xl">
+      <BackLink href="/homework" label="Ко всем домашкам" />
       <h1 className="mb-1 text-xl font-bold">{homeworkLabel(homework)}</h1>
       <p className="mb-4 text-xs text-gray-500">
         Задано {homework.assignedDate}{homework.dueDate ? ` · Сдать до ${homework.dueDate}` : ''}
       </p>
+      {saveError && <p className="mb-3 text-sm text-red-600">{saveError}</p>}
+      {homework.teacherNotes && (
+        <div className="mb-4 whitespace-pre-line rounded-lg border-l-4 border-amber-400 bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
+          <p className="mb-1 font-medium">Заметки учителя</p>
+          {homework.teacherNotes}
+        </div>
+      )}
+      {(homework.images?.length || homework.exercises.some((ex) => ex.type === 'free-text')) && (
+        <div className="mb-6">
+          <p className="mb-1 text-sm font-medium">Скриншоты</p>
+          <ImagePicker images={homework.images ?? []} onChange={(images) => update({ ...homework, images })} />
+        </div>
+      )}
       {homework.exercises.map((ex) => {
         const progress = homework.progress[ex.id];
         return (
           <div key={ex.id} className="mb-6">
             <p className="mb-2 font-medium">{ex.instruction}</p>
-            {ex.type === 'fill-blank' ? (
+            {ex.type === 'free-text' ? (
+              <textarea
+                aria-label={`Ответ: ${ex.instruction}`}
+                className="min-h-28 w-full rounded-lg border bg-transparent p-2"
+                placeholder="Ваш ответ…"
+                value={(progress.userAnswers[0] as string[])[0] ?? ''}
+                onChange={(e) => update(withFreeTextAnswer(homework, ex.id, 0, e.target.value))}
+              />
+            ) : ex.type === 'fill-blank' ? (
               <FillBlankExercise
                 items={ex.items as FillBlankItem[]}
                 userAnswers={progress.userAnswers as string[][]}
@@ -83,8 +127,10 @@ export default function HomeworkRunnerPage() {
           </div>
         );
       })}
-      {homework.status === 'completed' && homework.score && (
-        <p className="mb-3 font-medium">Результат: {homework.score.correct} / {homework.score.total}</p>
+      {homework.status === 'completed' && (
+        <p className="mb-3 font-medium">
+          {hasAutoChecked && homework.score ? `Результат: ${homework.score.correct} / ${homework.score.total}` : '✅ Отправлено на проверку'}
+        </p>
       )}
       <button
         disabled={!allChecked}

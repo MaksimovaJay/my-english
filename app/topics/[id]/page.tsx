@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { BackLink } from '@/components/shared/BackLink';
 import { useTopicContents, useUpdateVocabItem } from '@/components/topics/useTopicContents';
 import { VocabCardList } from '@/components/topics/VocabCardList';
 import { TopicPractice } from '@/components/topics/TopicPractice';
@@ -41,9 +41,7 @@ export default function TopicPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/topics" className="mb-2 inline-flex items-center gap-1 text-sm text-gray-500 hover:underline">
-        <ArrowLeft size={14} /> Все темы
-      </Link>
+      <BackLink href="/topics" label="Все темы" />
       <h1 className="text-xl font-bold">{topic.emoji} {topic.title}</h1>
       <p className="mb-4 text-xs text-gray-500">{topicCountsLine(content)}</p>
 
