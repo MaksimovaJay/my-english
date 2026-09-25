@@ -32,7 +32,9 @@ export async function GET(request: Request): Promise<Response> {
     fetchDocs<StoredSubscription>(`collection=eq.${PUSH_SUBS_COLLECTION}`),
   ]);
   const settings = settingsDocs[0]?.data;
-  if (!shouldRemind(settings, today)) return Response.json({ sent: 0, reason: 'already studied today' });
+  // ?test=1 (still requires the cron secret) sends even after studying today, to check pushes end to end.
+  const test = new URL(request.url).searchParams.get('test') === '1';
+  if (!test && !shouldRemind(settings, today)) return Response.json({ sent: 0, reason: 'already studied today' });
 
   webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, privateKey);
   const payload = JSON.stringify({ ...reminderMessage(settings?.streak ?? 0), url: '/' });

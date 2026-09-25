@@ -54,4 +54,11 @@ describe('GET /api/cron/remind', () => {
     expect(await (await GET(req('Bearer s3cret'))).json()).toMatchObject({ sent: 0, removed: ['sub-1'] });
     expect(calls.some((c) => c.startsWith('DELETE') && c.includes('id=eq.sub-1'))).toBe(true);
   });
+
+  it('sends anyway in test mode', async () => {
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bishkek', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+    stubSupabase(today);
+    const res = await GET(new Request('https://x/api/cron/remind?test=1', { headers: { authorization: 'Bearer s3cret' } }));
+    expect(await res.json()).toMatchObject({ sent: 1 });
+  });
 });
