@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cn, generateId } from './utils';
+import { cn, generateId, pluralRu } from './utils';
 
 describe('cn', () => {
   it('merges class names and drops falsy values', () => {
@@ -17,5 +17,14 @@ describe('generateId', () => {
     const b = generateId();
     expect(a).not.toBe(b);
     expect(a.length).toBeGreaterThan(0);
+  });
+});
+
+describe('pluralRu', () => {
+  it('picks the Russian plural form', () => {
+    const forms: [string, string, string] = ['слово', 'слова', 'слов'];
+    expect([1, 2, 5, 11, 21, 22, 25, 111].map((n) => pluralRu(n, forms))).toEqual(
+      ['слово', 'слова', 'слов', 'слов', 'слово', 'слова', 'слов', 'слов']
+    );
   });
 });
