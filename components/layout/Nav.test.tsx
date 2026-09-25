@@ -3,33 +3,29 @@ import { render, screen } from '@testing-library/react';
 import { Nav } from './Nav';
 
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/',
+  usePathname: () => '/topics/home',
 }));
 
+const LINKS = [
+  { href: '/', label: 'Главная' },
+  { href: '/topics', label: 'Темы' },
+  { href: '/review', label: 'Повторение' },
+  { href: '/homework', label: 'Домашка' },
+  { href: '/progress', label: 'Прогресс' },
+];
+
 describe('Nav', () => {
-  it('renders a link for every top-level section with correct href', () => {
+  it('renders the five sections in desktop and mobile bars', () => {
     render(<Nav />);
-
-    const links = [
-      { href: '/', label: 'Home' },
-      { href: '/vocabulary', label: 'Vocabulary' },
-      { href: '/phrases', label: 'Phrases' },
-      { href: '/grammar', label: 'Grammar' },
-      { href: '/exercises', label: 'Exercises' },
-      { href: '/homework', label: 'Homework' },
-      { href: '/review', label: 'Review' },
-      { href: '/progress', label: 'Progress' },
-      { href: '/add', label: 'Add New' },
-      { href: '/games/floating-words', label: 'Floating Words' },
-      { href: '/games/matching', label: 'Matching Game' },
-    ];
-
-    links.forEach(({ href, label }) => {
-      const renderedLinks = screen.getAllByRole('link', { name: label });
-      expect(renderedLinks.length).toBeGreaterThanOrEqual(1);
-      renderedLinks.forEach((link) => {
-        expect(link).toHaveAttribute('href', href);
-      });
+    expect(screen.getAllByRole('link')).toHaveLength(LINKS.length * 2);
+    LINKS.forEach(({ href, label }) => {
+      screen.getAllByRole('link', { name: label }).forEach((link) => expect(link).toHaveAttribute('href', href));
     });
+  });
+
+  it('highlights Темы on a topic page', () => {
+    render(<Nav />);
+    screen.getAllByRole('link', { name: 'Темы' }).forEach((link) => expect(link).toHaveAttribute('aria-current', 'page'));
+    screen.getAllByRole('link', { name: 'Главная' }).forEach((link) => expect(link).not.toHaveAttribute('aria-current'));
   });
 });
