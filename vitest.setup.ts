@@ -38,3 +38,10 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     dispatchEvent: () => false,
   }) as unknown as MediaQueryList;
 }
+
+(globalThis as { __realFetch?: typeof fetch }).__realFetch = globalThis.fetch;
+
+// Tests must never reach the network (e.g. the real Supabase). Tests that need fetch stub it.
+globalThis.fetch = (async () => {
+  throw new Error('Network access is disabled in tests');
+}) as typeof fetch;

@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
-import { parseHomeworkImport, homeworkProgressFraction, homeworkLabel, buildAssignedHomework, nextHomeworkNumber, AssignHomeworkInput } from '@/lib/learning/homework';
+import { parseHomeworkImport, homeworkProgressFraction, homeworkLabel, buildAssignedHomework, groupHomeworkByWeek, nextHomeworkNumber, AssignHomeworkInput } from '@/lib/learning/homework';
 import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
 import { AssignHomeworkForm } from '@/components/homework/AssignHomeworkForm';
 import { Homework } from '@/types/models';
@@ -24,6 +24,14 @@ const STATUS_LABELS: Record<Homework['status'], string> = {
   'in-progress': 'В процессе',
   completed: 'Готово',
 };
+
+const WEEKDAYS = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+
+/** '2026-09-25' → 'пт 25.09' */
+function formatShortDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${WEEKDAYS[new Date(y, m - 1, d).getDay()]} ${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}`;
+}
 
 export default function HomeworkPage() {
   const homeworks = useHomeworkStore((s) => s.items);
@@ -78,33 +86,35 @@ export default function HomeworkPage() {
       {homeworks.length === 0 && (
         <p className="text-sm text-gray-500">Домашек пока нет — пришлите фото задания в чат Claude.</p>
       )}
-      {homeworks.length > 0 && (
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b">
-              <th className="px-2 py-1">Дата</th>
-              <th className="px-2 py-1">Задание</th>
-              <th className="px-2 py-1">Прогресс</th>
-              <th className="px-2 py-1">Статус</th>
-              <th className="px-2 py-1" />
-            </tr>
-          </thead>
-          <tbody>
-            {homeworks.map((hw) => {
+      {groupHomeworkByWeek(homeworks).map((week) => (
+        <section key={week.label} className="mb-6">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">{week.label}</h2>
+          <ul className="flex flex-col gap-2">
+            {week.items.map((hw) => {
               const { done, total } = homeworkProgressFraction(hw);
               return (
-                <tr key={hw.id} className="border-b last:border-0">
-                  <td className="px-2 py-1">{hw.assignedDate}</td>
-                  <td className="px-2 py-1"><Link href={`/homework/${hw.id}`} className="text-blue-600 underline">{homeworkLabel(hw)}</Link></td>
-                  <td className="px-2 py-1">{done} / {total}</td>
-                  <td className="px-2 py-1">{STATUS_LABELS[hw.status]}</td>
-                  <td className="px-2 py-1"><button aria-label="Удалить" onClick={() => removeHomework(hw.id)}>🗑</button></td>
-                </tr>
+                <li key={hw.id} className="flex items-center gap-3 rounded-lg border p-3">
+                  <div className="min-w-0 flex-1">
+                    <Link href={`/homework/${hw.id}`} className="font-medium text-blue-600 underline">{homeworkLabel(hw)}</Link>
+                    <p className="text-xs text-gray-500">
+                      {formatShortDate(hw.assignedDate)} · {done} / {total} · {STATUS_LABELS[hw.status]}
+                    </p>
+                  </div>
+                  <button
+                    aria-label="Удалить"
+                    className="text-gray-400 hover:text-red-600"
+                    onClick={() => {
+                      if (window.confirm(`Удалить «${homeworkLabel(hw)}»? Она удалится на всех устройствах.`)) removeHomework(hw.id);
+                    }}
+                  >
+                    🗑
+                  </button>
+                </li>
               );
             })}
-          </tbody>
-        </table>
-      )}
+          </ul>
+        </section>
+      ))}
     </div>
   );
 }

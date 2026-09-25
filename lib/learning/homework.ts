@@ -145,3 +145,36 @@ export function withFreeTextAnswer(homework: Homework, exerciseId: string, itemI
     progress: { ...homework.progress, [exerciseId]: { ...progress, userAnswers, checked } },
   };
 }
+
+const MONTHS_GENITIVE = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+
+function parseISODate(iso: string): Date {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function weekLabel(monday: Date): string {
+  const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+  const sameMonth = monday.getMonth() === sunday.getMonth();
+  return sameMonth
+    ? `Неделя ${monday.getDate()}–${sunday.getDate()} ${MONTHS_GENITIVE[sunday.getMonth()]}`
+    : `Неделя ${monday.getDate()} ${MONTHS_GENITIVE[monday.getMonth()]} – ${sunday.getDate()} ${MONTHS_GENITIVE[sunday.getMonth()]}`;
+}
+
+/** Homework grouped by Monday–Sunday week of assignedDate; newest week first, newest homework first within a week. */
+export function groupHomeworkByWeek<T extends Pick<Homework, 'assignedDate'>>(homeworks: T[]): { label: string; items: T[] }[] {
+  const groups = new Map<string, { monday: Date; items: T[] }>();
+  for (const hw of homeworks) {
+    const date = parseISODate(hw.assignedDate);
+    const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - ((date.getDay() + 6) % 7));
+    const key = monday.toDateString();
+    if (!groups.has(key)) groups.set(key, { monday, items: [] });
+    groups.get(key)!.items.push(hw);
+  }
+  return [...groups.values()]
+    .sort((a, b) => b.monday.getTime() - a.monday.getTime())
+    .map(({ monday, items }) => ({
+      label: weekLabel(monday),
+      items: [...items].sort((a, b) => b.assignedDate.localeCompare(a.assignedDate)),
+    }));
+}

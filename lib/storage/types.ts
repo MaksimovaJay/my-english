@@ -4,4 +4,5 @@ export interface StorageAdapter {
   set<T extends { id: string }>(collection: string, item: T): void;
   remove(collection: string, id: string): void;
   clear(collection: string): void;
+  replaceAll<T extends { id: string }>(collection: string, items: T[]): void;
 }

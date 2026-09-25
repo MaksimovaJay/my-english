@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { toISODate, addDays } from '@/lib/learning/date';
 import { localStorageAdapter } from './localStorageAdapter';
+import { emitDocChange, registerCollection } from '@/lib/sync/changes';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -22,7 +23,9 @@ interface SettingsState {
 }
 
 function persist(state: Pick<SettingsState, 'theme' | 'streak' | 'lastActiveDate'>) {
-  localStorageAdapter.set<SettingsRecord>('settings', { id: 'singleton', ...state });
+  const record: SettingsRecord = { id: 'singleton', ...state };
+  localStorageAdapter.set<SettingsRecord>('settings', record);
+  emitDocChange({ collection: 'settings', id: record.id, item: record });
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -49,3 +52,16 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     persist({ theme, streak: newStreak, lastActiveDate: todayStr });
   },
 }));
+
+registerCollection('settings', {
+  list: () => {
+    const { theme, streak, lastActiveDate } = useSettingsStore.getState();
+    return [{ id: 'singleton', theme, streak, lastActiveDate }];
+  },
+  replaceAll: (items) => {
+    const record = items.find((i) => i.id === 'singleton') as SettingsRecord | undefined;
+    if (!record) return;
+    localStorageAdapter.replaceAll('settings', [record]);
+    useSettingsStore.setState({ theme: record.theme, streak: record.streak, lastActiveDate: record.lastActiveDate, hydrated: true });
+  },
+});

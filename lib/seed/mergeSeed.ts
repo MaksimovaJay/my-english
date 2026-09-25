@@ -6,13 +6,28 @@ import { seedWords } from './words';
 import { seedPhrases } from './phrases';
 import { seedGrammarTopics } from './grammar';
 import { seedHomeworks } from './homework';
+import { localStorageAdapter } from '@/lib/storage/localStorageAdapter';
+import { emitDocChange, registerCollection } from '@/lib/sync/changes';
 
-const SEEN_KEY = 'mjay-english:seed-seen';
+// Which seed items this learner has already received, synced across devices as meta/seed-seen.
+interface SeenRecord {
+  id: 'seed-seen';
+  ids: string[];
+}
+
+const LEGACY_SEEN_KEY = 'mjay-english:seed-seen';
+
+registerCollection('meta', {
+  list: () => localStorageAdapter.list('meta'),
+  replaceAll: (items) => localStorageAdapter.replaceAll('meta', items),
+});
 
 function readSeen(): Set<string> {
   if (typeof window === 'undefined') return new Set();
+  const record = localStorageAdapter.get<SeenRecord>('meta', 'seed-seen');
+  if (record) return new Set(record.ids);
   try {
-    const raw = window.localStorage.getItem(SEEN_KEY);
+    const raw = window.localStorage.getItem(LEGACY_SEEN_KEY); // before sync, kept outside the collections
     return new Set(raw ? (JSON.parse(raw) as string[]) : []);
   } catch {
     return new Set();
@@ -21,7 +36,11 @@ function readSeen(): Set<string> {
 
 function writeSeen(seen: Set<string>): void {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]));
+  const previous = localStorageAdapter.get<SeenRecord>('meta', 'seed-seen');
+  if (previous && previous.ids.length === seen.size && previous.ids.every((id) => seen.has(id))) return;
+  const record: SeenRecord = { id: 'seed-seen', ids: [...seen] };
+  localStorageAdapter.set('meta', record);
+  emitDocChange({ collection: 'meta', id: record.id, item: record });
 }
 
 // Old sample data from the first version; removed from devices that still have it.

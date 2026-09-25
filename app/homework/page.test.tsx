@@ -25,8 +25,8 @@ describe('HomeworkPage', () => {
     });
     render(<HomeworkPage />);
     expect(screen.getByRole('link', { name: 'ДЗ 1 · Unit 11' })).toHaveAttribute('href', '/homework/hw1');
-    expect(screen.getByText('0 / 1')).toBeInTheDocument();
-    expect(screen.getByText(/не начато/i)).toBeInTheDocument();
+    expect(screen.getByText('чт 24.09 · 0 / 1 · Не начато')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Неделя 21–27 сентября' })).toBeInTheDocument();
   });
 
   it('imports a homework JSON file and adds it to the store', async () => {

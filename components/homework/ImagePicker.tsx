@@ -3,17 +3,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { ImagePlus, X } from 'lucide-react';
 import { compressImage } from '@/lib/learning/images';
+import { uploadImage } from '@/lib/sync/images';
 
 interface ImagePickerProps {
   images: string[];
   onChange: (images: string[]) => void;
   compress?: (file: Blob) => Promise<string>;
+  upload?: (dataUrl: string) => Promise<string>;
 }
 
 /** Screenshots: pick files or paste with Ctrl+V anywhere on the page. Click a preview to open it full size. */
-export function ImagePicker({ images, onChange, compress = compressImage }: ImagePickerProps) {
+export function ImagePicker({ images, onChange, compress = compressImage, upload = uploadImage }: ImagePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   // Paste handler is registered once; keep the latest images/onChange in a ref.
   const latest = useRef({ images, onChange });
   latest.current = { images, onChange };
@@ -21,12 +24,15 @@ export function ImagePicker({ images, onChange, compress = compressImage }: Imag
   async function addFiles(files: Blob[]) {
     const pictures = files.filter((f) => f.type.startsWith('image/'));
     if (pictures.length === 0) return;
+    setBusy(true);
     try {
-      const added = await Promise.all(pictures.map((f) => compress(f)));
+      const added = await Promise.all(pictures.map(async (f) => upload(await compress(f))));
       latest.current.onChange([...latest.current.images, ...added]);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не удалось добавить картинку.');
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -71,7 +77,7 @@ export function ImagePicker({ images, onChange, compress = compressImage }: Imag
           Добавить фото
         </button>
       </div>
-      <p className="mt-1 text-xs text-gray-500">Можно вставить скриншот через Ctrl+V.</p>
+      <p className="mt-1 text-xs text-gray-500">{busy ? 'Загружаю…' : 'Можно вставить скриншот через Ctrl+V.'}</p>
       <input
         ref={inputRef}
         type="file"

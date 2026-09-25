@@ -39,4 +39,7 @@ export const localStorageAdapter: StorageAdapter = {
   clear(collection: string): void {
     writeCollection(collection, []);
   },
+  replaceAll<T extends { id: string }>(collection: string, items: T[]): void {
+    writeCollection(collection, items);
+  },
 };

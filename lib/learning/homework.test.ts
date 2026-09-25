@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initHomeworkProgress, computeHomeworkScore, homeworkProgressFraction, parseHomeworkImport, nextHomeworkNumber, buildAssignedHomework, withFreeTextAnswer } from './homework';
+import { initHomeworkProgress, computeHomeworkScore, homeworkProgressFraction, parseHomeworkImport, nextHomeworkNumber, buildAssignedHomework, withFreeTextAnswer, groupHomeworkByWeek } from './homework';
 import { Exercise, Homework } from '@/types/models';
 
 const exercises: Exercise[] = [
@@ -133,5 +133,17 @@ describe('assigned homework (free-text)', () => {
   it('accepts free-text exercises in JSON import', () => {
     const hw = parseHomeworkImport(JSON.stringify({ title: 'X', exercises: [{ type: 'free-text', instruction: 'Write', items: [{ prompt: '' }] }] }));
     expect(hw.exercises[0].type).toBe('free-text');
+  });
+});
+
+describe('groupHomeworkByWeek', () => {
+  const hw = (id: string, assignedDate: string) => ({ id, assignedDate } as Homework);
+
+  it('groups by Monday–Sunday week, newest week and newest homework first', () => {
+    const groups = groupHomeworkByWeek([hw('a', '2026-09-22'), hw('b', '2026-09-28'), hw('c', '2026-09-27'), hw('d', '2026-09-25')]);
+    expect(groups.map((g) => [g.label, g.items.map((h) => h.id)])).toEqual([
+      ['Неделя 28 сентября – 4 октября', ['b']],
+      ['Неделя 21–27 сентября', ['c', 'd', 'a']],
+    ]);
   });
 });
