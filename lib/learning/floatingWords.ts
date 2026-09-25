@@ -25,3 +25,17 @@ export function pickFloatingRound<T extends { id: string }>(
   const target = bubbles[Math.floor(random() * bubbles.length)];
   return { target, bubbles };
 }
+
+/** Vertical space per bubble: bubble height (~32px) plus room for the float animation. */
+export const BUBBLE_ROW_PX = 48;
+
+/** One row per bubble (so they never overlap), staggered horizontally so the field looks scattered. */
+export function bubbleLayout(index: number, count: number): { topPx: number; leftPct: number } {
+  const stagger = [4, 38, 16, 50, 26, 8, 44, 20, 32, 12];
+  void count;
+  return { topPx: 12 + index * BUBBLE_ROW_PX, leftPct: stagger[index % stagger.length] };
+}
+
+export function floatingAreaHeightPx(count: number): number {
+  return Math.max(256, 24 + count * BUBBLE_ROW_PX);
+}

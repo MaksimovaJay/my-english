@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { VocabItem } from '@/types/models';
-import { pickFloatingRound, DIFFICULTY_CONFIG } from '@/lib/learning/floatingWords';
+import { pickFloatingRound, DIFFICULTY_CONFIG, bubbleLayout, floatingAreaHeightPx } from '@/lib/learning/floatingWords';
 import { cn } from '@/lib/utils';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -12,12 +12,6 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = { easy: 'Легко', medi
 interface FloatingWordsProps {
   items: VocabItem[];
   random?: () => number;
-}
-
-function hashPosition(id: string): { left: number; top: number } {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) % 1000;
-  return { left: hash % 80, top: (hash * 7) % 70 };
 }
 
 export function FloatingWords({ items, random = Math.random }: FloatingWordsProps) {
@@ -54,14 +48,14 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
         ))}
       </div>
       <p className="mb-3 text-center text-lg font-bold">Найди слово: {round.target.translation.toUpperCase()}</p>
-      <div className="relative h-64 overflow-hidden rounded-xl border">
-        {round.bubbles.map((bubble) => {
-          const { left, top } = hashPosition(bubble.id);
+      <div className="relative overflow-hidden rounded-xl border" style={{ height: floatingAreaHeightPx(round.bubbles.length) }}>
+        {round.bubbles.map((bubble, i) => {
+          const { leftPct, topPx } = bubbleLayout(i, round.bubbles.length);
           return (
             <button
               key={bubble.id}
-              className="absolute animate-float rounded-full bg-blue-100 px-3 py-1 text-sm dark:bg-blue-900"
-              style={{ left: `${left}%`, top: `${top}%`, animationDuration: `${config.speedSeconds}s` }}
+              className="absolute animate-float whitespace-nowrap rounded-full bg-blue-100 px-3 py-1 text-sm dark:bg-blue-900"
+              style={{ left: `max(4px, min(${leftPct}%, calc(100% - ${bubble.english.length * 8 + 56}px)))`, top: topPx, animationDuration: `${config.speedSeconds}s`, animationDelay: `${-i * 1.3}s` }}
               onClick={() => handleGuess(bubble.id)}
             >
               🫧 {bubble.english}

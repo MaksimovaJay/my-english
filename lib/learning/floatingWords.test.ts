@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { pickFloatingRound, DIFFICULTY_CONFIG } from './floatingWords';
+import { pickFloatingRound, DIFFICULTY_CONFIG, bubbleLayout, floatingAreaHeightPx, BUBBLE_ROW_PX } from './floatingWords';
 
 interface Item { id: string; english: string; }
 const pool: Item[] = [{ id: '1', english: 'mother' }, { id: '2', english: 'chair' }, { id: '3', english: 'table' }, { id: '4', english: 'fridge' }];
@@ -24,5 +24,23 @@ describe('pickFloatingRound', () => {
   it('defines easy/medium/hard difficulty configs', () => {
     expect(DIFFICULTY_CONFIG.easy.poolSize).toBeLessThan(DIFFICULTY_CONFIG.hard.poolSize);
     expect(DIFFICULTY_CONFIG.easy.speedSeconds).toBeGreaterThan(DIFFICULTY_CONFIG.hard.speedSeconds);
+  });
+});
+
+describe('bubbleLayout', () => {
+  it('gives every bubble its own row so they never overlap', () => {
+    for (const count of [4, 7, 10]) {
+      const tops = Array.from({ length: count }, (_, i) => bubbleLayout(i, count).topPx);
+      tops.slice(1).forEach((top, i) => expect(top - tops[i]).toBeGreaterThanOrEqual(BUBBLE_ROW_PX));
+      expect(floatingAreaHeightPx(count)).toBeGreaterThanOrEqual(tops[count - 1] + BUBBLE_ROW_PX);
+    }
+  });
+
+  it('keeps bubbles inside the left 55% so long phrases fit', () => {
+    for (let i = 0; i < 10; i++) {
+      const { leftPct } = bubbleLayout(i, 10);
+      expect(leftPct).toBeGreaterThanOrEqual(2);
+      expect(leftPct).toBeLessThanOrEqual(55);
+    }
   });
 });
