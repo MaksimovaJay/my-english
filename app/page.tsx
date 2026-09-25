@@ -9,6 +9,7 @@ import { getDueItems } from '@/lib/learning/reviewQueue';
 import { newThisWeek } from '@/lib/learning/topics';
 import { useTopicContents } from '@/components/topics/useTopicContents';
 import { pluralRu } from '@/lib/utils';
+import { homeworkLabel } from '@/lib/learning/homework';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -25,7 +26,8 @@ export default function HomePage() {
   const fresh = newThisWeek(useTopicContents());
 
   const dueCount = getDueItems([...words, ...phrases]).length;
-  const inProgressHomework = homeworks.find((h) => h.status === 'in-progress');
+  const openHomework =
+    homeworks.find((h) => h.status === 'in-progress') ?? homeworks.find((h) => h.status === 'not-started');
 
   return (
     <div className="mx-auto max-w-xl text-center">
@@ -38,10 +40,10 @@ export default function HomePage() {
         НАЧАТЬ ПОВТОРЕНИЕ
       </Link>
 
-      {inProgressHomework && (
+      {openHomework && (
         <p className="mt-6 text-sm">
-          <Link href={`/homework/${inProgressHomework.id}`} className="text-blue-600 underline">
-            📝 Продолжить домашку: {inProgressHomework.title}
+          <Link href={`/homework/${openHomework.id}`} className="text-blue-600 underline">
+            📝 {openHomework.status === 'in-progress' ? 'Продолжить' : 'Домашка'}: {homeworkLabel(openHomework)}
           </Link>
         </p>
       )}

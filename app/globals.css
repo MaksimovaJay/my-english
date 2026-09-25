@@ -12,3 +12,10 @@
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
 }
+
+/* Native controls (select dropdowns, inputs, scrollbars) follow the app theme,
+   otherwise dropdown lists stay white with light text in dark mode. */
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+html.dark select,
+html.dark option { background-color: #111827; color: #f3f4f6; }

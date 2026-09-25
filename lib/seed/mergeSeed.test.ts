@@ -5,6 +5,8 @@ import { seedGrammarTopics } from './grammar';
 import { useWordsStore } from '@/lib/storage/wordsStore';
 import { usePhrasesStore } from '@/lib/storage/phrasesStore';
 import { useGrammarStore } from '@/lib/storage/grammarStore';
+import { useHomeworkStore } from '@/lib/storage/homeworkStore';
+import { seedHomeworks } from './homework';
 
 const userWord = {
   id: 'user-word-1',
@@ -22,6 +24,7 @@ describe('mergeSeed', () => {
     useWordsStore.setState({ items: [], hydrated: false });
     usePhrasesStore.setState({ items: [], hydrated: false });
     useGrammarStore.setState({ items: [], hydrated: false });
+    useHomeworkStore.setState({ items: [], hydrated: false });
   });
 
   it('populates all three stores when empty', () => {
@@ -96,5 +99,25 @@ describe('mergeSeed', () => {
     useGrammarStore.getState().add({ ...latest, explanation: 'old text', practiceExercises: [] });
     mergeSeed();
     expect(useGrammarStore.getState().items.find((t) => t.id === latest.id)).toEqual(latest);
+  });
+
+  it('adds seed homework once and keeps the answers', () => {
+    mergeSeed();
+    const hw = useHomeworkStore.getState().items.find((h) => h.id === seedHomeworks[0].id)!;
+    expect(hw.number).toBe(1);
+    const exId = hw.exercises[0].id;
+    const answered = { ...hw, status: 'in-progress' as const, progress: { ...hw.progress, [exId]: { ...hw.progress[exId], userAnswers: [['was', 'is']] } } };
+    useHomeworkStore.getState().update(answered);
+    mergeSeed();
+    const after = useHomeworkStore.getState().items.filter((h) => h.id === hw.id);
+    expect(after).toHaveLength(1);
+    expect(after[0].status).toBe('in-progress');
+  });
+
+  it('does not bring back a seed homework the user deleted', () => {
+    mergeSeed();
+    useHomeworkStore.getState().remove(seedHomeworks[0].id);
+    mergeSeed();
+    expect(useHomeworkStore.getState().items).toEqual([]);
   });
 });

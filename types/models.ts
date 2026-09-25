@@ -88,6 +88,8 @@ export interface ExerciseProgress {
 
 export interface Homework {
   id: string;
+  number?: number; // ДЗ N
+
   title: string;
   assignedDate: string;
   dueDate?: string;

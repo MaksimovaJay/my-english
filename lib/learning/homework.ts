@@ -89,3 +89,8 @@ export function parseHomeworkImport(raw: string): Homework {
     sourceNote: data.sourceNote,
   };
 }
+
+/** 'ДЗ 1 · Unit 11: was / were', or just the title for homework without a number. */
+export function homeworkLabel(homework: Pick<Homework, 'number' | 'title'>): string {
+  return homework.number ? `ДЗ ${homework.number} · ${homework.title}` : homework.title;
+}

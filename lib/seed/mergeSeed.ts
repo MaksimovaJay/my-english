@@ -1,9 +1,11 @@
 import { useWordsStore } from '@/lib/storage/wordsStore';
 import { usePhrasesStore } from '@/lib/storage/phrasesStore';
 import { useGrammarStore } from '@/lib/storage/grammarStore';
+import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { seedWords } from './words';
 import { seedPhrases } from './phrases';
 import { seedGrammarTopics } from './grammar';
+import { seedHomeworks } from './homework';
 
 const SEEN_KEY = 'mjay-english:seed-seen';
 
@@ -72,6 +74,12 @@ export function mergeSeed(): void {
       grammar.add(topic);
     }
     seen.add(topic.id);
+  }
+
+  const homework = useHomeworkStore.getState();
+  for (const item of seedHomeworks) {
+    if (!seen.has(item.id) && !homework.items.some((h) => h.id === item.id)) homework.add(item);
+    seen.add(item.id);
   }
 
   writeSeen(seen);

@@ -5,7 +5,7 @@ import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { FillBlankExercise } from '@/components/exercises/FillBlankExercise';
 import { MultipleChoiceExercise } from '@/components/exercises/MultipleChoiceExercise';
 import { FillBlankItem, Homework, MultipleChoiceItem } from '@/types/models';
-import { computeHomeworkScore } from '@/lib/learning/homework';
+import { computeHomeworkScore, homeworkLabel } from '@/lib/learning/homework';
 import { isFillBlankItemCorrect, isMultipleChoiceItemCorrect } from '@/lib/learning/checkAnswer';
 
 export default function HomeworkRunnerPage() {
@@ -54,7 +54,7 @@ export default function HomeworkRunnerPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-1 text-xl font-bold">{homework.title}</h1>
+      <h1 className="mb-1 text-xl font-bold">{homeworkLabel(homework)}</h1>
       <p className="mb-4 text-xs text-gray-500">
         Задано {homework.assignedDate}{homework.dueDate ? ` · Сдать до ${homework.dueDate}` : ''}
       </p>

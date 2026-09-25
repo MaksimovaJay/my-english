@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
-import { parseHomeworkImport, homeworkProgressFraction } from '@/lib/learning/homework';
+import { parseHomeworkImport, homeworkProgressFraction, homeworkLabel } from '@/lib/learning/homework';
 import { Homework } from '@/types/models';
 
 // jsdom's File/Blob implementation does not provide `.text()` (or `.arrayBuffer()`/`.stream()`),
@@ -76,7 +76,7 @@ export default function HomeworkPage() {
               return (
                 <tr key={hw.id} className="border-b last:border-0">
                   <td className="px-2 py-1">{hw.assignedDate}</td>
-                  <td className="px-2 py-1"><Link href={`/homework/${hw.id}`} className="text-blue-600 underline">{hw.title}</Link></td>
+                  <td className="px-2 py-1"><Link href={`/homework/${hw.id}`} className="text-blue-600 underline">{homeworkLabel(hw)}</Link></td>
                   <td className="px-2 py-1">{done} / {total}</td>
                   <td className="px-2 py-1">{STATUS_LABELS[hw.status]}</td>
                   <td className="px-2 py-1"><button aria-label="Удалить" onClick={() => removeHomework(hw.id)}>🗑</button></td>

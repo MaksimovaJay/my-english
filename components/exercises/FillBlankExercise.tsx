@@ -12,6 +12,12 @@ interface FillBlankExerciseProps {
   onCheck: (itemIndex: number) => void;
 }
 
+/** Wide enough for the longest accepted answer: a word gets a short field, a whole question a long one. */
+export function blankWidthCh(accepted: string[] = []): number {
+  const longest = Math.max(0, ...accepted.map((a) => a.length));
+  return Math.max(8, longest + 3);
+}
+
 export function FillBlankExercise({ items, userAnswers, checked, onAnswerChange, onCheck }: FillBlankExerciseProps) {
   return (
     <div className="space-y-4">
@@ -27,8 +33,9 @@ export function FillBlankExercise({ items, userAnswers, checked, onAnswerChange,
                   {pi < parts.length - 1 && (
                     <input
                       aria-label={`blank-${i}-${pi}`}
+                      style={{ width: `${blankWidthCh(item.blanks[pi])}ch` }}
                       className={cn(
-                        'w-24 border-b bg-transparent px-1 outline-none',
+                        'max-w-full border-b bg-transparent px-1 outline-none',
                         isChecked
                           ? isAnswerCorrect(userAnswers[i]?.[pi] ?? '', item.blanks[pi] ?? [])
                             ? 'border-green-500 text-green-600'

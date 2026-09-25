@@ -20,11 +20,11 @@ describe('HomeworkPage', () => {
 
   it('lists an existing homework with its progress and status', () => {
     useHomeworkStore.setState({
-      items: [{ id: 'hw1', title: 'Unit 11', assignedDate: '2026-09-24', status: 'not-started', exercises, progress: initHomeworkProgress(exercises) }],
+      items: [{ id: 'hw1', number: 1, title: 'Unit 11', assignedDate: '2026-09-24', status: 'not-started', exercises, progress: initHomeworkProgress(exercises) }],
       hydrated: true,
     });
     render(<HomeworkPage />);
-    expect(screen.getByRole('link', { name: 'Unit 11' })).toHaveAttribute('href', '/homework/hw1');
+    expect(screen.getByRole('link', { name: 'ДЗ 1 · Unit 11' })).toHaveAttribute('href', '/homework/hw1');
     expect(screen.getByText('0 / 1')).toBeInTheDocument();
     expect(screen.getByText(/не начато/i)).toBeInTheDocument();
   });

@@ -43,3 +43,15 @@ describe('HomePage', () => {
     expect(screen.getByRole('link', { name: /Дом и квартира/ })).toHaveAttribute('href', '/topics/home');
   });
 });
+
+describe('HomePage homework link', () => {
+  it('shows a not-started homework when nothing is in progress', () => {
+    const exercises = [{ id: 'ex1', type: 'fill-blank' as const, instruction: 'x', items: [{ text: 'a ___ b', blanks: [['x']] }] }];
+    useHomeworkStore.setState({
+      items: [{ id: 'seed-hw-1', number: 1, title: 'Unit 11: was / were', assignedDate: '2026-09-25', status: 'not-started', exercises, progress: initHomeworkProgress(exercises) }],
+      hydrated: true,
+    });
+    render(<HomePage />);
+    expect(screen.getByRole('link', { name: '📝 Домашка: ДЗ 1 · Unit 11: was / were' })).toHaveAttribute('href', '/homework/seed-hw-1');
+  });
+});

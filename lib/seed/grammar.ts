@@ -1,4 +1,50 @@
-import { GrammarTopic } from '@/types/models';
+import { Exercise, GrammarTopic } from '@/types/models';
+
+// Murphy, Essential Grammar in Use, Unit 11 (11.2–11.4). Shared by the was/were topic and ДЗ 1.
+export const unit11Exercises: Exercise[] = [
+  {
+    id: 'seed-grammar-was-were-ex-11-2',
+    type: 'fill-blank',
+    instruction: '11.2 Заполните пропуски, используя am/is/are (настоящее время) или was/were (прошедшее время).',
+    items: [
+      { text: 'Last year she ___ 22, so she ___ 23 now.', blanks: [['was'], ['is']] },
+      { text: 'Today the weather ___ nice, but yesterday it ___ very cold.', blanks: [['is'], ['was']] },
+      { text: 'I ___ hungry. Can I have something to eat?', blanks: [['am']] },
+      { text: 'I feel fine this morning, but I ___ very tired last night.', blanks: [['was']] },
+      { text: "Where ___ you at 11 o'clock last Friday morning?", blanks: [['were']] },
+      { text: "Don't buy those shoes. They ___ very expensive.", blanks: [['are']] },
+      { text: 'I like your new jacket. ___ it expensive?', blanks: [['Was']] },
+      { text: 'This time last year I ___ in Paris.', blanks: [['was']] },
+      { text: "'Where ___ Sam and Joe?' — 'I don't know. They ___ here a few minutes ago.'", blanks: [['are'], ['were']] },
+    ],
+  },
+  {
+    id: 'seed-grammar-was-were-ex-11-3',
+    type: 'fill-blank',
+    instruction: "11.3 Заполните пропуски, используя was/were или wasn't/weren't.",
+    items: [
+      { text: "We weren't happy with the hotel. Our room ___ very small and it ___ clean.", blanks: [['was'], ["wasn't", 'was not']] },
+      { text: "Mark ___ at work last week because he ___ ill. He's better now.", blanks: [["wasn't", 'was not'], ['was']] },
+      { text: "Yesterday ___ a public holiday, so the banks ___ closed. They're open today.", blanks: [['was'], ['were']] },
+      { text: "'___ Kate and Ben at the party?' — 'Kate ___ there, but Ben ___.'", blanks: [['Were'], ['was'], ["wasn't", 'was not']] },
+      { text: "Where are my keys? They ___ on the table, but they're not there now.", blanks: [['were']] },
+      { text: 'You ___ at home last night. Where ___ you?', blanks: [["weren't", 'were not'], ['were']] },
+    ],
+  },
+  {
+    id: 'seed-grammar-was-were-ex-11-4',
+    type: 'fill-blank',
+    instruction: '11.4 Составьте вопросы из слов + was/were, соблюдая правильный порядок слов. Пример: (late / you / this morning / why?) → Why were you late this morning?',
+    items: [
+      { text: '(difficult / your exam?) → ___ — No, it was easy.', blanks: [['Was your exam difficult?']] },
+      { text: '(last week / where / Sue and Chris?) → ___ — They were on holiday.', blanks: [['Where were Sue and Chris last week?']] },
+      { text: '(your new camera / how much?) → ___ — A hundred pounds.', blanks: [['How much was your new camera?']] },
+      { text: '(angry / you / yesterday / why?) → ___ — Because you were late.', blanks: [['Why were you angry yesterday?']] },
+      { text: '(nice / the weather / last week?) → ___ — Yes, it was beautiful.', blanks: [['Was the weather nice last week?']] },
+    ],
+  },
+];
+
 
 export const seedGrammarTopics: GrammarTopic[] = [
   {
@@ -31,49 +77,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
     explanation:
       'was — с I / he / she / it.\nwere — с you / we / they.\n\nwasn\'t = was not\nweren\'t = were not\n\nВ вопросе was/were ставится перед подлежащим: Why were you late? Was your exam difficult?',
     examples: ['I was hungry.', 'She was in the USA.', "You weren't there.", "They weren't ready.", 'Why were you late this morning?'],
-    practiceExercises: [
-      {
-        id: 'seed-grammar-was-were-ex-11-2',
-        type: 'fill-blank',
-        instruction: '11.2 Заполните пропуски, используя am/is/are (настоящее время) или was/were (прошедшее время).',
-        items: [
-          { text: 'Last year she ___ 22, so she ___ 23 now.', blanks: [['was'], ['is']] },
-          { text: 'Today the weather ___ nice, but yesterday it ___ very cold.', blanks: [['is'], ['was']] },
-          { text: 'I ___ hungry. Can I have something to eat?', blanks: [['am']] },
-          { text: 'I feel fine this morning, but I ___ very tired last night.', blanks: [['was']] },
-          { text: "Where ___ you at 11 o'clock last Friday morning?", blanks: [['were']] },
-          { text: "Don't buy those shoes. They ___ very expensive.", blanks: [['are']] },
-          { text: 'I like your new jacket. ___ it expensive?', blanks: [['Was']] },
-          { text: 'This time last year I ___ in Paris.', blanks: [['was']] },
-          { text: "'Where ___ Sam and Joe?' — 'I don't know. They ___ here a few minutes ago.'", blanks: [['are'], ['were']] },
-        ],
-      },
-      {
-        id: 'seed-grammar-was-were-ex-11-3',
-        type: 'fill-blank',
-        instruction: "11.3 Заполните пропуски, используя was/were или wasn't/weren't.",
-        items: [
-          { text: "We weren't happy with the hotel. Our room ___ very small and it ___ clean.", blanks: [['was'], ["wasn't", 'was not']] },
-          { text: "Mark ___ at work last week because he ___ ill. He's better now.", blanks: [["wasn't", 'was not'], ['was']] },
-          { text: "Yesterday ___ a public holiday, so the banks ___ closed. They're open today.", blanks: [['was'], ['were']] },
-          { text: "'___ Kate and Ben at the party?' — 'Kate ___ there, but Ben ___.'", blanks: [['Were'], ['was'], ["wasn't", 'was not']] },
-          { text: "Where are my keys? They ___ on the table, but they're not there now.", blanks: [['were']] },
-          { text: 'You ___ at home last night. Where ___ you?', blanks: [["weren't", 'were not'], ['were']] },
-        ],
-      },
-      {
-        id: 'seed-grammar-was-were-ex-11-4',
-        type: 'fill-blank',
-        instruction: '11.4 Составьте вопросы из слов + was/were, соблюдая правильный порядок слов. Пример: (late / you / this morning / why?) → Why were you late this morning?',
-        items: [
-          { text: '(difficult / your exam?) → ___ — No, it was easy.', blanks: [['Was your exam difficult?']] },
-          { text: '(last week / where / Sue and Chris?) → ___ — They were on holiday.', blanks: [['Where were Sue and Chris last week?']] },
-          { text: '(your new camera / how much?) → ___ — A hundred pounds.', blanks: [['How much was your new camera?']] },
-          { text: '(angry / you / yesterday / why?) → ___ — Because you were late.', blanks: [['Why were you angry yesterday?']] },
-          { text: '(nice / the weather / last week?) → ___ — Yes, it was beautiful.', blanks: [['Was the weather nice last week?']] },
-        ],
-      },
-    ],
+    practiceExercises: unit11Exercises,
     dateAdded: '2026-09-25',
   },
   {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { FillBlankExercise } from './FillBlankExercise';
+import { FillBlankExercise, blankWidthCh } from './FillBlankExercise';
 
 const items = [{ text: 'She ___ 22 last year.', blanks: [['was']] }];
 
@@ -44,5 +44,12 @@ describe('FillBlankExercise', () => {
     ).not.toThrow();
     expect(screen.getByLabelText('blank-0-0')).toHaveClass('border-green-500');
     expect(screen.getByLabelText('blank-0-1')).toHaveClass('border-red-500');
+  });
+});
+
+describe('blankWidthCh', () => {
+  it('fits the longest accepted answer, with a minimum for short words', () => {
+    expect(blankWidthCh(['was'])).toBe(8);
+    expect(blankWidthCh(['Where were Sue and Chris last week?'])).toBe(38);
   });
 });
