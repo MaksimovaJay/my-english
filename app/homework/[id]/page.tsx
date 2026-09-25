@@ -134,7 +134,7 @@ export default function HomeworkRunnerPage() {
       )}
       <button
         disabled={!allChecked}
-        className="rounded bg-green-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+        className="rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
         onClick={handleSubmit}
       >
         СДАТЬ ДОМАШКУ

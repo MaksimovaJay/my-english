@@ -17,7 +17,7 @@ export function ListenButton({ text, lang = 'en-US', className }: ListenButtonPr
     <button
       type="button"
       aria-label="Послушать"
-      className={cn('inline-flex items-center gap-1 rounded-full p-1.5 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950', className)}
+      className={cn('inline-flex items-center gap-1 rounded-full p-1.5 text-violet-600 hover:bg-violet-50 dark:text-pink-300 dark:hover:bg-violet-500/15', className)}
       onClick={() => speak(text, lang)}
     >
       <Volume2 size={16} />

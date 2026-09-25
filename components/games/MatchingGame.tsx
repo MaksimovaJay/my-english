@@ -46,7 +46,7 @@ export function MatchingGame({ items, count = 5, random = Math.random }: Matchin
           <button
             key={item.id}
             disabled={matched.has(item.id)}
-            className={cn('rounded border px-3 py-1 text-sm', selectedLeft === item.id && 'border-blue-600 bg-blue-50', matched.has(item.id) && 'opacity-40')}
+            className={cn('rounded border px-3 py-1 text-sm', selectedLeft === item.id && 'border-violet-600 bg-violet-50', matched.has(item.id) && 'opacity-40')}
             onClick={() => handleLeftClick(item.id)}
           >
             {item.english}

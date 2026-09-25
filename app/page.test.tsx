@@ -30,7 +30,7 @@ describe('HomePage', () => {
 
   it('shows greeting, due count, streak, start button and homework link', () => {
     render(<HomePage />);
-    expect(screen.getByText(/(Доброе утро|Добрый день|Добрый вечер), MJay/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /(Доброе утро|Добрый день|Добрый вечер), MJay/ })).toBeInTheDocument();
     expect(screen.getByText('📚 1 слово на повторение')).toBeInTheDocument();
     expect(screen.getByText('🔥 3 дня подряд')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'НАЧАТЬ ПОВТОРЕНИЕ' })).toHaveAttribute('href', '/review');

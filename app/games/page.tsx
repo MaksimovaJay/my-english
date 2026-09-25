@@ -30,7 +30,7 @@ export default function GamesPage() {
           <button
             key={g.id}
             type="button"
-            className={cn('rounded-full border px-4 py-1.5 text-sm', game === g.id && 'border-blue-600 bg-blue-600 text-white')}
+            className={cn('rounded-full border px-4 py-1.5 text-sm', game === g.id && 'border-transparent bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 text-white')}
             onClick={() => setGame(g.id)}
           >
             {g.label}
@@ -53,7 +53,7 @@ export default function GamesPage() {
         <>
           <MatchingGame key={`${topicId}-${round}`} items={items} />
           <div className="mt-6 text-center">
-            <button type="button" className="rounded bg-blue-600 px-4 py-1.5 text-sm text-white" onClick={() => setRound((r) => r + 1)}>
+            <button type="button" className="rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-4 py-1.5 text-sm text-white" onClick={() => setRound((r) => r + 1)}>
               Новый раунд
             </button>
           </div>

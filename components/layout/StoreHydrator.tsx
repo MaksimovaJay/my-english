@@ -21,8 +21,8 @@ export function StoreHydrator() {
     useHomeworkStore.getState().hydrate();
     useSettingsStore.getState().hydrate();
 
-    // Tests never talk to Supabase.
-    if (process.env.NODE_ENV === 'test') {
+    // Tests and local design previews never talk to Supabase.
+    if (process.env.NODE_ENV === 'test' || process.env.NEXT_PUBLIC_DISABLE_SYNC === '1') {
       mergeSeed();
       useSettingsStore.getState().recordActivity();
       return;

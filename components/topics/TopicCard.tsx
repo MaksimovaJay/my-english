@@ -20,14 +20,14 @@ export function TopicCard({ content }: { content: TopicContent }) {
   return (
     <Link
       href={`/topics/${topic.id}`}
-      className="flex flex-col gap-1 rounded-xl border p-4 transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30"
+      className="card flex flex-col gap-1 p-4 transition hover:-translate-y-0.5 hover:border-pink-400 hover:shadow-lg hover:shadow-violet-500/15"
     >
       <span className="text-2xl" aria-hidden>{topic.emoji}</span>
       <span className="font-semibold leading-tight">{topic.title}</span>
       <span className="text-xs text-gray-500">{topicCountsLine(content) || 'Правило'}</span>
       {items.length > 0 && (
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" aria-label={`Прогресс ${progress}%`}>
-          <div className="h-full rounded-full bg-green-500" style={{ width: `${progress}%` }} />
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-violet-100 dark:bg-violet-500/15" aria-label={`Прогресс ${progress}%`}>
+          <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-pink-500" style={{ width: `${progress}%` }} />
         </div>
       )}
     </Link>

@@ -75,7 +75,7 @@ export default function HomeworkPage() {
             Загрузить JSON
           </button>
           {!assigning && (
-            <button className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white" onClick={() => setAssigning(true)}>
+            <button className="rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-3 py-1.5 text-sm text-white" onClick={() => setAssigning(true)}>
               + Задать домашку
             </button>
           )}
@@ -95,7 +95,7 @@ export default function HomeworkPage() {
               return (
                 <li key={hw.id} className="flex items-center gap-3 rounded-lg border p-3">
                   <div className="min-w-0 flex-1">
-                    <Link href={`/homework/${hw.id}`} className="font-medium text-blue-600 underline">{homeworkLabel(hw)}</Link>
+                    <Link href={`/homework/${hw.id}`} className="font-medium text-violet-600 underline">{homeworkLabel(hw)}</Link>
                     <p className="text-xs text-gray-500">
                       {formatShortDate(hw.assignedDate)} · {done} / {total} · {STATUS_LABELS[hw.status]}
                     </p>

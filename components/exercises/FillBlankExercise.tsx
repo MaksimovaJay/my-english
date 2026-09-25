@@ -49,7 +49,7 @@ export function FillBlankExercise({ items, userAnswers, checked, onAnswerChange,
                 </span>
               ))}
             </p>
-            <button type="button" className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={() => onCheck(i)}>
+            <button type="button" className="mt-2 rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-3 py-1 text-sm text-white" onClick={() => onCheck(i)}>
               ПРОВЕРИТЬ
             </button>
           </div>

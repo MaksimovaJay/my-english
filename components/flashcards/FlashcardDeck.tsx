@@ -24,13 +24,13 @@ export function FlashcardDeck({ items, onUpdateItem }: FlashcardDeckProps) {
     <div className="flex flex-col items-center gap-4">
       <div className="flex gap-2">
         <button
-          className={cn('rounded-full border px-3 py-1 text-xs', direction === 'en-ru' && 'bg-blue-600 text-white')}
+          className={cn('rounded-full border px-3 py-1 text-xs', direction === 'en-ru' && 'bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 text-white')}
           onClick={() => setDirection('en-ru')}
         >
           🇬🇧 → 🇷🇺
         </button>
         <button
-          className={cn('rounded-full border px-3 py-1 text-xs', direction === 'ru-en' && 'bg-blue-600 text-white')}
+          className={cn('rounded-full border px-3 py-1 text-xs', direction === 'ru-en' && 'bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 text-white')}
           onClick={() => setDirection('ru-en')}
         >
           🇷🇺 → 🇬🇧

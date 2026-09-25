@@ -64,7 +64,7 @@ export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomewor
             )}
           </div>
         ))}
-        <button type="button" className="w-fit text-sm text-blue-600 underline" onClick={() => setBookNumbers((rows) => [...rows, ''])}>
+        <button type="button" className="w-fit text-sm text-violet-600 underline" onClick={() => setBookNumbers((rows) => [...rows, ''])}>
           + ещё номер
         </button>
       </fieldset>
@@ -98,7 +98,7 @@ export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomewor
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex gap-2">
-        <button type="submit" className="rounded bg-blue-600 px-4 py-1.5 text-sm text-white">Сохранить</button>
+        <button type="submit" className="rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-4 py-1.5 text-sm text-white">Сохранить</button>
         <button type="button" className="rounded border px-4 py-1.5 text-sm" onClick={onCancel}>Отмена</button>
       </div>
     </form>

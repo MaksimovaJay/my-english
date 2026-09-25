@@ -30,7 +30,7 @@ export function VocabCardList({ items }: { items: VocabItem[] }) {
           return (
             <li
               key={item.id}
-              className="cursor-pointer rounded-lg border p-3"
+              className="card cursor-pointer p-3 transition hover:border-pink-400"
               onClick={() => setRevealed((prev) => new Set(prev).add(item.id))}
             >
               <div className="flex items-center gap-1">

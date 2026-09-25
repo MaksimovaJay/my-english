@@ -29,7 +29,7 @@ export function MultipleChoiceExercise({ items, selected, checked, onSelect, onC
                   className={cn(
                     'rounded border px-3 py-1 text-sm',
                     isChecked && isSelected && (isCorrectOption ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'),
-                    !isChecked && isSelected && 'border-blue-500 bg-blue-50'
+                    !isChecked && isSelected && 'border-violet-500 bg-violet-50'
                   )}
                   onClick={() => onSelect(i, oi)}
                 >
@@ -38,7 +38,7 @@ export function MultipleChoiceExercise({ items, selected, checked, onSelect, onC
               );
             })}
           </div>
-          <button type="button" className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={() => onCheck(i)}>
+          <button type="button" className="mt-2 rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-3 py-1 text-sm text-white" onClick={() => onCheck(i)}>
             ПРОВЕРИТЬ
           </button>
         </div>

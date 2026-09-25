@@ -43,9 +43,9 @@ export function TypingPractice({ items, random = Math.random }: TypingPracticePr
           {diff.map((d, i) => <span key={i} className={d.correct ? 'text-green-600' : 'text-red-600'}>{d.char}</span>)}
         </p>
       )}
-      <button className="rounded bg-blue-600 px-4 py-1 text-sm text-white" onClick={() => setChecked(true)}>Проверить</button>
+      <button className="rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-4 py-1 text-sm text-white" onClick={() => setChecked(true)}>Проверить</button>
       {checked && (correct ? <p className="text-green-600">✅ Верно!</p> : <p className="text-red-600">❌ Неверно — правильно: <strong>{target.english}</strong></p>)}
-      {checked && <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={nextRound}>Следующее слово</button>}
+      {checked && <button className="mt-2 rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-3 py-1 text-sm text-white" onClick={nextRound}>Следующее слово</button>}
     </div>
   );
 }

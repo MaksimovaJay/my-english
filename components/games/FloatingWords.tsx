@@ -40,7 +40,7 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
         {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
           <button
             key={d}
-            className={cn('rounded-full border px-3 py-1 text-xs', difficulty === d && 'border-blue-600 bg-blue-600 text-white')}
+            className={cn('rounded-full border px-3 py-1 text-xs', difficulty === d && 'border-transparent bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 text-white')}
             onClick={() => { setDifficulty(d); nextRound(); }}
           >
             {DIFFICULTY_LABELS[d]}
@@ -54,7 +54,7 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
           return (
             <button
               key={bubble.id}
-              className="absolute animate-float whitespace-nowrap rounded-full bg-blue-100 px-3 py-1 text-sm dark:bg-blue-900"
+              className="absolute animate-float whitespace-nowrap rounded-full bg-violet-100 px-3 py-1 text-sm dark:bg-violet-500/25"
               style={{ left: `max(4px, min(${leftPct}%, calc(100% - ${bubble.english.length * 8 + 56}px)))`, top: topPx, animationDuration: `${config.speedSeconds}s`, animationDelay: `${-i * 1.3}s` }}
               onClick={() => handleGuess(bubble.id)}
             >
@@ -65,7 +65,7 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
       </div>
       {result === 'correct' && <p className="mt-3 text-green-600">✅ Верно!</p>}
       {result === 'wrong' && <p className="mt-3 text-red-600">❌ Попробуй ещё</p>}
-      {result && <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={nextRound}>Следующее слово</button>}
+      {result && <button className="mt-2 rounded bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 px-3 py-1 text-sm text-white" onClick={nextRound}>Следующее слово</button>}
     </div>
   );
 }

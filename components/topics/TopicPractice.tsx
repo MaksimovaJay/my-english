@@ -34,7 +34,7 @@ export function TopicPractice({ items, onUpdateItem }: TopicPracticeProps) {
           <button
             key={m.id}
             type="button"
-            className={cn('rounded-full border px-3 py-1 text-sm', mode === m.id && 'border-blue-600 bg-blue-600 text-white')}
+            className={cn('rounded-full border px-3 py-1 text-sm', mode === m.id && 'border-transparent bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 text-white')}
             onClick={() => setMode(m.id)}
           >
             {m.label}

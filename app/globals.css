@@ -19,3 +19,33 @@ html { color-scheme: light; }
 html.dark { color-scheme: dark; }
 html.dark select,
 html.dark option { background-color: #111827; color: #f3f4f6; }
+
+/* ── Violet / pink / black theme ─────────────────────────────── */
+@layer base {
+  body {
+    background:
+      radial-gradient(60rem 30rem at 110% -10%, rgb(236 72 153 / 0.10), transparent 60%),
+      radial-gradient(50rem 30rem at -10% 110%, rgb(124 58 237 / 0.10), transparent 60%),
+      #fbf8ff;
+    background-attachment: fixed;
+  }
+  html.dark body {
+    background:
+      radial-gradient(60rem 30rem at 110% -10%, rgb(236 72 153 / 0.14), transparent 60%),
+      radial-gradient(50rem 30rem at -10% 110%, rgb(124 58 237 / 0.16), transparent 60%),
+      #07060b;
+    background-attachment: fixed;
+  }
+  /* default borders: soft lavender in light, faint violet in dark (instead of grey/white) */
+  *, ::before, ::after { border-color: rgb(221 214 254 / 0.9); }
+  html.dark *, html.dark ::before, html.dark ::after { border-color: rgb(139 92 246 / 0.22); }
+}
+
+@layer components {
+  .text-gradient {
+    @apply bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent;
+  }
+  .card {
+    @apply rounded-2xl border bg-white/80 backdrop-blur-sm dark:bg-white/[0.03];
+  }
+}

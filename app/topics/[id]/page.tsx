@@ -24,7 +24,7 @@ export default function TopicPage() {
     return (
       <div>
         <p className="text-sm text-gray-500">Тема не найдена.</p>
-        <Link href="/topics" className="text-sm text-blue-600 underline">Ко всем темам</Link>
+        <Link href="/topics" className="text-sm text-violet-600 underline">Ко всем темам</Link>
       </div>
     );
   }
@@ -51,7 +51,7 @@ export default function TopicPage() {
             key={t.id}
             role="tab"
             aria-selected={tab === t.id}
-            className={cn('rounded-full px-3 py-1 text-sm', tab === t.id ? 'bg-blue-600 text-white' : 'hover:bg-black/5 dark:hover:bg-white/10')}
+            className={cn('rounded-full px-3 py-1 text-sm', tab === t.id ? 'bg-gradient-to-r from-violet-600 to-pink-500 shadow-md shadow-pink-500/20 hover:brightness-110 text-white' : 'hover:bg-black/5 dark:hover:bg-white/10')}
             onClick={() => setSelected(t.id)}
           >
             {t.label}

@@ -24,9 +24,9 @@ export function Nav() {
 
   return (
     <>
-      <nav className="hidden md:flex md:w-56 md:flex-col md:gap-1 md:border-r md:p-4">
+      <nav className="hidden md:flex md:w-56 md:flex-col md:gap-1 md:border-r md:bg-white/50 md:p-4 md:backdrop-blur dark:md:bg-black/30">
         <div className="mb-4 flex items-center justify-between px-2">
-          <span className="text-lg font-bold">MJay English</span>
+          <span className="text-gradient text-xl font-extrabold">MJay English</span>
           <ThemeToggle />
         </div>
         {LINKS.map(({ href, label, icon: Icon }) => {
@@ -37,8 +37,8 @@ export function Nav() {
               href={href}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10',
-                active && 'bg-black/10 font-medium dark:bg-white/15'
+                'flex items-center gap-2 rounded-xl px-3 py-2 text-sm hover:bg-violet-100/60 dark:hover:bg-violet-500/10',
+                active && 'bg-gradient-to-r from-violet-600 to-pink-500 font-semibold text-white shadow-md shadow-pink-500/20 hover:bg-none'
               )}
             >
               <Icon size={16} />
@@ -47,7 +47,7 @@ export function Nav() {
           );
         })}
       </nav>
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex justify-around border-t bg-white/95 p-1 backdrop-blur md:hidden dark:bg-gray-950/95">
+      <nav className="fixed inset-x-0 bottom-0 z-10 flex justify-around border-t bg-white/90 p-1 backdrop-blur md:hidden dark:bg-black/80">
         {LINKS.map(({ href, label, icon: Icon }) => {
           const active = isActive(pathname, href);
           return (
@@ -55,7 +55,7 @@ export function Nav() {
               key={href}
               href={href}
               aria-current={active ? 'page' : undefined}
-              className={cn('flex flex-1 flex-col items-center gap-0.5 rounded-lg px-1 py-1 text-[11px]', active && 'text-blue-600 dark:text-blue-400')}
+              className={cn('flex flex-1 flex-col items-center gap-0.5 rounded-lg px-1 py-1 text-[11px]', active && 'text-violet-600 dark:text-pink-300')}
             >
               <Icon size={20} />
               {label}
