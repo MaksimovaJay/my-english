@@ -64,11 +64,11 @@ export function ExerciseRunner({ exercise, onComplete }: ExerciseRunnerProps) {
             checked[i] && (
               <div key={i} className="flex flex-col gap-1 text-xs text-gray-500">
                 <button type="button" className="w-fit underline" onClick={() => toggleShowCorrect(i)}>
-                  Show correct answer
+                  Показать правильный ответ
                 </button>
                 {showCorrect[i] && (
                   <p>
-                    Correct answer:{' '}
+                    Правильный ответ:{' '}
                     <strong>
                       {isFillBlank ? fillItems[i].blanks.map((b) => b[0]).join(', ') : mcItems[i].options[mcItems[i].correctIndex]}
                     </strong>

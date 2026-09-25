@@ -18,7 +18,7 @@ describe('ExerciseRunner', () => {
     const onComplete = vi.fn();
     render(<ExerciseRunner exercise={fillBlankExercise} onComplete={onComplete} />);
     fireEvent.change(screen.getByLabelText('blank-0-0'), { target: { value: 'was' } });
-    fireEvent.click(screen.getByRole('button', { name: /check answer/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^проверить$/i }));
     expect(onComplete).toHaveBeenCalledWith({ correct: 1, total: 1 });
   });
 
@@ -27,19 +27,19 @@ describe('ExerciseRunner', () => {
     render(<ExerciseRunner exercise={fillBlankExercise} onComplete={onComplete} />);
     fireEvent.change(screen.getByLabelText('blank-0-0'), { target: { value: 'was' } });
     // First click: should call onComplete
-    fireEvent.click(screen.getByRole('button', { name: /check answer/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^проверить$/i }));
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(onComplete).toHaveBeenCalledWith({ correct: 1, total: 1 });
     // Second click: should NOT call onComplete again
-    fireEvent.click(screen.getByRole('button', { name: /check answer/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^проверить$/i }));
     expect(onComplete).toHaveBeenCalledTimes(1);
   });
 
   it('reveals the correct answer on demand', () => {
     render(<ExerciseRunner exercise={fillBlankExercise} />);
-    fireEvent.click(screen.getByRole('button', { name: /check answer/i }));
-    fireEvent.click(screen.getByRole('button', { name: /show correct answer/i }));
-    expect(screen.getByText(/correct answer:/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^проверить$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /показать правильный ответ/i }));
+    expect(screen.getByText(/правильный ответ:/i)).toBeInTheDocument();
     expect(screen.getByText('was')).toBeInTheDocument();
   });
 });

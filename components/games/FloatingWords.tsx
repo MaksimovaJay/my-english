@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
+const DIFFICULTY_LABELS: Record<Difficulty, string> = { easy: 'Легко', medium: 'Средне', hard: 'Сложно' };
+
 interface FloatingWordsProps {
   items: VocabItem[];
   random?: () => number;
@@ -36,7 +38,7 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
     setRoundKey((k) => k + 1);
   }
 
-  if (!round) return <p className="text-sm text-gray-500">Add some words first.</p>;
+  if (!round) return <p className="text-sm text-gray-500">Здесь пока нет слов.</p>;
 
   return (
     <div>
@@ -44,10 +46,10 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
         {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
           <button
             key={d}
-            className={cn('rounded-full border px-3 py-1 text-xs capitalize', difficulty === d && 'border-blue-600 bg-blue-600 text-white')}
+            className={cn('rounded-full border px-3 py-1 text-xs', difficulty === d && 'border-blue-600 bg-blue-600 text-white')}
             onClick={() => { setDifficulty(d); nextRound(); }}
           >
-            {d}
+            {DIFFICULTY_LABELS[d]}
           </button>
         ))}
       </div>
@@ -67,9 +69,9 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
           );
         })}
       </div>
-      {result === 'correct' && <p className="mt-3 text-green-600">✅ Correct!</p>}
-      {result === 'wrong' && <p className="mt-3 text-red-600">❌ Try again</p>}
-      {result && <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={nextRound}>Next word</button>}
+      {result === 'correct' && <p className="mt-3 text-green-600">✅ Верно!</p>}
+      {result === 'wrong' && <p className="mt-3 text-red-600">❌ Попробуй ещё</p>}
+      {result && <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={nextRound}>Следующее слово</button>}
     </div>
   );
 }

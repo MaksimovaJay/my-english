@@ -39,7 +39,7 @@ export function MultipleChoiceExercise({ items, selected, checked, onSelect, onC
             })}
           </div>
           <button type="button" className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={() => onCheck(i)}>
-            CHECK ANSWER
+            ПРОВЕРИТЬ
           </button>
         </div>
       ))}

@@ -7,8 +7,9 @@ import { getDueItems, getMistakeSorted } from '@/lib/learning/reviewQueue';
 import { FlashcardDeck } from '@/components/flashcards/FlashcardDeck';
 import { VocabItem } from '@/types/models';
 import { cn } from '@/lib/utils';
+import { TopicPractice } from '@/components/topics/TopicPractice';
 
-type Tab = 'due' | 'mistakes';
+type Tab = 'due' | 'mistakes' | 'all';
 
 export default function ReviewPage() {
   const words = useWordsStore((s) => s.items);
@@ -34,7 +35,7 @@ export default function ReviewPage() {
   const currentKey = `${tab}:${hydrated}`;
   if (currentKey !== snapshotKey) {
     setSnapshotKey(currentKey);
-    setQueue(tab === 'due' ? getDueItems(all) : getMistakeSorted(all));
+    setQueue(tab === 'mistakes' ? getMistakeSorted(all) : getDueItems(all));
   }
 
   function handleUpdate(item: VocabItem) {
@@ -44,16 +45,23 @@ export default function ReviewPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold">🔄 Review</h1>
+      <h1 className="mb-4 text-xl font-bold">🔄 Повторение</h1>
       <div className="mb-4 flex gap-4 text-sm">
         <button className={cn(tab === 'due' && 'font-bold underline')} onClick={() => setTab('due')}>
-          Due today ({dueCount})
+          На сегодня ({dueCount})
         </button>
         <button className={cn(tab === 'mistakes' && 'font-bold underline')} onClick={() => setTab('mistakes')}>
-          Practice my mistakes
+          Мои ошибки
+        </button>
+        <button className={cn(tab === 'all' && 'font-bold underline')} onClick={() => setTab('all')}>
+          Все слова и игры
         </button>
       </div>
-      <FlashcardDeck key={currentKey} items={queue} onUpdateItem={handleUpdate} />
+      {tab === 'all' ? (
+        <TopicPractice items={all} onUpdateItem={handleUpdate} />
+      ) : (
+        <FlashcardDeck key={currentKey} items={queue} onUpdateItem={handleUpdate} />
+      )}
     </div>
   );
 }

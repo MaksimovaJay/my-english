@@ -12,11 +12,11 @@ describe('FlashcardDeck', () => {
     const onUpdateItem = vi.fn();
     render(<FlashcardDeck items={items} onUpdateItem={onUpdateItem} />);
     expect(screen.getByText('mother')).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/tap to reveal/i));
-    // NOTE: the brief's original query `getByRole('button', { name: /know/i })` is
-    // ambiguous — it matches both "✅ Know" and "❌ Don't know" and throws.
+    fireEvent.click(screen.getByText(/показать ответ/i));
+    // NOTE: the brief's original query `getByRole('button', { name: '✅ Знаю' })` is
+    // ambiguous — it matches both "✅ Know" and '❌ Не знаю' and throws.
     // Scoped to the exact accessible name (test-side fix, per Task 9/11/13 precedent).
-    fireEvent.click(screen.getByRole('button', { name: '✅ Know' }));
+    fireEvent.click(screen.getByRole('button', { name: '✅ Знаю' }));
     expect(onUpdateItem).toHaveBeenCalledTimes(1);
     expect(onUpdateItem.mock.calls[0][0].id).toBe('1');
     expect(screen.getByText('chair')).toBeInTheDocument();
@@ -25,8 +25,8 @@ describe('FlashcardDeck', () => {
   it('merges the updated review state (via updateReviewState) into the emitted item', () => {
     const onUpdateItem = vi.fn();
     render(<FlashcardDeck items={items} onUpdateItem={onUpdateItem} />);
-    fireEvent.click(screen.getByText(/tap to reveal/i));
-    fireEvent.click(screen.getByRole('button', { name: '✅ Know' }));
+    fireEvent.click(screen.getByText(/показать ответ/i));
+    fireEvent.click(screen.getByRole('button', { name: '✅ Знаю' }));
     const updated = onUpdateItem.mock.calls[0][0];
     expect(updated.id).toBe('1');
     expect(updated.english).toBe('mother');
@@ -52,8 +52,8 @@ describe('FlashcardDeck', () => {
     render(<FlashcardDeck items={items} onUpdateItem={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: /🇷🇺.*🇬🇧/ }));
     expect(screen.getByText('мама')).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/tap to reveal/i));
-    fireEvent.click(screen.getByRole('button', { name: '✅ Know' }));
+    fireEvent.click(screen.getByText(/показать ответ/i));
+    fireEvent.click(screen.getByRole('button', { name: '✅ Знаю' }));
     // Second card should now also render in ru-en direction (translation first).
     expect(screen.getByText('стул')).toBeInTheDocument();
     expect(screen.queryByText('chair')).not.toBeInTheDocument();
@@ -61,8 +61,8 @@ describe('FlashcardDeck', () => {
 
   it('shows a completion message once every card is done', () => {
     render(<FlashcardDeck items={[items[0]]} onUpdateItem={vi.fn()} />);
-    fireEvent.click(screen.getByText(/tap to reveal/i));
-    fireEvent.click(screen.getByRole('button', { name: '✅ Know' }));
-    expect(screen.getByText(/done/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByText(/показать ответ/i));
+    fireEvent.click(screen.getByRole('button', { name: '✅ Знаю' }));
+    expect(screen.getByText(/на сегодня всё/i)).toBeInTheDocument();
   });
 });

@@ -22,7 +22,7 @@ describe('FloatingWords', () => {
     const heading = screen.getByText(/найди слово:/i).textContent!;
     const targetItem = items.find((i) => heading.toUpperCase().includes(i.translation.toUpperCase()))!;
     fireEvent.click(screen.getByRole('button', { name: new RegExp(targetItem.english) }));
-    expect(screen.getByText(/correct/i)).toBeInTheDocument();
+    expect(screen.getByText(/верно/i)).toBeInTheDocument();
   });
 
   it('shows Try again when a non-target bubble is clicked', () => {
@@ -30,6 +30,6 @@ describe('FloatingWords', () => {
     const heading = screen.getByText(/найди слово:/i).textContent!;
     const wrongItem = items.find((i) => !heading.toUpperCase().includes(i.translation.toUpperCase()))!;
     fireEvent.click(screen.getByRole('button', { name: new RegExp(wrongItem.english) }));
-    expect(screen.getByText(/try again/i)).toBeInTheDocument();
+    expect(screen.getByText(/попробуй ещё/i)).toBeInTheDocument();
   });
 });

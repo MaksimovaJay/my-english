@@ -12,7 +12,7 @@ export function ThemeToggle() {
 
   return (
     <button
-      aria-label="Toggle theme"
+      aria-label="Сменить тему"
       className={cn('rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10')}
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
     >

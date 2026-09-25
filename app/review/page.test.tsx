@@ -24,17 +24,17 @@ describe('ReviewPage', () => {
   it('shows only due items on the Due today tab and finishes after answering the one due card', () => {
     render(<ReviewPage />);
     expect(screen.getByText('mother')).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/tap to reveal/i));
-    // NOTE: the brief's original query `getByRole('button', { name: /know/i })` is
-    // ambiguous — it matches BOTH "✅ Know" and "❌ Don't know" and throws a
+    fireEvent.click(screen.getByText(/показать ответ/i));
+    // NOTE: the brief's original query `getByRole('button', { name: '✅ Знаю' })` is
+    // ambiguous — it matches BOTH "✅ Know" and '❌ Не знаю' and throws a
     // "Found multiple elements" error (same bug documented in Task 14's Flashcard tests).
-    fireEvent.click(screen.getByRole('button', { name: '✅ Know' }));
-    expect(screen.getByText(/done/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '✅ Знаю' }));
+    expect(screen.getByText(/на сегодня всё/i)).toBeInTheDocument();
   });
 
   it('shows only items with mistakes on the Practice my mistakes tab', () => {
     render(<ReviewPage />);
-    fireEvent.click(screen.getByRole('button', { name: /practice my mistakes/i }));
+    fireEvent.click(screen.getByRole('button', { name: /мои ошибки/i }));
     expect(screen.getByText('mother')).toBeInTheDocument();
   });
 
@@ -53,12 +53,12 @@ describe('ReviewPage', () => {
     });
     render(<ReviewPage />);
     expect(screen.getByText('mother')).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/tap to reveal/i));
-    fireEvent.click(screen.getByRole('button', { name: '✅ Know' }));
+    fireEvent.click(screen.getByText(/показать ответ/i));
+    fireEvent.click(screen.getByRole('button', { name: '✅ Знаю' }));
     expect(screen.getByText('chair')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /practice my mistakes/i }));
+    fireEvent.click(screen.getByRole('button', { name: /мои ошибки/i }));
     expect(screen.getByText('mother')).toBeInTheDocument();
-    expect(screen.queryByText(/done for now/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/на сегодня всё/i)).not.toBeInTheDocument();
   });
 });

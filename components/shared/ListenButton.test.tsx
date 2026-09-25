@@ -12,7 +12,7 @@ describe('ListenButton', () => {
 
   it('speaks the given text on click with correct arguments', () => {
     render(<ListenButton text="mother" />);
-    fireEvent.click(screen.getByRole('button', { name: /listen/i }));
+    fireEvent.click(screen.getByRole('button', { name: /послушать/i }));
     expect(window.speechSynthesis.speak).toHaveBeenCalledWith(
       expect.objectContaining({ text: 'mother', lang: 'en-US' })
     );

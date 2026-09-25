@@ -11,7 +11,7 @@ describe('ThemeToggle', () => {
 
   it('shows the current theme and toggles to dark on click', () => {
     render(<ThemeToggle />);
-    const button = screen.getByRole('button', { name: /theme/i });
+    const button = screen.getByRole('button', { name: /сменить тему/i });
     fireEvent.click(button);
     expect(useSettingsStore.getState().theme).toBe('dark');
   });
@@ -19,7 +19,7 @@ describe('ThemeToggle', () => {
   it('toggles back to light from dark', () => {
     useSettingsStore.setState({ theme: 'dark' });
     render(<ThemeToggle />);
-    fireEvent.click(screen.getByRole('button', { name: /theme/i }));
+    fireEvent.click(screen.getByRole('button', { name: /сменить тему/i }));
     expect(useSettingsStore.getState().theme).toBe('light');
   });
 });

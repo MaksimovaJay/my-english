@@ -26,7 +26,7 @@ describe('ListeningPractice', () => {
     // reorders the pool internally, so the target is not always items[0].
     const round = buildListeningRound(items, () => 0)!;
     fireEvent.click(buttons.find((b) => b.textContent === round.target.english)!);
-    expect(screen.getByText('✅ Correct!')).toBeInTheDocument();
+    expect(screen.getByText('✅ Верно!')).toBeInTheDocument();
   });
 
   it('marks an incorrect choice in red and shows the incorrect message', () => {
@@ -35,7 +35,7 @@ describe('ListeningPractice', () => {
     const round = buildListeningRound(items, () => 0)!;
     const wrongButton = buttons.find((b) => b.textContent !== round.target.english)!;
     fireEvent.click(wrongButton);
-    expect(screen.getByText('❌ Incorrect')).toBeInTheDocument();
+    expect(screen.getByText('❌ Неверно')).toBeInTheDocument();
     expect(wrongButton.className).toMatch(/border-red-500/);
   });
 
@@ -45,21 +45,21 @@ describe('ListeningPractice', () => {
     buttons.forEach((b) => {
       expect(b.className).not.toMatch(/border-green-500|border-red-500/);
     });
-    expect(screen.queryByText('✅ Correct!')).not.toBeInTheDocument();
-    expect(screen.queryByText('❌ Incorrect')).not.toBeInTheDocument();
+    expect(screen.queryByText('✅ Верно!')).not.toBeInTheDocument();
+    expect(screen.queryByText('❌ Неверно')).not.toBeInTheDocument();
   });
 
   it('shows a Next word button only after a selection, and it starts a fresh round', () => {
     render(<ListeningPractice items={items} random={() => 0} />);
-    expect(screen.queryByRole('button', { name: /next word/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /следующее слово/i })).not.toBeInTheDocument();
 
     const buttons = screen.getAllByRole('button', { name: /^(mother|father|chair|table)$/i });
     fireEvent.click(buttons[0]);
-    expect(screen.getByRole('button', { name: /next word/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /следующее слово/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /next word/i }));
-    expect(screen.queryByText('✅ Correct!')).not.toBeInTheDocument();
-    expect(screen.queryByText('❌ Incorrect')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /next word/i })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /следующее слово/i }));
+    expect(screen.queryByText('✅ Верно!')).not.toBeInTheDocument();
+    expect(screen.queryByText('❌ Неверно')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /следующее слово/i })).not.toBeInTheDocument();
   });
 });

@@ -15,14 +15,14 @@ describe('MatchingGame', () => {
       fireEvent.click(screen.getByRole('button', { name: item.english }));
       fireEvent.click(screen.getByRole('button', { name: item.translation }));
     }
-    expect(screen.getByText('3 / 3 Correct 🎉')).toBeInTheDocument();
+    expect(screen.getByText('3 / 3 верно 🎉')).toBeInTheDocument();
   });
 
   it('does not mark a wrong pair as matched', () => {
     render(<MatchingGame items={items} count={3} random={() => 0} />);
     fireEvent.click(screen.getByRole('button', { name: 'mother' }));
     fireEvent.click(screen.getByRole('button', { name: 'стул' }));
-    expect(screen.queryByText(/correct 🎉/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/верно 🎉/i)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'mother' })).not.toBeDisabled();
   });
 });

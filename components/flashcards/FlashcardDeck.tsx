@@ -15,8 +15,8 @@ export function FlashcardDeck({ items, onUpdateItem }: FlashcardDeckProps) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<'en-ru' | 'ru-en'>('en-ru');
 
-  if (items.length === 0) return <p className="text-sm text-gray-500">No cards to study yet.</p>;
-  if (index >= items.length) return <p className="text-lg font-medium">Done for now! 🎉</p>;
+  if (items.length === 0) return <p className="text-sm text-gray-500">Здесь пока нет карточек.</p>;
+  if (index >= items.length) return <p className="text-lg font-medium">На сегодня всё! 🎉</p>;
 
   const current = items[index];
 

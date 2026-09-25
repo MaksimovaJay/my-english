@@ -15,16 +15,16 @@ describe('TypingPractice', () => {
   it('shows the translation and checks a correct typed answer', () => {
     render(<TypingPractice items={items} random={() => 0} />);
     expect(screen.getByText('мама')).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText(/your answer/i), { target: { value: 'mother' } });
-    fireEvent.click(screen.getByRole('button', { name: /check/i }));
-    expect(screen.getByText(/correct/i)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/напишите по-английски/i), { target: { value: 'mother' } });
+    fireEvent.click(screen.getByRole('button', { name: /^проверить$/i }));
+    expect(screen.getByText(/верно/i)).toBeInTheDocument();
   });
 
   it('shows the correct word after an incorrect attempt', () => {
     render(<TypingPractice items={items} random={() => 0} />);
-    fireEvent.change(screen.getByLabelText(/your answer/i), { target: { value: 'mothar' } });
-    fireEvent.click(screen.getByRole('button', { name: /check/i }));
-    expect(screen.getByText(/incorrect/i)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/напишите по-английски/i), { target: { value: 'mothar' } });
+    fireEvent.click(screen.getByRole('button', { name: /^проверить$/i }));
+    expect(screen.getByText(/неверно/i)).toBeInTheDocument();
     expect(screen.getByText('mother')).toBeInTheDocument();
   });
 
@@ -43,7 +43,7 @@ describe('TypingPractice', () => {
     // Type multiple characters via separate fireEvent.change calls
     // If the memo were buggy and re-evaluated on each keystroke,
     // it could pick item at index Math.floor(0.99 * 2) = 1 (father / папа)
-    const input = screen.getByLabelText(/your answer/i) as HTMLInputElement;
+    const input = screen.getByLabelText(/напишите по-английски/i) as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'm' } });
     fireEvent.change(input, { target: { value: 'mo' } });
     fireEvent.change(input, { target: { value: 'mot' } });
@@ -56,15 +56,15 @@ describe('TypingPractice', () => {
 
   it('shows a Next word button only after checking, and it starts a fresh round', () => {
     render(<TypingPractice items={items} random={() => 0} />);
-    expect(screen.queryByRole('button', { name: /next word/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /следующее слово/i })).not.toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText(/your answer/i), { target: { value: 'mother' } });
-    fireEvent.click(screen.getByRole('button', { name: /^check$/i }));
-    expect(screen.getByText(/correct/i)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/напишите по-английски/i), { target: { value: 'mother' } });
+    fireEvent.click(screen.getByRole('button', { name: /^проверить$/i }));
+    expect(screen.getByText(/верно/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /next word/i }));
-    expect((screen.getByLabelText(/your answer/i) as HTMLInputElement).value).toBe('');
-    expect(screen.queryByText(/correct!/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /next word/i })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /следующее слово/i }));
+    expect((screen.getByLabelText(/напишите по-английски/i) as HTMLInputElement).value).toBe('');
+    expect(screen.queryByText(/верно!/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /следующее слово/i })).not.toBeInTheDocument();
   });
 });

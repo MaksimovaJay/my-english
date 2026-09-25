@@ -26,14 +26,14 @@ export function Flashcard({ item, direction, onOutcome }: FlashcardProps) {
       {direction === 'en-ru' && <ListenButton text={item.english} />}
       {!revealed && (
         <button className="text-sm text-gray-500 underline" onClick={() => setRevealed(true)}>
-          Tap to reveal
+          Показать ответ
         </button>
       )}
       {revealed && (
         <div className="flex flex-col items-center gap-1">
           {direction === 'en-ru' ? (
             <>
-              {item.ipa && <p className="text-gray-500">{item.ipa}</p>}
+              {item.ipa && <p className="text-gray-500">{item.ipa}{item.ruPronunciation && ` · ${item.ruPronunciation}`}</p>}
               <p className="text-lg">{item.translation}</p>
             </>
           ) : (
@@ -47,9 +47,9 @@ export function Flashcard({ item, direction, onOutcome }: FlashcardProps) {
       )}
       {revealed && (
         <div className="flex gap-2">
-          <button className="rounded bg-red-100 px-3 py-1 text-sm text-red-700" onClick={() => handleOutcome('again')}>❌ Don&apos;t know</button>
-          <button className="rounded bg-yellow-100 px-3 py-1 text-sm text-yellow-700" onClick={() => handleOutcome('hard')}>🤔 Hard</button>
-          <button className="rounded bg-green-100 px-3 py-1 text-sm text-green-700" onClick={() => handleOutcome('know')}>✅ Know</button>
+          <button className="rounded bg-red-100 px-3 py-1 text-sm text-red-700" onClick={() => handleOutcome('again')}>❌ Не знаю</button>
+          <button className="rounded bg-yellow-100 px-3 py-1 text-sm text-yellow-700" onClick={() => handleOutcome('hard')}>🤔 Сложно</button>
+          <button className="rounded bg-green-100 px-3 py-1 text-sm text-green-700" onClick={() => handleOutcome('know')}>✅ Знаю</button>
         </div>
       )}
     </div>

@@ -37,7 +37,7 @@ export function MatchingGame({ items, count = 5, random = Math.random }: Matchin
 
   const done = leftItems.length > 0 && matched.size === leftItems.length;
 
-  if (done) return <p className="text-lg font-bold">{matched.size} / {leftItems.length} Correct 🎉</p>;
+  if (done) return <p className="text-lg font-bold">{matched.size} / {leftItems.length} верно 🎉</p>;
 
   return (
     <div className="flex justify-center gap-8">

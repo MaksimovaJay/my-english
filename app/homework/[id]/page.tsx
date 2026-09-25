@@ -13,7 +13,7 @@ export default function HomeworkRunnerPage() {
   const homework = useHomeworkStore((s) => s.items.find((h) => h.id === id));
   const update = useHomeworkStore((s) => s.update);
 
-  if (!homework) return <p className="text-sm text-gray-500">Homework not found.</p>;
+  if (!homework) return <p className="text-sm text-gray-500">Домашка не найдена.</p>;
 
   function persist(next: Homework) {
     update(next.status === 'not-started' ? { ...next, status: 'in-progress' } : next);
@@ -56,7 +56,7 @@ export default function HomeworkRunnerPage() {
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-1 text-xl font-bold">{homework.title}</h1>
       <p className="mb-4 text-xs text-gray-500">
-        Assigned {homework.assignedDate}{homework.dueDate ? ` · Due ${homework.dueDate}` : ''}
+        Задано {homework.assignedDate}{homework.dueDate ? ` · Сдать до ${homework.dueDate}` : ''}
       </p>
       {homework.exercises.map((ex) => {
         const progress = homework.progress[ex.id];
@@ -84,14 +84,14 @@ export default function HomeworkRunnerPage() {
         );
       })}
       {homework.status === 'completed' && homework.score && (
-        <p className="mb-3 font-medium">Score: {homework.score.correct} / {homework.score.total}</p>
+        <p className="mb-3 font-medium">Результат: {homework.score.correct} / {homework.score.total}</p>
       )}
       <button
         disabled={!allChecked}
         className="rounded bg-green-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
         onClick={handleSubmit}
       >
-        SUBMIT HOMEWORK
+        СДАТЬ ДОМАШКУ
       </button>
     </div>
   );

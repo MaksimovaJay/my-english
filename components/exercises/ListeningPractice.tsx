@@ -21,7 +21,7 @@ export function ListeningPractice({ items, random = Math.random }: ListeningPrac
     setRoundKey((k) => k + 1);
   }
 
-  if (!round) return <p className="text-sm text-gray-500">Add some words first.</p>;
+  if (!round) return <p className="text-sm text-gray-500">Здесь пока нет слов.</p>;
 
   return (
     <div className="flex flex-col items-center gap-4 text-center">
@@ -41,8 +41,8 @@ export function ListeningPractice({ items, random = Math.random }: ListeningPrac
           </button>
         ))}
       </div>
-      {selected && (selected === round.target.id ? <p className="text-green-600">✅ Correct!</p> : <p className="text-red-600">❌ Incorrect</p>)}
-      {selected && <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={nextRound}>Next word</button>}
+      {selected && (selected === round.target.id ? <p className="text-green-600">✅ Верно!</p> : <p className="text-red-600">❌ Неверно</p>)}
+      {selected && <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={nextRound}>Следующее слово</button>}
     </div>
   );
 }

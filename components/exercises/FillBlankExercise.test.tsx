@@ -25,7 +25,7 @@ describe('FillBlankExercise', () => {
   it('calls onCheck with the item index', () => {
     const onCheck = vi.fn();
     render(<FillBlankExercise items={items} userAnswers={[['was']]} checked={[false]} onAnswerChange={vi.fn()} onCheck={onCheck} />);
-    fireEvent.click(screen.getByRole('button', { name: /check answer/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^проверить$/i }));
     expect(onCheck).toHaveBeenCalledWith(0);
   });
 

@@ -15,7 +15,7 @@ describe('HomeworkPage', () => {
 
   it('shows an empty state with no homework', () => {
     render(<HomeworkPage />);
-    expect(screen.getByText(/no homework yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/домашек пока нет/i)).toBeInTheDocument();
   });
 
   it('lists an existing homework with its progress and status', () => {
@@ -26,7 +26,7 @@ describe('HomeworkPage', () => {
     render(<HomeworkPage />);
     expect(screen.getByRole('link', { name: 'Unit 11' })).toHaveAttribute('href', '/homework/hw1');
     expect(screen.getByText('0 / 1')).toBeInTheDocument();
-    expect(screen.getByText(/not started/i)).toBeInTheDocument();
+    expect(screen.getByText(/не начато/i)).toBeInTheDocument();
   });
 
   it('imports a homework JSON file and adds it to the store', async () => {
