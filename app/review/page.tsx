@@ -53,7 +53,7 @@ export default function ReviewPage() {
           Practice my mistakes
         </button>
       </div>
-      <FlashcardDeck items={queue} onUpdateItem={handleUpdate} />
+      <FlashcardDeck key={currentKey} items={queue} onUpdateItem={handleUpdate} />
     </div>
   );
 }

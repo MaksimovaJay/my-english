@@ -37,4 +37,28 @@ describe('ReviewPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /practice my mistakes/i }));
     expect(screen.getByText('mother')).toBeInTheDocument();
   });
+
+  it('still shows the first mistake card after progressing partway through Due today, not an immediate Done', () => {
+    // Two due items: 'mother' has a mistake, 'chair' does not, so the mistakes queue
+    // (length 1) is shorter than the due queue (length 2). Answering the first due
+    // card advances FlashcardDeck's internal index to 1; without a remount key, that
+    // stale index (1) would be >= the mistakes queue's length (1) and incorrectly
+    // render "Done for now!" instead of the one mistake card.
+    useWordsStore.setState({
+      items: [
+        { id: '1', english: 'mother', translation: 'мама', category: 'Family', tags: [], dateAdded: '2026-09-24', review: reviewState({ nextReviewDate: '2020-01-01', mistakeCount: 3 }) },
+        { id: '2', english: 'chair', translation: 'стул', category: 'Home', tags: [], dateAdded: '2026-09-24', review: reviewState({ nextReviewDate: '2020-01-01', mistakeCount: 0 }) },
+      ],
+      hydrated: true,
+    });
+    render(<ReviewPage />);
+    expect(screen.getByText('mother')).toBeInTheDocument();
+    fireEvent.click(screen.getByText(/tap to reveal/i));
+    fireEvent.click(screen.getByRole('button', { name: '✅ Know' }));
+    expect(screen.getByText('chair')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /practice my mistakes/i }));
+    expect(screen.getByText('mother')).toBeInTheDocument();
+    expect(screen.queryByText(/done for now/i)).not.toBeInTheDocument();
+  });
 });
