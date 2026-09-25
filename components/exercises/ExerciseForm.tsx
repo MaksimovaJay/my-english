@@ -35,8 +35,9 @@ export function ExerciseForm({ onSubmit }: ExerciseFormProps) {
       return;
     }
     if (type === 'fill-blank') {
-      if (!text.includes('___') || !acceptedAnswers.trim()) {
-        setError('Sentence must contain ___ and at least one accepted answer.');
+      const blankCount = (text.match(/___/g) ?? []).length;
+      if (blankCount !== 1 || !acceptedAnswers.trim()) {
+        setError('Sentence must contain exactly one ___ blank and at least one accepted answer.');
         return;
       }
       const item: FillBlankItem = {
@@ -48,6 +49,10 @@ export function ExerciseForm({ onSubmit }: ExerciseFormProps) {
       const options = optionsText.split(',').map((o) => o.trim()).filter(Boolean);
       if (!question.trim() || options.length < 2) {
         setError('Question and at least 2 comma-separated options are required.');
+        return;
+      }
+      if (correctIndex < 0 || correctIndex >= options.length) {
+        setError('Correct option index must be a valid index into the options.');
         return;
       }
       const item: MultipleChoiceItem = { question: question.trim(), options, correctIndex };

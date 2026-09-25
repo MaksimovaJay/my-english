@@ -28,4 +28,21 @@ describe('FillBlankExercise', () => {
     fireEvent.click(screen.getByRole('button', { name: /check answer/i }));
     expect(onCheck).toHaveBeenCalledWith(0);
   });
+
+  it('does not throw and marks a missing blanks entry as incorrect', () => {
+    const malformedItems = [{ text: 'Last year she ___ 22, so she ___ 23 now.', blanks: [['was']] }];
+    expect(() =>
+      render(
+        <FillBlankExercise
+          items={malformedItems}
+          userAnswers={[['was', 'is']]}
+          checked={[true]}
+          onAnswerChange={vi.fn()}
+          onCheck={vi.fn()}
+        />
+      )
+    ).not.toThrow();
+    expect(screen.getByLabelText('blank-0-0')).toHaveClass('border-green-500');
+    expect(screen.getByLabelText('blank-0-1')).toHaveClass('border-red-500');
+  });
 });

@@ -39,4 +39,28 @@ describe('ExerciseForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /save/i }));
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  it('rejects a fill-blank sentence with two ___ markers', () => {
+    const onSubmit = vi.fn();
+    render(<ExerciseForm onSubmit={onSubmit} />);
+    fireEvent.change(screen.getByLabelText(/instruction/i), { target: { value: 'Fill the gaps.' } });
+    fireEvent.change(screen.getByLabelText(/sentence/i), {
+      target: { value: 'Last year she ___ 22, so she ___ 23 now.' },
+    });
+    fireEvent.change(screen.getByLabelText(/accepted answers/i), { target: { value: 'was' } });
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('rejects a multiple-choice exercise with an out-of-range correct index', () => {
+    const onSubmit = vi.fn();
+    render(<ExerciseForm onSubmit={onSubmit} />);
+    fireEvent.click(screen.getByRole('button', { name: /multiple choice/i }));
+    fireEvent.change(screen.getByLabelText(/instruction/i), { target: { value: 'Choose the right form.' } });
+    fireEvent.change(screen.getByLabelText(/^question/i), { target: { value: 'She ___ from Kyrgyzstan.' } });
+    fireEvent.change(screen.getByLabelText(/options/i), { target: { value: 'am, is' } });
+    fireEvent.change(screen.getByLabelText(/correct option index/i), { target: { value: '5' } });
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
 });

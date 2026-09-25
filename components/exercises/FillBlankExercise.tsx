@@ -30,7 +30,7 @@ export function FillBlankExercise({ items, userAnswers, checked, onAnswerChange,
                       className={cn(
                         'w-24 border-b bg-transparent px-1 outline-none',
                         isChecked
-                          ? isAnswerCorrect(userAnswers[i]?.[pi] ?? '', item.blanks[pi])
+                          ? isAnswerCorrect(userAnswers[i]?.[pi] ?? '', item.blanks[pi] ?? [])
                             ? 'border-green-500 text-green-600'
                             : 'border-red-500 text-red-600'
                           : 'border-gray-400'
