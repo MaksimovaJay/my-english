@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes float-bubble {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-14px); }
+}
+
+.animate-float {
+  animation-name: float-bubble;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
