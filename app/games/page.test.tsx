@@ -35,3 +35,20 @@ describe('GamesPage', () => {
     });
   });
 });
+
+describe('GamesPage new round', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    useWordsStore.setState({ items: [], hydrated: true });
+    usePhrasesStore.setState({ items: [], hydrated: true });
+    useGrammarStore.setState({ items: [], hydrated: true });
+    mergeSeed();
+  });
+
+  it('offers a new matching round', () => {
+    render(<GamesPage />);
+    expect(screen.getByRole('button', { name: 'Новый раунд' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Новый раунд' }));
+    expect(screen.getByLabelText('Слова для игры')).toHaveValue('all');
+  });
+});

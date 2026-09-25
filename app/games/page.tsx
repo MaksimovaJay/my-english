@@ -17,6 +17,7 @@ export default function GamesPage() {
   const contents = useTopicContents().filter((c) => c.words.length + c.phrases.length > 0);
   const [game, setGame] = useState<Game>('matching');
   const [topicId, setTopicId] = useState('all');
+  const [round, setRound] = useState(0);
 
   const selected = contents.filter((c) => topicId === 'all' || c.topic.id === topicId);
   const items = selected.flatMap((c) => [...c.words, ...c.phrases]);
@@ -48,7 +49,16 @@ export default function GamesPage() {
         </select>
       </div>
       {/* key: restart the game with a fresh round when the word set changes */}
-      {game === 'matching' && <MatchingGame key={topicId} items={items} />}
+      {game === 'matching' && (
+        <>
+          <MatchingGame key={`${topicId}-${round}`} items={items} />
+          <div className="mt-6 text-center">
+            <button type="button" className="rounded bg-blue-600 px-4 py-1.5 text-sm text-white" onClick={() => setRound((r) => r + 1)}>
+              Новый раунд
+            </button>
+          </div>
+        </>
+      )}
       {game === 'floating' && <FloatingWords key={topicId} items={items} />}
     </div>
   );
