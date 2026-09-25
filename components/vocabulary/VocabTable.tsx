@@ -55,7 +55,10 @@ export function VocabTable({ items, onEdit, onDelete }: VocabTableProps) {
       : items;
     if (!order) return base;
     const byId = new Map(base.map((i) => [i.id, i]));
-    return order.map((id) => byId.get(id)).filter((i): i is VocabItem => Boolean(i));
+    const known = order.map((id) => byId.get(id)).filter((i): i is VocabItem => Boolean(i));
+    const knownIds = new Set(known.map((i) => i.id));
+    const extra = base.filter((i) => !knownIds.has(i.id));
+    return [...known, ...extra];
   }, [items, search, order]);
 
   function cellValue(item: VocabItem, col: Column): string {

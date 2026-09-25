@@ -69,4 +69,20 @@ describe('VocabTable', () => {
     expect(screen.queryByText('mother')).not.toBeInTheDocument();
     expect(screen.getAllByText('???').length).toBeGreaterThan(0);
   });
+
+  it('keeps showing a newly-added item after Random has shuffled a prior snapshot', () => {
+    const { rerender } = render(<VocabTable items={items} onEdit={vi.fn()} onDelete={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /random/i }));
+    expect(screen.getByText('mother')).toBeInTheDocument();
+    expect(screen.getByText('chair')).toBeInTheDocument();
+
+    const newItem: VocabItem = {
+      id: '3', english: 'window', translation: 'окно', ipa: 'ˈwɪndoʊ', example: 'Open the window.', category: 'Home', tags: [], dateAdded: '2026-09-25',
+      review: { status: 'new', level: 0, lastReviewed: null, nextReviewDate: null, correctCount: 0, mistakeCount: 0 },
+    };
+    rerender(<VocabTable items={[...items, newItem]} onEdit={vi.fn()} onDelete={vi.fn()} />);
+    expect(screen.getByText('mother')).toBeInTheDocument();
+    expect(screen.getByText('chair')).toBeInTheDocument();
+    expect(screen.getByText('window')).toBeInTheDocument();
+  });
 });
