@@ -36,6 +36,7 @@ export default function ProgressPage() {
   const jsonInputRef = useRef<HTMLInputElement>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
   const [importMessage, setImportMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   function handleExport() {
     const data = exportAllData();
@@ -51,17 +52,29 @@ export default function ProgressPage() {
   async function handleImportJson(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    importAllData(await readFileAsText(file));
-    setImportMessage('Data imported.');
-    e.target.value = '';
+    try {
+      importAllData(await readFileAsText(file));
+      setImportMessage('Data imported.');
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to import data.');
+    } finally {
+      e.target.value = '';
+    }
   }
 
   async function handleImportCsv(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const count = importVocabCsv(await readFileAsText(file));
-    setImportMessage(`Imported ${count} word(s) from CSV.`);
-    e.target.value = '';
+    try {
+      const count = importVocabCsv(await readFileAsText(file));
+      setImportMessage(`Imported ${count} word(s) from CSV.`);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to import CSV.');
+    } finally {
+      e.target.value = '';
+    }
   }
 
   return (
@@ -88,6 +101,7 @@ export default function ProgressPage() {
           <input ref={csvInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleImportCsv} />
         </div>
         {importMessage && <p className="mt-2 text-xs text-green-600">{importMessage}</p>}
+        {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
       </div>
     </div>
   );

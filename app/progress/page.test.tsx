@@ -64,4 +64,45 @@ describe('ProgressPage', () => {
     await userEvent.upload(inputs[1] as HTMLInputElement, file);
     expect(useWordsStore.getState().items.some((w) => w.english === 'cat')).toBe(true);
   });
+
+  it('shows an error message for a malformed JSON import file instead of crashing', async () => {
+    render(<ProgressPage />);
+    const file = new File(['not valid json'], 'bad.json', { type: 'application/json' });
+    const inputs = document.querySelectorAll('input[type="file"]');
+    await userEvent.upload(inputs[0] as HTMLInputElement, file);
+    expect(document.querySelector('.text-red-600')).toBeInTheDocument();
+  });
+
+  it('resets the JSON file input after a failed import', async () => {
+    render(<ProgressPage />);
+    const file = new File(['not valid json'], 'bad.json', { type: 'application/json' });
+    const input = document.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    await userEvent.upload(input, file);
+    expect(input.value).toBe('');
+  });
+
+  it('skips entries missing an id instead of crashing, and clears a prior error on success', async () => {
+    render(<ProgressPage />);
+    const badFile = new File(['not valid json'], 'bad.json', { type: 'application/json' });
+    const inputs = document.querySelectorAll('input[type="file"]');
+    await userEvent.upload(inputs[0] as HTMLInputElement, badFile);
+    expect(document.querySelector('.text-red-600')).toBeInTheDocument();
+
+    const partiallyMalformed = new File(
+      [JSON.stringify({
+        version: 1,
+        words: [
+          { english: 'no-id-word', translation: 'нет', category: 'Other', tags: [], dateAdded: '2026-09-24', review: reviewState({}) },
+          { id: 'w10', english: 'valid', translation: 'валидный', category: 'Other', tags: [], dateAdded: '2026-09-24', review: reviewState({}) },
+        ],
+        phrases: [], grammarTopics: [], exercises: [], homeworks: [],
+      })],
+      'partial.json',
+      { type: 'application/json' }
+    );
+    await userEvent.upload(inputs[0] as HTMLInputElement, partiallyMalformed);
+    expect(document.querySelector('.text-red-600')).not.toBeInTheDocument();
+    expect(useWordsStore.getState().items.some((w) => w.id === 'w10')).toBe(true);
+    expect(useWordsStore.getState().items.some((w) => w.english === 'no-id-word')).toBe(false);
+  });
 });

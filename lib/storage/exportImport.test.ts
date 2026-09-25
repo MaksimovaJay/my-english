@@ -39,6 +39,27 @@ describe('exportAllData / importAllData', () => {
     expect(useWordsStore.getState().items).toHaveLength(1);
     expect(useWordsStore.getState().items[0].translation).toBe('мамочка');
   });
+
+  it('throws a clear error for invalid JSON', () => {
+    expect(() => importAllData('not valid json')).toThrow();
+  });
+
+  it('throws a clear error when the parsed data is not an object', () => {
+    expect(() => importAllData(JSON.stringify(42))).toThrow('Invalid import file');
+  });
+
+  it('skips entries missing an id instead of crashing, importing the valid ones', () => {
+    const { id, ...wordWithoutId } = word;
+    void id;
+    const valid = { ...word, id: 'w2' };
+    expect(() =>
+      importAllData(
+        JSON.stringify({ version: 1, words: [wordWithoutId, valid], phrases: [], grammarTopics: [], exercises: [], homeworks: [] })
+      )
+    ).not.toThrow();
+    expect(useWordsStore.getState().items).toHaveLength(1);
+    expect(useWordsStore.getState().items[0].id).toBe('w2');
+  });
 });
 
 describe('importVocabCsv', () => {

@@ -36,13 +36,20 @@ function upsert<T extends { id: string }>(
   else store.getState().add(item);
 }
 
+function hasStringId(item: unknown): item is { id: string } {
+  return Boolean(item) && typeof item === 'object' && typeof (item as { id?: unknown }).id === 'string';
+}
+
 export function importAllData(raw: string): void {
-  const data = JSON.parse(raw) as Partial<ExportedData>;
-  data.words?.forEach((w) => upsert(useWordsStore, w));
-  data.phrases?.forEach((p) => upsert(usePhrasesStore, p));
-  data.grammarTopics?.forEach((g) => upsert(useGrammarStore, g));
-  data.exercises?.forEach((e) => upsert(useExercisesStore, e));
-  data.homeworks?.forEach((h) => upsert(useHomeworkStore, h));
+  const data = JSON.parse(raw) as Partial<ExportedData> | null;
+  if (!data || typeof data !== 'object') {
+    throw new Error('Invalid import file: expected a JSON object.');
+  }
+  (data.words ?? []).filter(hasStringId).forEach((w) => upsert(useWordsStore, w));
+  (data.phrases ?? []).filter(hasStringId).forEach((p) => upsert(usePhrasesStore, p));
+  (data.grammarTopics ?? []).filter(hasStringId).forEach((g) => upsert(useGrammarStore, g));
+  (data.exercises ?? []).filter(hasStringId).forEach((e) => upsert(useExercisesStore, e));
+  (data.homeworks ?? []).filter(hasStringId).forEach((h) => upsert(useHomeworkStore, h));
 }
 
 export function importVocabCsv(raw: string): number {
