@@ -58,4 +58,40 @@ describe('parseHomeworkImport', () => {
     expect(() => parseHomeworkImport(JSON.stringify({ title: 'No exercises' }))).toThrow();
     expect(() => parseHomeworkImport(JSON.stringify({ exercises: [] }))).toThrow();
   });
+
+  it('rejects an exercise with an unsupported type', () => {
+    const raw = JSON.stringify({
+      title: 'Bad type',
+      exercises: [{ type: 'translation', instruction: 'Translate.', items: [{ text: 'Hello' }] }],
+    });
+    expect(() => parseHomeworkImport(raw)).toThrow(/unsupported exercise type/i);
+  });
+
+  it('rejects a fill-blank item whose blanks count does not match its ___ markers', () => {
+    const raw = JSON.stringify({
+      title: 'Mismatched blanks',
+      exercises: [
+        {
+          type: 'fill-blank',
+          instruction: 'Fill was/were.',
+          items: [{ text: 'Last year she ___ 22, so she ___ 23 now.', blanks: [['was']] }],
+        },
+      ],
+    });
+    expect(() => parseHomeworkImport(raw)).toThrow(/mismatched number of ___ markers/i);
+  });
+
+  it('rejects a multiple-choice item with an out-of-range correctIndex', () => {
+    const raw = JSON.stringify({
+      title: 'Bad correctIndex',
+      exercises: [
+        {
+          type: 'multiple-choice',
+          instruction: 'Choose the right form.',
+          items: [{ question: 'She ___ from Kyrgyzstan.', options: ['am', 'is'], correctIndex: 5 }],
+        },
+      ],
+    });
+    expect(() => parseHomeworkImport(raw)).toThrow(/invalid options\/correctIndex/i);
+  });
 });

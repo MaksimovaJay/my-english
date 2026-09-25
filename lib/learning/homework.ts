@@ -48,6 +48,28 @@ export function parseHomeworkImport(raw: string): Homework {
   if (!data.title || !Array.isArray(data.exercises) || data.exercises.length === 0) {
     throw new Error('Invalid homework file: expected { title, exercises: [...] } with at least one exercise.');
   }
+  for (const ex of data.exercises) {
+    if (ex.type !== 'fill-blank' && ex.type !== 'multiple-choice') {
+      throw new Error(`Unsupported exercise type "${ex.type}". Only "fill-blank" and "multiple-choice" are supported.`);
+    }
+    if (!Array.isArray(ex.items) || ex.items.length === 0) {
+      throw new Error(`Exercise "${ex.instruction ?? '(untitled)'}" has no items.`);
+    }
+    if (ex.type === 'fill-blank') {
+      for (const item of ex.items) {
+        const blankCount = typeof item.text === 'string' ? (item.text.match(/___/g) ?? []).length : 0;
+        if (blankCount === 0 || !Array.isArray(item.blanks) || item.blanks.length !== blankCount) {
+          throw new Error(`Fill-blank item "${item.text ?? '(missing text)'}" has a mismatched number of ___ markers and accepted-answer blanks.`);
+        }
+      }
+    } else {
+      for (const item of ex.items) {
+        if (!Array.isArray(item.options) || item.options.length < 2 || typeof item.correctIndex !== 'number' || item.correctIndex < 0 || item.correctIndex >= item.options.length) {
+          throw new Error(`Multiple-choice item "${item.question ?? '(missing question)'}" has invalid options/correctIndex.`);
+        }
+      }
+    }
+  }
   const exercises: Exercise[] = data.exercises.map((ex: any) => ({
     id: ex.id ?? generateId(),
     type: ex.type,
