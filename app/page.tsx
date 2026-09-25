@@ -50,7 +50,7 @@ export default function HomePage() {
         <section className="mt-8 text-left">
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">Новое на этой неделе</h2>
           <ul className="flex flex-col gap-2">
-            {fresh.map(({ topic, count }) => (
+            {fresh.slice(0, 5).map(({ topic, count }) => (
               <li key={topic.id}>
                 <Link href={`/topics/${topic.id}`} className="flex items-center justify-between rounded-lg border p-3 hover:bg-black/5 dark:hover:bg-white/10">
                   <span>{topic.emoji} {topic.title}</span>
@@ -59,6 +59,11 @@ export default function HomePage() {
               </li>
             ))}
           </ul>
+          {fresh.length > 5 && (
+            <Link href="/topics" className="mt-2 inline-block text-sm text-blue-600 underline">
+              Ещё {fresh.length - 5} — все темы →
+            </Link>
+          )}
         </section>
       )}
     </div>
