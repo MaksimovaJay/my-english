@@ -19,6 +19,7 @@ export function StoreHydrator() {
     useHomeworkStore.getState().hydrate();
     useSettingsStore.getState().hydrate();
     loadSeedIfEmpty();
+    useSettingsStore.getState().recordActivity();
   }, []);
 
   const theme = useSettingsStore((s) => s.theme);
