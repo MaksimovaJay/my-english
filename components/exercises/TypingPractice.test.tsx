@@ -53,4 +53,18 @@ describe('TypingPractice', () => {
     expect(screen.getByText('мама')).toBeInTheDocument();
     expect(screen.queryByText('папа')).not.toBeInTheDocument();
   });
+
+  it('shows a Next word button only after checking, and it starts a fresh round', () => {
+    render(<TypingPractice items={items} random={() => 0} />);
+    expect(screen.queryByRole('button', { name: /next word/i })).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/your answer/i), { target: { value: 'mother' } });
+    fireEvent.click(screen.getByRole('button', { name: /^check$/i }));
+    expect(screen.getByText(/correct/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /next word/i }));
+    expect((screen.getByLabelText(/your answer/i) as HTMLInputElement).value).toBe('');
+    expect(screen.queryByText(/correct!/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /next word/i })).not.toBeInTheDocument();
+  });
 });

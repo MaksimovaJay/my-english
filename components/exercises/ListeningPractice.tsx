@@ -12,8 +12,14 @@ interface ListeningPracticeProps {
 }
 
 export function ListeningPractice({ items, random = Math.random }: ListeningPracticeProps) {
-  const round = useMemo(() => buildListeningRound(items, random), [items, random]);
+  const [roundKey, setRoundKey] = useState(0);
+  const round = useMemo(() => buildListeningRound(items, random), [items, random, roundKey]);
   const [selected, setSelected] = useState<string | null>(null);
+
+  function nextRound() {
+    setSelected(null);
+    setRoundKey((k) => k + 1);
+  }
 
   if (!round) return <p className="text-sm text-gray-500">Add some words first.</p>;
 
@@ -36,6 +42,7 @@ export function ListeningPractice({ items, random = Math.random }: ListeningPrac
         ))}
       </div>
       {selected && (selected === round.target.id ? <p className="text-green-600">✅ Correct!</p> : <p className="text-red-600">❌ Incorrect</p>)}
+      {selected && <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={nextRound}>Next word</button>}
     </div>
   );
 }

@@ -11,9 +11,16 @@ interface TypingPracticeProps {
 }
 
 export function TypingPractice({ items, random = Math.random }: TypingPracticeProps) {
-  const target = useMemo(() => items[Math.floor(random() * items.length)], [items, random]);
+  const [roundKey, setRoundKey] = useState(0);
+  const target = useMemo(() => items[Math.floor(random() * items.length)], [items, random, roundKey]);
   const [input, setInput] = useState('');
   const [checked, setChecked] = useState(false);
+
+  function nextRound() {
+    setInput('');
+    setChecked(false);
+    setRoundKey((k) => k + 1);
+  }
 
   if (!target) return <p className="text-sm text-gray-500">Add some words first.</p>;
 
@@ -38,6 +45,7 @@ export function TypingPractice({ items, random = Math.random }: TypingPracticePr
       )}
       <button className="rounded bg-blue-600 px-4 py-1 text-sm text-white" onClick={() => setChecked(true)}>Check</button>
       {checked && (correct ? <p className="text-green-600">✅ Correct!</p> : <p className="text-red-600">❌ Incorrect — correct answer: <strong>{target.english}</strong></p>)}
+      {checked && <button className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white" onClick={nextRound}>Next word</button>}
     </div>
   );
 }

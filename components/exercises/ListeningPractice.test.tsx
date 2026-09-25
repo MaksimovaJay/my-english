@@ -48,4 +48,18 @@ describe('ListeningPractice', () => {
     expect(screen.queryByText('✅ Correct!')).not.toBeInTheDocument();
     expect(screen.queryByText('❌ Incorrect')).not.toBeInTheDocument();
   });
+
+  it('shows a Next word button only after a selection, and it starts a fresh round', () => {
+    render(<ListeningPractice items={items} random={() => 0} />);
+    expect(screen.queryByRole('button', { name: /next word/i })).not.toBeInTheDocument();
+
+    const buttons = screen.getAllByRole('button', { name: /^(mother|father|chair|table)$/i });
+    fireEvent.click(buttons[0]);
+    expect(screen.getByRole('button', { name: /next word/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /next word/i }));
+    expect(screen.queryByText('✅ Correct!')).not.toBeInTheDocument();
+    expect(screen.queryByText('❌ Incorrect')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /next word/i })).not.toBeInTheDocument();
+  });
 });
