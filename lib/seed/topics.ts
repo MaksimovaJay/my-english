@@ -3,6 +3,7 @@ import { Topic } from '@/types/models';
 // Words and phrases join a topic via `category === topic.id`; grammar via `topicId`.
 export const TOPICS: Topic[] = [
   // Пройдено на уроках
+  { id: 'my-words', title: 'Мои слова', emoji: '✍️', group: 'class', order: 0 }, // added with «+ слово»; hidden while empty
   { id: 'pronouns-to-be', title: 'Местоимения и to be', emoji: '🙋', group: 'class', order: 1 },
   { id: 'about-me', title: 'О себе', emoji: '🪪', group: 'class', order: 2 },
   { id: 'home', title: 'Дом и квартира', emoji: '🏠', group: 'class', order: 3 },
