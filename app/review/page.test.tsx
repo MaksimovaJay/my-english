@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import ReviewPage from './page';
 import { useWordsStore } from '@/lib/storage/wordsStore';
 import { usePhrasesStore } from '@/lib/storage/phrasesStore';
+import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 
 function reviewState(overrides: Partial<{ nextReviewDate: string | null; mistakeCount: number }>) {
   return { status: 'review' as const, level: 1, lastReviewed: null, nextReviewDate: null, correctCount: 0, mistakeCount: 0, ...overrides };
@@ -60,5 +61,23 @@ describe('ReviewPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /мои ошибки/i }));
     expect(screen.getByText('mother')).toBeInTheDocument();
     expect(screen.queryByText(/на сегодня всё/i)).not.toBeInTheDocument();
+  });
+});
+
+describe('ReviewPage homework mistakes', () => {
+  it('lists homework items answered wrong under «Мои ошибки»', () => {
+    useHomeworkStore.setState({
+      items: [{
+        id: 'h1', number: 1, title: 'Unit 11', assignedDate: '2026-09-25', status: 'completed',
+        exercises: [{ id: 'e', type: 'fill-blank', instruction: '11.2', items: [{ text: 'She ___ 22.', blanks: [['was']] }] }],
+        progress: { e: { userAnswers: [['is']], checked: [true], correct: [false] } },
+      }],
+      hydrated: true,
+    });
+    render(<ReviewPage />);
+    expect(screen.queryByRole('heading', { name: '📝 Из домашки' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /мои ошибки/i }));
+    expect(screen.getByRole('heading', { name: '📝 Из домашки' })).toBeInTheDocument();
+    expect(screen.getByText('ДЗ 1 · 11.2')).toBeInTheDocument();
   });
 });

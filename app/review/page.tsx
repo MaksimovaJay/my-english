@@ -8,6 +8,9 @@ import { FlashcardDeck } from '@/components/flashcards/FlashcardDeck';
 import { VocabItem } from '@/types/models';
 import { cn } from '@/lib/utils';
 import { TopicPractice } from '@/components/topics/TopicPractice';
+import { ExerciseRunner } from '@/components/exercises/ExerciseRunner';
+import { useHomeworkStore } from '@/lib/storage/homeworkStore';
+import { homeworkMistakes } from '@/lib/learning/homework';
 
 type Tab = 'due' | 'mistakes' | 'all';
 
@@ -19,6 +22,8 @@ export default function ReviewPage() {
   const updateWord = useWordsStore((s) => s.update);
   const updatePhrase = usePhrasesStore((s) => s.update);
   const [tab, setTab] = useState<Tab>('due');
+  const homeworks = useHomeworkStore((s) => s.items);
+  const hwMistakes = useMemo(() => homeworkMistakes(homeworks), [homeworks]);
 
   const all = useMemo(() => [...words, ...phrases], [words, phrases]);
   const dueCount = useMemo(() => getDueItems(all).length, [all]);
@@ -61,6 +66,17 @@ export default function ReviewPage() {
         <TopicPractice items={all} onUpdateItem={handleUpdate} />
       ) : (
         <FlashcardDeck key={currentKey} items={queue} onUpdateItem={handleUpdate} />
+      )}
+      {tab === 'mistakes' && hwMistakes.length > 0 && (
+        <section className="mt-8 border-t pt-4">
+          <h2 className="mb-1 text-lg font-semibold">📝 Из домашки</h2>
+          <p className="mb-3 text-sm text-gray-500">Задания, где была ошибка. Здесь их можно пройти ещё раз — сама домашка не изменится.</p>
+          {hwMistakes.map((ex) => (
+            <div key={ex.id} className="card mb-4 p-4">
+              <ExerciseRunner exercise={ex} />
+            </div>
+          ))}
+        </section>
       )}
     </div>
   );

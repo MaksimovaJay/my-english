@@ -179,3 +179,17 @@ export function groupHomeworkByWeek<T extends Pick<Homework, 'assignedDate'>>(ho
       items: [...items].sort((a, b) => b.assignedDate.localeCompare(a.assignedDate)),
     }));
 }
+
+/** Items answered wrong in any homework (fill-blank and multiple choice), as small exercises to redo in review. */
+export function homeworkMistakes(homeworks: Homework[]): Exercise[] {
+  return homeworks.flatMap((hw) =>
+    hw.exercises.flatMap((ex): Exercise[] => {
+      const progress = hw.progress[ex.id];
+      if (!progress || (ex.type !== 'fill-blank' && ex.type !== 'multiple-choice')) return [];
+      const wrong = ex.items.filter((_, i) => progress.checked[i] && !progress.correct[i]);
+      if (wrong.length === 0) return [];
+      const prefix = hw.number ? `ДЗ ${hw.number}` : hw.title;
+      return [{ id: `mistakes-${hw.id}-${ex.id}`, type: ex.type, instruction: `${prefix} · ${ex.instruction}`, items: wrong as Exercise['items'] }];
+    })
+  );
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initHomeworkProgress, computeHomeworkScore, homeworkProgressFraction, parseHomeworkImport, nextHomeworkNumber, buildAssignedHomework, withFreeTextAnswer, groupHomeworkByWeek } from './homework';
+import { initHomeworkProgress, computeHomeworkScore, homeworkProgressFraction, parseHomeworkImport, nextHomeworkNumber, buildAssignedHomework, withFreeTextAnswer, groupHomeworkByWeek, homeworkMistakes } from './homework';
 import { Exercise, Homework } from '@/types/models';
 
 const exercises: Exercise[] = [
@@ -145,5 +145,30 @@ describe('groupHomeworkByWeek', () => {
       ['Неделя 28 сентября – 4 октября', ['b']],
       ['Неделя 21–27 сентября', ['c', 'd', 'a']],
     ]);
+  });
+});
+
+describe('homeworkMistakes', () => {
+  it('collects checked-wrong items as small exercises, per homework and exercise', () => {
+    const exs: Exercise[] = [
+      { id: 'fb', type: 'fill-blank', instruction: '11.2 Fill in', items: [{ text: 'She ___ 22.', blanks: [['was']] }, { text: 'I ___ ok.', blanks: [['am']] }] },
+      { id: 'mc', type: 'multiple-choice', instruction: 'Choose', items: [{ question: 'I ___', options: ['am', 'is'], correctIndex: 0 }] },
+      { id: 'ft', type: 'free-text', instruction: 'Write', items: [{ prompt: '' }] },
+    ];
+    const hwk: Homework = {
+      id: 'h1', number: 3, title: 'Unit 11', assignedDate: '2026-09-26', status: 'completed', exercises: exs,
+      progress: {
+        fb: { userAnswers: [['is'], ['am']], checked: [true, true], correct: [false, true] },
+        mc: { userAnswers: [1], checked: [true], correct: [false] },
+        ft: { userAnswers: [['text']], checked: [true], correct: [false] },
+      },
+    };
+    const clean: Homework = { ...hwk, id: 'h2', progress: { fb: { userAnswers: [['was'], ['am']], checked: [true, true], correct: [true, true] }, mc: { userAnswers: [0], checked: [true], correct: [true] }, ft: hwk.progress.ft } };
+    const result = homeworkMistakes([hwk, clean]);
+    expect(result.map((e) => [e.id, e.type, e.instruction, e.items.length])).toEqual([
+      ['mistakes-h1-fb', 'fill-blank', 'ДЗ 3 · 11.2 Fill in', 1],
+      ['mistakes-h1-mc', 'multiple-choice', 'ДЗ 3 · Choose', 1],
+    ]);
+    expect(result[0].items[0]).toEqual({ text: 'She ___ 22.', blanks: [['was']] });
   });
 });
