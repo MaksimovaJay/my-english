@@ -3,14 +3,20 @@
 import { useState } from 'react';
 import { MatchingGame } from '@/components/games/MatchingGame';
 import { FloatingWords } from '@/components/games/FloatingWords';
+import { SentenceBuilder } from '@/components/games/SentenceBuilder';
+import { LetterGuess } from '@/components/games/LetterGuess';
+import { TimedQuiz } from '@/components/games/TimedQuiz';
 import { useTopicContents } from '@/components/topics/useTopicContents';
 import { cn } from '@/lib/utils';
 
-type Game = 'matching' | 'floating';
+type Game = 'matching' | 'floating' | 'sentence' | 'letters' | 'timed';
 
 const GAMES: { id: Game; label: string }[] = [
   { id: 'matching', label: '🔗 Найди пару' },
   { id: 'floating', label: '🫧 Лови слова' },
+  { id: 'sentence', label: '🧩 Собери предложение' },
+  { id: 'letters', label: '🔤 Буквы' },
+  { id: 'timed', label: '⏱ На время' },
 ];
 
 export default function GamesPage() {
@@ -60,6 +66,9 @@ export default function GamesPage() {
         </>
       )}
       {game === 'floating' && <FloatingWords key={topicId} items={items} />}
+      {game === 'sentence' && <SentenceBuilder key={topicId} items={items} />}
+      {game === 'letters' && <LetterGuess key={topicId} items={items} />}
+      {game === 'timed' && <TimedQuiz key={topicId} items={items} />}
     </div>
   );
 }

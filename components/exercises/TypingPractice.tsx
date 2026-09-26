@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { VocabItem } from '@/types/models';
 import { isAnswerCorrect } from '@/lib/learning/checkAnswer';
 import { diffTyped } from '@/lib/learning/typingCheck';
+import { recordGameCorrect } from '@/lib/learning/daily';
 import { useAutoAdvance } from './useAutoAdvance';
 
 interface TypingPracticeProps {
@@ -39,6 +40,7 @@ export function TypingPractice({ items, random = Math.random }: TypingPracticePr
     setChecked(true);
     if (isAnswerCorrect(input, [target.english])) {
       setSolved(true);
+      recordGameCorrect();
       advance(nextRound);
     } else {
       setMisses((m) => m + 1);

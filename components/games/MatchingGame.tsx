@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { VocabItem } from '@/types/models';
 import { buildMatchingRound, isMatch } from '@/lib/learning/matchingGame';
 import { cn } from '@/lib/utils';
+import { recordGameCorrect } from '@/lib/learning/daily';
 
 interface MatchingGameProps {
   items: VocabItem[];
@@ -29,6 +30,7 @@ export function MatchingGame({ items, count = 5, random = Math.random }: Matchin
     if (isMatch(leftItem, rightItem)) {
       setMatched((prev) => new Set(prev).add(leftItem.id));
       setSelectedLeft(null);
+      recordGameCorrect();
     } else {
       setWrongRightId(rightItem.id);
       setSelectedLeft(null);

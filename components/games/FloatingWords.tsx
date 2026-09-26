@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { VocabItem } from '@/types/models';
 import { pickFloatingRound, DIFFICULTY_CONFIG, bubbleLayout, floatingAreaHeightPx } from '@/lib/learning/floatingWords';
 import { cn } from '@/lib/utils';
+import { recordGameCorrect } from '@/lib/learning/daily';
 import { useAutoAdvance } from '@/components/exercises/useAutoAdvance';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -35,6 +36,7 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
     if (!round || solved) return;
     if (id === round.target.id) {
       setSolved(true);
+      recordGameCorrect();
       advance(nextRound);
     } else {
       setWrong((prev) => new Set(prev).add(id));

@@ -5,6 +5,7 @@ import { VocabItem } from '@/types/models';
 import { buildListeningRound } from '@/lib/learning/listeningPractice';
 import { ListenButton } from '@/components/shared/ListenButton';
 import { cn } from '@/lib/utils';
+import { recordGameCorrect } from '@/lib/learning/daily';
 import { useAutoAdvance } from './useAutoAdvance';
 
 interface ListeningPracticeProps {
@@ -29,6 +30,7 @@ export function ListeningPractice({ items, random = Math.random }: ListeningPrac
     if (!round || solved) return;
     if (id === round.target.id) {
       setSolved(true);
+      recordGameCorrect();
       advance(nextRound);
     } else {
       setWrong((prev) => new Set(prev).add(id));
