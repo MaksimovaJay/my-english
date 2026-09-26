@@ -4,6 +4,7 @@ import { Nunito } from 'next/font/google';
 import { StoreHydrator } from '@/components/layout/StoreHydrator';
 import { Nav } from '@/components/layout/Nav';
 import { SyncBanner } from '@/components/layout/SyncBanner';
+import { PlanWatcher } from '@/components/layout/PlanWatcher';
 
 const nunito = Nunito({ subsets: ['latin', 'cyrillic'], display: 'swap' });
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ru">
       <body className={`${nunito.className} text-gray-900 dark:text-gray-100`}>
         <StoreHydrator />
+        <PlanWatcher />
         <div className="flex min-h-screen flex-col md:flex-row">
           <Nav />
           <main className="flex-1 overflow-x-hidden p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] md:p-6 md:pb-6">

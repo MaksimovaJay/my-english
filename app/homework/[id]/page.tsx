@@ -10,6 +10,7 @@ import { computeHomeworkScore, homeworkLabel, withFreeTextAnswer } from '@/lib/l
 import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
 import { ImagePicker } from '@/components/homework/ImagePicker';
 import { BackLink } from '@/components/shared/BackLink';
+import { toISODate } from '@/lib/learning/date';
 import { isFillBlankItemCorrect, isMultipleChoiceItemCorrect } from '@/lib/learning/checkAnswer';
 
 export default function HomeworkRunnerPage() {
@@ -75,7 +76,7 @@ export default function HomeworkRunnerPage() {
 
   function handleSubmit() {
     const score = computeHomeworkScore(homework!);
-    update({ ...homework!, status: 'completed', score });
+    update({ ...homework!, status: 'completed', score, completedDate: toISODate(new Date()) });
   }
 
   const allChecked = homework.exercises.every((ex) => homework.progress[ex.id]?.checked.every(Boolean));

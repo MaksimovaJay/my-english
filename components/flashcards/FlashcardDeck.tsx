@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { VocabItem } from '@/types/models';
 import { updateReviewState } from '@/lib/learning/review';
 import { Flashcard } from './Flashcard';
+import { useSettingsStore } from '@/lib/storage/settingsStore';
 import { cn } from '@/lib/utils';
 
 interface FlashcardDeckProps {
@@ -41,6 +42,7 @@ export function FlashcardDeck({ items, onUpdateItem }: FlashcardDeckProps) {
         direction={direction}
         onOutcome={(outcome) => {
           onUpdateItem({ ...current, review: updateReviewState(current.review, outcome) });
+          useSettingsStore.getState().bumpDaily('reviewed');
           setIndex((i) => i + 1);
         }}
       />

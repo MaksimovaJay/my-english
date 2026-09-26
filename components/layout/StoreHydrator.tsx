@@ -24,18 +24,15 @@ export function StoreHydrator() {
     // Tests and local design previews never talk to Supabase.
     if (process.env.NODE_ENV === 'test' || process.env.NEXT_PUBLIC_DISABLE_SYNC === '1') {
       mergeSeed();
-      useSettingsStore.getState().recordActivity();
       return;
     }
 
-    const hadLocalData = useWordsStore.getState().items.length > 0;
     const engine = createSyncEngine({ remote: supabaseRemote });
     let active = true;
     void engine.start().then(({ pulled }) => {
       if (!active) return;
       // Seed only on top of the server's data: seeding a stale cache and pushing it could overwrite real progress.
       if (pulled) mergeSeed();
-      if (pulled || hadLocalData) useSettingsStore.getState().recordActivity();
     });
     return () => {
       active = false;

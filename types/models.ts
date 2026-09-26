@@ -105,4 +105,5 @@ export interface Homework {
   sourceNote?: string;
   teacherNotes?: string;
   images?: string[]; // compressed JPEG data URLs of book pages / screenshots
+  completedDate?: string; // YYYY-MM-DD of «Сдать домашку» (counts for the daily plan)
 }
