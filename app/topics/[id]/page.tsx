@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { Pencil } from 'lucide-react';
+import { TopicDialog } from '@/components/topics/TopicDialog';
+import { useTopicsStore } from '@/lib/storage/topicsStore';
+import { useWordsStore } from '@/lib/storage/wordsStore';
+import { usePhrasesStore } from '@/lib/storage/phrasesStore';
 import { BackLink } from '@/components/shared/BackLink';
 import { useRemoveVocabItem, useTopicContents, useUpdateVocabItem } from '@/components/topics/useTopicContents';
 import { EditVocabDialog } from '@/components/topics/EditVocabDialog';
@@ -23,6 +28,9 @@ export default function TopicPage() {
   const [selected, setSelected] = useState<Tab | null>(null);
   const removeItem = useRemoveVocabItem();
   const [editing, setEditing] = useState<VocabItem | null>(null);
+  const [editingTopic, setEditingTopic] = useState(false);
+  const router = useRouter();
+  const topicDocs = useTopicsStore((s) => s.items);
 
   if (!content) {
     return (
@@ -46,7 +54,44 @@ export default function TopicPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <BackLink href="/topics" label="Все темы" />
-      <h1 className="text-xl font-bold">{topic.emoji} {topic.title}</h1>
+      <div className="flex items-center gap-2">
+        <h1 className="text-xl font-bold">{topic.emoji} {topic.title}</h1>
+        {topic.id !== 'other' && (
+          <button type="button" aria-label="Изменить тему" className="rounded-full p-1.5 text-gray-400 hover:text-violet-600" onClick={() => setEditingTopic(true)}>
+            <Pencil size={16} />
+          </button>
+        )}
+      </div>
+      {editingTopic && (
+        <TopicDialog
+          heading="✏️ Изменить тему"
+          initial={topic}
+          itemCount={words.length + phrases.length}
+          onClose={() => setEditingTopic(false)}
+          onSave={(values) => {
+            const existing = topicDocs.find((d) => d.id === topic.id);
+            const store = useTopicsStore.getState();
+            if (existing) store.update({ ...existing, ...values });
+            else store.add({ id: topic.id, ...values });
+            setEditingTopic(false);
+          }}
+          onDelete={
+            topic.id === 'my-words'
+              ? undefined
+              : () => {
+                  // Nothing is lost: the topic's words and phrases move to «Мои слова» (marked as edited so seed updates keep them there).
+                  words.forEach((w) => useWordsStore.getState().update({ ...w, category: 'my-words', edited: true }));
+                  phrases.forEach((p) => usePhrasesStore.getState().update({ ...p, category: 'my-words', edited: true }));
+                  const existing = topicDocs.find((d) => d.id === topic.id);
+                  const store = useTopicsStore.getState();
+                  if (existing?.custom) store.remove(topic.id);
+                  else if (existing) store.update({ ...existing, hidden: true });
+                  else store.add({ id: topic.id, hidden: true });
+                  router.push('/topics');
+                }
+          }
+        />
+      )}
       <p className="mb-4 text-xs text-gray-500">{topicCountsLine(content)}</p>
 
       <div role="tablist" className="mb-4 flex flex-wrap gap-2 border-b pb-2">
@@ -63,6 +108,9 @@ export default function TopicPage() {
         ))}
       </div>
 
+      {tabs.length === 0 && (
+        <p className="card p-4 text-sm text-gray-500">В этой теме пока пусто. Добавьте слова кнопкой «+» внизу справа и выберите эту тему.</p>
+      )}
       {tab === 'words' && <VocabCardList items={words} onEdit={setEditing} />}
       {tab === 'phrases' && <VocabCardList items={phrases} onEdit={setEditing} />}
       {tab === 'rule' && grammar.map((g) => <GrammarTopicCard key={g.id} topic={g} showExercises={false} />)}

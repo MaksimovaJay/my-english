@@ -57,3 +57,10 @@ describe('newThisWeek', () => {
     expect(result).toEqual([{ topic: expect.objectContaining({ id: 'home' }), count: 1 }]);
   });
 });
+
+describe('buildTopicContents keepEmpty', () => {
+  it('keeps a user-created topic even with no words yet', () => {
+    const c = buildTopicContents(topics, [], [], [], new Set(['empty']));
+    expect(c.map((x) => x.topic.id)).toEqual(['empty']);
+  });
+});

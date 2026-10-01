@@ -7,6 +7,7 @@ import { usePhrasesStore } from '@/lib/storage/phrasesStore';
 import { useGrammarStore } from '@/lib/storage/grammarStore';
 import { useExercisesStore } from '@/lib/storage/exercisesStore';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
+import { useTopicsStore } from '@/lib/storage/topicsStore';
 import { useSettingsStore } from '@/lib/storage/settingsStore';
 import { mergeSeed } from '@/lib/seed/mergeSeed';
 import { createSyncEngine } from '@/lib/sync/syncEngine';
@@ -19,6 +20,7 @@ export function StoreHydrator() {
     useGrammarStore.getState().hydrate();
     useExercisesStore.getState().hydrate();
     useHomeworkStore.getState().hydrate();
+    useTopicsStore.getState().hydrate();
     useSettingsStore.getState().hydrate();
 
     // Tests and local design previews never talk to Supabase.

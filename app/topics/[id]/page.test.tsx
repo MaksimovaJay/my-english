@@ -5,9 +5,11 @@ import { useWordsStore } from '@/lib/storage/wordsStore';
 import { usePhrasesStore } from '@/lib/storage/phrasesStore';
 import { useGrammarStore } from '@/lib/storage/grammarStore';
 import { mergeSeed } from '@/lib/seed/mergeSeed';
+import { useTopicsStore } from '@/lib/storage/topicsStore';
 
 const params = { id: 'home' };
-vi.mock('next/navigation', () => ({ useParams: () => params }));
+const push = vi.fn();
+vi.mock('next/navigation', () => ({ useParams: () => params, useRouter: () => ({ push }) }));
 
 describe('TopicPage', () => {
   beforeEach(() => {
@@ -78,5 +80,38 @@ describe('TopicPage editing', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Изменить sofa' }));
     fireEvent.click(screen.getByRole('button', { name: 'Удалить' }));
     expect(useWordsStore.getState().items.some((w) => w.id === 'seed-word-sofa')).toBe(false);
+  });
+});
+
+describe('TopicPage topic editing', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    useWordsStore.setState({ items: [], hydrated: true });
+    usePhrasesStore.setState({ items: [], hydrated: true });
+    useGrammarStore.setState({ items: [], hydrated: true });
+    useTopicsStore.setState({ items: [], hydrated: true });
+    mergeSeed();
+    params.id = 'home';
+  });
+
+  it('renames a topic and changes its icon', () => {
+    render(<TopicPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Изменить тему' }));
+    fireEvent.change(screen.getByLabelText('Название'), { target: { value: 'Моя квартира' } });
+    fireEvent.change(screen.getByLabelText('Значок'), { target: { value: '🛋️' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    expect(screen.getByRole('heading', { name: '🛋️ Моя квартира' })).toBeInTheDocument();
+    expect(useTopicsStore.getState().items).toEqual([{ id: 'home', title: 'Моя квартира', emoji: '🛋️', group: 'class' }]);
+  });
+
+  it('deletes a topic and moves its words to «Мои слова»', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const count = useWordsStore.getState().items.filter((w) => w.category === 'home').length;
+    render(<TopicPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Изменить тему' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Удалить тему' }));
+    expect(useTopicsStore.getState().items).toEqual([{ id: 'home', hidden: true }]);
+    expect(useWordsStore.getState().items.filter((w) => w.category === 'my-words')).toHaveLength(count);
+    expect(push).toHaveBeenCalledWith('/topics');
   });
 });

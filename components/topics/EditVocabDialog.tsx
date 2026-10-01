@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Trash2, X } from 'lucide-react';
 import { VocabItem } from '@/types/models';
-import { TOPICS } from '@/lib/seed/topics';
+import { useTopics } from './useTopicContents';
 
 interface EditVocabDialogProps {
   item: VocabItem;
@@ -23,6 +23,7 @@ export function EditVocabDialog({ item, onSave, onDelete, onClose }: EditVocabDi
     category: item.category,
   });
   const [error, setError] = useState<string | null>(null);
+  const topics = useTopics();
   const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
   function save(e: React.FormEvent) {
@@ -71,7 +72,7 @@ export function EditVocabDialog({ item, onSave, onDelete, onClose }: EditVocabDi
           <label className="flex flex-col gap-1">Произношение русскими буквами<input className={field} value={form.ruPronunciation} onChange={set('ruPronunciation')} /></label>
           <label className="flex flex-col gap-1">Тема
             <select className={field} value={form.category} onChange={set('category')}>
-              {TOPICS.map((t) => <option key={t.id} value={t.id}>{t.emoji} {t.title}</option>)}
+              {topics.map((t) => <option key={t.id} value={t.id}>{t.emoji} {t.title}</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1">Пример<input autoCapitalize="none" className={field} value={form.example} onChange={set('example')} /></label>

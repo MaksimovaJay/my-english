@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { useWordsStore } from '@/lib/storage/wordsStore';
-import { TOPICS } from '@/lib/seed/topics';
+import { useTopics } from '@/components/topics/useTopicContents';
 import { createInitialReviewState } from '@/lib/learning/review';
 import { toISODate } from '@/lib/learning/date';
 import { generateId } from '@/lib/utils';
@@ -14,6 +14,7 @@ const EMPTY = { english: '', translation: '', category: 'my-words', example: '',
 export function QuickAddWord() {
   const words = useWordsStore((s) => s.items);
   const add = useWordsStore((s) => s.add);
+  const topics = useTopics();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState<string | null>(null);
@@ -93,7 +94,7 @@ export function QuickAddWord() {
               <label className="flex flex-col gap-1">
                 Тема
                 <select className="rounded border bg-transparent px-2 py-1.5" value={form.category} onChange={set('category')}>
-                  {TOPICS.map((t) => (
+                  {topics.map((t) => (
                     <option key={t.id} value={t.id}>{t.emoji} {t.title}</option>
                   ))}
                 </select>

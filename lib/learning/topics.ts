@@ -14,7 +14,9 @@ export function buildTopicContents(
   topics: Topic[],
   words: VocabItem[],
   phrases: VocabItem[],
-  grammar: GrammarTopic[]
+  grammar: GrammarTopic[],
+  /** Topics shown even while empty (ones the user created). */
+  keepEmpty: Set<string> = new Set()
 ): TopicContent[] {
   const known = new Set(topics.map((t) => t.id));
   const topicIdOf = (id: string | undefined) => (id && known.has(id) ? id : OTHER_TOPIC.id);
@@ -31,7 +33,7 @@ export function buildTopicContents(
         exerciseCount: topicGrammar.reduce((sum, g) => sum + g.practiceExercises.length, 0),
       };
     })
-    .filter((c) => c.words.length + c.phrases.length + c.grammar.length > 0);
+    .filter((c) => keepEmpty.has(c.topic.id) || c.words.length + c.phrases.length + c.grammar.length > 0);
 }
 
 export function topicProgress(items: VocabItem[]): number {
