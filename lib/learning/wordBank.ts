@@ -1,6 +1,7 @@
 import { FillBlankItem, VocabItem } from '@/types/models';
 import { shuffled } from './games';
 import { seededRandom } from './sentenceOrder';
+import { pickWeighted } from './weighting';
 
 /** Teacher input: one sentence per line, answers in square brackets, alternatives with «/»: «This car [is/was] red.» */
 export function parseBankSentences(text: string): FillBlankItem[] {
@@ -28,13 +29,13 @@ export function buildBank(items: FillBlankItem[], extra = ''): string[] {
 const BANK_SIZE = 5;
 
 /** Game round: a word's example with the word blanked out, and a list of 5 words to choose from. */
-export function wordBankRound(items: VocabItem[], random: () => number = Math.random): { text: string; answer: string; bank: string[] } | null {
+export function wordBankRound(items: VocabItem[], random: () => number = Math.random, weight?: (item: VocabItem) => number): { text: string; answer: string; bank: string[] } | null {
   const candidates = items.filter((i) => {
     if (!i.example) return false;
     return new RegExp(`\\b${escape(i.english)}\\b`, 'i').test(i.example);
   });
   if (candidates.length === 0) return null;
-  const target = candidates[Math.floor(random() * candidates.length)];
+  const target = weight ? pickWeighted(candidates, weight, random)! : candidates[Math.floor(random() * candidates.length)];
   const text = target.example!.replace(new RegExp(`\\b${escape(target.english)}\\b`, 'i'), '___');
   const others = shuffled(
     items.map((i) => i.english).filter((e, idx, all) => e.toLowerCase() !== target.english.toLowerCase() && all.indexOf(e) === idx),

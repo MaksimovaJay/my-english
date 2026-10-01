@@ -6,6 +6,7 @@ import { VocabItem } from '@/types/models';
 import { browserRecognizer, isRecognitionSupported, isSpokenMatch, Recognizer } from '@/lib/pronunciation/recognize';
 import { recordGameCorrect } from '@/lib/learning/daily';
 import { ListenButton } from '@/components/shared/ListenButton';
+import { practiceWeight, pickWeighted } from '@/lib/learning/weighting';
 import { useAutoAdvance } from './useAutoAdvance';
 import { cn } from '@/lib/utils';
 
@@ -25,7 +26,7 @@ const ERRORS: Record<string, string> = {
 /** «🎤 Скажи»: say the word or phrase; speech recognition checks it. */
 export function SpeakPractice({ items, random = Math.random, recognizer = browserRecognizer, supported }: SpeakPracticeProps) {
   const [roundKey, setRoundKey] = useState(0);
-  const target = useMemo(() => (items.length ? items[Math.floor(random() * items.length)] : null), [items, random, roundKey]);
+  const target = useMemo(() => pickWeighted(items, practiceWeight, random) ?? null, [items, random, roundKey]);
   const [state, setState] = useState<'idle' | 'listening' | 'right' | 'wrong' | 'error'>('idle');
   const [heard, setHeard] = useState('');
   const [error, setError] = useState('');

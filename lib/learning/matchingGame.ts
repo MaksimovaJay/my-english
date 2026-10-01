@@ -1,3 +1,5 @@
+import { weightedSample } from './weighting';
+
 function shuffled<T>(arr: T[], random: () => number): T[] {
   const copy = [...arr];
   for (let i = copy.length - 1; i > 0; i--) {
@@ -10,9 +12,12 @@ function shuffled<T>(arr: T[], random: () => number): T[] {
 export function buildMatchingRound<T extends { id: string }>(
   pool: T[],
   count: number,
-  random: () => number = Math.random
+  random: () => number = Math.random,
+  weight?: (item: T) => number
 ): { leftItems: T[]; rightItems: T[] } {
-  const leftItems = shuffled(pool, random).slice(0, Math.min(count, pool.length));
+  const leftItems = weight
+    ? shuffled(weightedSample(pool, Math.min(count, pool.length), weight, random), random)
+    : shuffled(pool, random).slice(0, Math.min(count, pool.length));
   const rightItems = shuffled(leftItems, random);
   return { leftItems, rightItems };
 }

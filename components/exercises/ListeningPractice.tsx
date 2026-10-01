@@ -6,6 +6,7 @@ import { buildListeningRound } from '@/lib/learning/listeningPractice';
 import { ListenButton } from '@/components/shared/ListenButton';
 import { cn } from '@/lib/utils';
 import { recordGameCorrect } from '@/lib/learning/daily';
+import { practiceWeight } from '@/lib/learning/weighting';
 import { useAutoAdvance } from './useAutoAdvance';
 
 interface ListeningPracticeProps {
@@ -15,7 +16,7 @@ interface ListeningPracticeProps {
 
 export function ListeningPractice({ items, random = Math.random }: ListeningPracticeProps) {
   const [roundKey, setRoundKey] = useState(0);
-  const round = useMemo(() => buildListeningRound(items, random), [items, random, roundKey]);
+  const round = useMemo(() => buildListeningRound(items, random, practiceWeight), [items, random, roundKey]);
   const [wrong, setWrong] = useState<Set<string>>(new Set());
   const [solved, setSolved] = useState(false);
   const advance = useAutoAdvance();

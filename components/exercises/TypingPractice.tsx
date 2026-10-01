@@ -5,6 +5,7 @@ import { VocabItem } from '@/types/models';
 import { isAnswerCorrect } from '@/lib/learning/checkAnswer';
 import { diffTyped } from '@/lib/learning/typingCheck';
 import { recordGameCorrect } from '@/lib/learning/daily';
+import { practiceWeight, pickWeighted } from '@/lib/learning/weighting';
 import { useAutoAdvance } from './useAutoAdvance';
 
 interface TypingPracticeProps {
@@ -17,7 +18,7 @@ const MISSES_BEFORE_HINT = 2;
 
 export function TypingPractice({ items, random = Math.random }: TypingPracticeProps) {
   const [roundKey, setRoundKey] = useState(0);
-  const target = useMemo(() => items[Math.floor(random() * items.length)], [items, random, roundKey]);
+  const target = useMemo(() => pickWeighted(items, practiceWeight, random), [items, random, roundKey]);
   const [input, setInput] = useState('');
   const [checked, setChecked] = useState(false);
   const [misses, setMisses] = useState(0);
@@ -38,7 +39,7 @@ export function TypingPractice({ items, random = Math.random }: TypingPracticePr
     e.preventDefault();
     if (solved || !input.trim()) return;
     setChecked(true);
-    if (isAnswerCorrect(input, [target.english])) {
+    if (isAnswerCorrect(input, [target!.english])) {
       setSolved(true);
       recordGameCorrect();
       advance(nextRound);

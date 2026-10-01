@@ -34,25 +34,21 @@ describe('updateReviewState', () => {
     expect(next.nextReviewDate).toBe('2026-09-24'); // level 0 -> +0 days
   });
 
-  it('keeps level unchanged on "hard"', () => {
-    const state = { status: 'review' as const, level: 2, lastReviewed: null, nextReviewDate: null, correctCount: 0, mistakeCount: 0 };
-    const next = updateReviewState(state, 'hard', TODAY);
-    expect(next.level).toBe(2);
-    expect(next.status).toBe('review');
+  it('«Знаю, но забываю» counts as known, flags the word and brings it back tomorrow', () => {
+    const state = { status: 'review' as const, level: 4, lastReviewed: null, nextReviewDate: null, correctCount: 2, mistakeCount: 1 };
+    const next = updateReviewState(state, 'forgetting', TODAY);
+    expect(next).toMatchObject({ forgetting: true, nextReviewDate: '2026-09-25', correctCount: 3, mistakeCount: 1, status: 'review' });
+    expect(next.level).toBeLessThanOrEqual(2);
   });
 
-  it('preserves status on "hard" when status is "new"', () => {
-    const state = { status: 'new' as const, level: 0, lastReviewed: null, nextReviewDate: '2026-09-24', correctCount: 0, mistakeCount: 0 };
-    const next = updateReviewState(state, 'hard', TODAY);
-    expect(next.level).toBe(0);
-    expect(next.status).toBe('new');
+  it('«Знаю, но забываю» on a new word makes it «learning»', () => {
+    const next = updateReviewState(createInitialReviewState(TODAY), 'forgetting', TODAY);
+    expect(next).toMatchObject({ status: 'learning', forgetting: true, nextReviewDate: '2026-09-25' });
   });
 
-  it('preserves status on "hard" when status is "learning"', () => {
-    const state = { status: 'learning' as const, level: 1, lastReviewed: null, nextReviewDate: null, correctCount: 0, mistakeCount: 0 };
-    const next = updateReviewState(state, 'hard', TODAY);
-    expect(next.level).toBe(1);
-    expect(next.status).toBe('learning');
+  it('a clean «Знаю» clears the «забываю» flag', () => {
+    const shaky = updateReviewState(createInitialReviewState(TODAY), 'forgetting', TODAY);
+    expect(updateReviewState(shaky, 'know', TODAY).forgetting).toBe(false);
   });
 
   it('raises level by 1 (capped at 5) and increments correctCount on "know"', () => {

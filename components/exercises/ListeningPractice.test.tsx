@@ -3,6 +3,7 @@ import { AUTO_ADVANCE_MS } from './useAutoAdvance';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ListeningPractice } from './ListeningPractice';
 import { buildListeningRound } from '@/lib/learning/listeningPractice';
+import { practiceWeight } from '@/lib/learning/weighting';
 
 const items = [
   { id: '1', english: 'mother', translation: 'мама', category: 'Family', tags: [], dateAdded: '2026-09-24', review: { status: 'new' as const, level: 0, lastReviewed: null, nextReviewDate: null, correctCount: 0, mistakeCount: 0 } },
@@ -20,7 +21,7 @@ describe('ListeningPractice', () => {
 
   afterEach(() => vi.useRealTimers());
 
-  const round = () => buildListeningRound(items, () => 0)!;
+  const round = () => buildListeningRound(items, () => 0, practiceWeight)!;
   const optionButtons = () => screen.getAllByRole('button').filter((b) => items.some((i) => i.english === b.textContent));
 
   it('renders 3 options and no result before answering', () => {

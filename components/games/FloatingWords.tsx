@@ -6,6 +6,7 @@ import { pickFloatingRound, DIFFICULTY_CONFIG, bubbleLayout, floatingAreaHeightP
 import { cn } from '@/lib/utils';
 import { recordGameCorrect } from '@/lib/learning/daily';
 import { useAutoAdvance } from '@/components/exercises/useAutoAdvance';
+import { practiceWeight } from '@/lib/learning/weighting';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -24,7 +25,7 @@ export function FloatingWords({ items, random = Math.random }: FloatingWordsProp
   const advance = useAutoAdvance();
 
   const config = DIFFICULTY_CONFIG[difficulty];
-  const round = useMemo(() => pickFloatingRound(items, config.poolSize, random), [items, config.poolSize, random, roundKey]);
+  const round = useMemo(() => pickFloatingRound(items, config.poolSize, random, practiceWeight), [items, config.poolSize, random, roundKey]);
 
   function nextRound() {
     setWrong(new Set());

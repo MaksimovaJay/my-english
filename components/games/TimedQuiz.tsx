@@ -7,6 +7,7 @@ import { recordGameCorrect } from '@/lib/learning/daily';
 import { useSettingsStore } from '@/lib/storage/settingsStore';
 import { useAutoAdvance } from '@/components/exercises/useAutoAdvance';
 import { cn } from '@/lib/utils';
+import { practiceWeight } from '@/lib/learning/weighting';
 
 export const TIMED_SECONDS = 60;
 const WRONG_FLASH_MS = 300;
@@ -22,7 +23,7 @@ export function TimedQuiz({ items, random = Math.random }: { items: VocabItem[];
   const best = useSettingsStore((s) => s.bests.timed ?? 0);
   const setBest = useSettingsStore((s) => s.setBest);
   const advance = useAutoAdvance();
-  const question = useMemo(() => timedQuestion(items, random), [items, random, qKey]);
+  const question = useMemo(() => timedQuestion(items, random, practiceWeight), [items, random, qKey]);
 
   useEffect(() => {
     if (phase !== 'running') return;

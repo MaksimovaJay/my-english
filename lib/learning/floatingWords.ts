@@ -1,3 +1,4 @@
+import { pickWeighted } from './weighting';
 export interface FloatingWordsConfig { poolSize: number; speedSeconds: number; }
 
 export const DIFFICULTY_CONFIG: Record<'easy' | 'medium' | 'hard', FloatingWordsConfig> = {
@@ -18,9 +19,15 @@ function shuffled<T>(arr: T[], random: () => number): T[] {
 export function pickFloatingRound<T extends { id: string }>(
   pool: T[],
   poolSize: number,
-  random: () => number = Math.random
+  random: () => number = Math.random,
+  weight?: (item: T) => number
 ): { target: T; bubbles: T[] } | null {
   if (pool.length === 0) return null;
+  if (weight) {
+    const target = pickWeighted(pool, weight, random)!;
+    const others = shuffled(pool.filter((p) => p.id !== target.id), random).slice(0, Math.max(0, Math.min(poolSize, pool.length) - 1));
+    return { target, bubbles: shuffled([target, ...others], random) };
+  }
   const bubbles = shuffled(pool, random).slice(0, Math.min(poolSize, pool.length));
   const target = bubbles[Math.floor(random() * bubbles.length)];
   return { target, bubbles };

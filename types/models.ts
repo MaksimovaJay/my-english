@@ -7,6 +7,7 @@ export interface ReviewState {
   nextReviewDate: string | null; // ISO date
   correctCount: number;
   mistakeCount: number;
+  forgetting?: boolean; // «Знаю, но забываю»: shown more often until a clean «Знаю»
 }
 
 export interface VocabItem {

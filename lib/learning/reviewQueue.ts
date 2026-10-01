@@ -6,6 +6,9 @@ export function getDueItems<T extends { review: ReviewState }>(items: T[], today
   return items.filter((i) => i.review.nextReviewDate !== null && i.review.nextReviewDate <= todayStr);
 }
 
+/** «Мои ошибки»: words with mistakes (most first), then words marked «Знаю, но забываю». */
 export function getMistakeSorted<T extends { review: ReviewState }>(items: T[]): T[] {
-  return [...items].filter((i) => i.review.mistakeCount > 0).sort((a, b) => b.review.mistakeCount - a.review.mistakeCount);
+  return [...items]
+    .filter((i) => i.review.mistakeCount > 0 || i.review.forgetting)
+    .sort((a, b) => b.review.mistakeCount - a.review.mistakeCount);
 }

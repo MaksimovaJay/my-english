@@ -39,6 +39,7 @@ export function VocabCardList({ items, onEdit }: { items: VocabItem[]; onEdit?: 
                   <ListenButton text={item.english} />
                 </span>
                 {item.ruPronunciation && <span className="text-xs text-gray-500">[{item.ruPronunciation}]</span>}
+                {item.review.forgetting && <span className="rounded-full bg-amber-100 px-1.5 text-[10px] text-amber-800 dark:bg-amber-500/20 dark:text-amber-200">🤔 забываю</span>}
                 {onEdit && (
                   <button
                     type="button"

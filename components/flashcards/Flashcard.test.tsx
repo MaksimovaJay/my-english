@@ -70,3 +70,13 @@ describe('Flashcard', () => {
     expect(screen.getByText('ˈmʌðər')).toBeInTheDocument();
   });
 });
+
+describe('Flashcard «Знаю, но забываю»', () => {
+  it('reports the forgetting outcome', () => {
+    const onOutcome = vi.fn();
+    render(<Flashcard item={item} direction="en-ru" onOutcome={onOutcome} />);
+    fireEvent.click(screen.getByText(/показать ответ/i));
+    fireEvent.click(screen.getByRole('button', { name: '🤔 Знаю, но забываю' }));
+    expect(onOutcome).toHaveBeenCalledWith('forgetting');
+  });
+});

@@ -7,6 +7,7 @@ import { recordGameCorrect } from '@/lib/learning/daily';
 import { useAutoAdvance } from '@/components/exercises/useAutoAdvance';
 import { ListenButton } from '@/components/shared/ListenButton';
 import { cn } from '@/lib/utils';
+import { practiceWeight, pickWeighted } from '@/lib/learning/weighting';
 
 interface Chip {
   key: number;
@@ -17,7 +18,14 @@ interface Chip {
 export function SentenceBuilder({ items, random = Math.random }: { items: VocabItem[]; random?: () => number }) {
   const pool = useMemo(() => sentencePool(items), [items]);
   const [roundKey, setRoundKey] = useState(0);
-  const task = useMemo(() => (pool.length ? pool[Math.floor(random() * pool.length)] : null), [pool, random, roundKey]);
+  // Sentences of «забываю» words and words with mistakes come up more often.
+  const task = useMemo(() => {
+    const weightOf = (id: string) => {
+      const source = items.find((i) => i.id === id.replace(/-example$/, ''));
+      return source ? practiceWeight(source) : 1;
+    };
+    return pickWeighted(pool, (t) => weightOf(t.id), random) ?? null;
+  }, [pool, items, random, roundKey]);
   const chips = useMemo<Chip[]>(() => (task ? shuffleTokens(task.tokens, random).map((text, key) => ({ key, text })) : []), [task, random]);
   const [placed, setPlaced] = useState<number[]>([]); // chip keys in answer order
   const [state, setState] = useState<'playing' | 'wrong' | 'solved'>('playing');

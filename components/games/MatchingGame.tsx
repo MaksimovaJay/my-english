@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { VocabItem } from '@/types/models';
 import { buildMatchingRound, isMatch } from '@/lib/learning/matchingGame';
+import { practiceWeight } from '@/lib/learning/weighting';
 import { cn } from '@/lib/utils';
 import { recordGameCorrect } from '@/lib/learning/daily';
 
@@ -13,7 +14,7 @@ interface MatchingGameProps {
 }
 
 export function MatchingGame({ items, count = 5, random = Math.random }: MatchingGameProps) {
-  const { leftItems, rightItems } = useMemo(() => buildMatchingRound(items, count, random), [items, count, random]);
+  const { leftItems, rightItems } = useMemo(() => buildMatchingRound(items, count, random, practiceWeight), [items, count, random]);
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [matched, setMatched] = useState<Set<string>>(new Set());
   const [wrongRightId, setWrongRightId] = useState<string | null>(null);

@@ -4,13 +4,14 @@ import { useMemo, useState } from 'react';
 import { VocabItem } from '@/types/models';
 import { wordBankRound } from '@/lib/learning/wordBank';
 import { recordGameCorrect } from '@/lib/learning/daily';
+import { practiceWeight } from '@/lib/learning/weighting';
 import { useAutoAdvance } from '@/components/exercises/useAutoAdvance';
 import { WordBankChips, WordBankSentence } from '@/components/exercises/WordBankSentence';
 
 /** «Вставь слово»: an example sentence with your word missing — pick it from the list. */
 export function WordBankGame({ items, random = Math.random }: { items: VocabItem[]; random?: () => number }) {
   const [roundKey, setRoundKey] = useState(0);
-  const round = useMemo(() => wordBankRound(items, random), [items, random, roundKey]);
+  const round = useMemo(() => wordBankRound(items, random, practiceWeight), [items, random, roundKey]);
   const [answer, setAnswer] = useState('');
   const advance = useAutoAdvance();
 

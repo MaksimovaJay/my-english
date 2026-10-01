@@ -1,4 +1,5 @@
 import { VocabItem } from '@/types/models';
+import { pickWeighted } from './weighting';
 
 export function shuffled<T>(arr: T[], random: () => number = Math.random): T[] {
   const copy = [...arr];
@@ -75,10 +76,12 @@ export function isWordSolved(word: string, guessed: Set<string>): boolean {
 
 // ── На время ─────────────────────────────────────────────────────
 
-export function timedQuestion(items: VocabItem[], random: () => number = Math.random): { target: VocabItem; options: string[] } | null {
+export function timedQuestion(items: VocabItem[], random: () => number = Math.random, weight?: (item: VocabItem) => number): { target: VocabItem; options: string[] } | null {
   const distinct = items.filter((item, i) => items.findIndex((o) => o.translation === item.translation) === i);
   if (distinct.length < 2) return null;
-  const [target, ...rest] = shuffled(distinct, random);
+  const order = shuffled(distinct, random);
+  const target = weight ? pickWeighted(distinct, weight, random)! : order[0];
+  const rest = order.filter((o) => o !== target);
   const options = shuffled([target.translation, ...rest.slice(0, 3).map((r) => r.translation)], random);
   return { target, options };
 }

@@ -6,6 +6,7 @@ import { LETTER_LIVES, isWordSolved, letterWords, maskWord } from '@/lib/learnin
 import { recordGameCorrect } from '@/lib/learning/daily';
 import { useAutoAdvance } from '@/components/exercises/useAutoAdvance';
 import { cn } from '@/lib/utils';
+import { practiceWeight, pickWeighted } from '@/lib/learning/weighting';
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
 const REVEAL_MS = 1500;
@@ -14,7 +15,7 @@ const REVEAL_MS = 1500;
 export function LetterGuess({ items, random = Math.random }: { items: VocabItem[]; random?: () => number }) {
   const pool = useMemo(() => letterWords(items), [items]);
   const [roundKey, setRoundKey] = useState(0);
-  const target = useMemo(() => (pool.length ? pool[Math.floor(random() * pool.length)] : null), [pool, random, roundKey]);
+  const target = useMemo(() => pickWeighted(pool, practiceWeight, random) ?? null, [pool, random, roundKey]);
   const [guessed, setGuessed] = useState<Set<string>>(new Set());
   const [misses, setMisses] = useState(0);
   const advance = useAutoAdvance();

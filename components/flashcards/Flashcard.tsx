@@ -46,8 +46,9 @@ export function Flashcard({ item, direction, onOutcome }: FlashcardProps) {
         </div>
       )}
       {revealed && (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap justify-center gap-2">
           <button className="rounded bg-red-100 px-3 py-1 text-sm text-red-700" onClick={() => handleOutcome('again')}>❌ Не знаю</button>
+          <button className="rounded bg-amber-100 px-3 py-1 text-sm text-amber-800" onClick={() => handleOutcome('forgetting')}>🤔 Знаю, но забываю</button>
           <button className="rounded bg-green-100 px-3 py-1 text-sm text-green-700" onClick={() => handleOutcome('know')}>✅ Знаю</button>
         </div>
       )}
