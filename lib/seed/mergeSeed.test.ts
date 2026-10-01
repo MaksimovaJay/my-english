@@ -121,3 +121,21 @@ describe('mergeSeed', () => {
     expect(useHomeworkStore.getState().items).toEqual([]);
   });
 });
+
+describe('mergeSeed and hand edits', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    useWordsStore.setState({ items: [], hydrated: false });
+    usePhrasesStore.setState({ items: [], hydrated: false });
+    useGrammarStore.setState({ items: [], hydrated: false });
+    useHomeworkStore.setState({ items: [], hydrated: false });
+  });
+
+  it('does not overwrite a seed word the user edited', () => {
+    mergeSeed();
+    const chair = useWordsStore.getState().items.find((i) => i.id === 'seed-word-chair')!;
+    useWordsStore.getState().update({ ...chair, translation: 'стульчик', category: 'my-words', edited: true });
+    mergeSeed();
+    expect(useWordsStore.getState().items.find((i) => i.id === 'seed-word-chair')).toMatchObject({ translation: 'стульчик', category: 'my-words' });
+  });
+});

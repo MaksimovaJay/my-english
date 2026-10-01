@@ -15,6 +15,17 @@ export function useTopicContents(): TopicContent[] {
   return useMemo(() => buildTopicContents(TOPICS, words, phrases, grammar), [words, phrases, grammar]);
 }
 
+/** Removes a word or phrase from whichever store holds it. */
+export function useRemoveVocabItem(): (id: string) => void {
+  const words = useWordsStore((s) => s.items);
+  const removeWord = useWordsStore((s) => s.remove);
+  const removePhrase = usePhrasesStore((s) => s.remove);
+  return (id) => {
+    if (words.some((w) => w.id === id)) removeWord(id);
+    else removePhrase(id);
+  };
+}
+
 /** Saves a reviewed item to whichever store (words or phrases) holds it. */
 export function useUpdateVocabItem(): (item: VocabItem) => void {
   const words = useWordsStore((s) => s.items);

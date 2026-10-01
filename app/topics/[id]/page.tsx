@@ -4,7 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { BackLink } from '@/components/shared/BackLink';
-import { useTopicContents, useUpdateVocabItem } from '@/components/topics/useTopicContents';
+import { useRemoveVocabItem, useTopicContents, useUpdateVocabItem } from '@/components/topics/useTopicContents';
+import { EditVocabDialog } from '@/components/topics/EditVocabDialog';
+import { VocabItem } from '@/types/models';
 import { VocabCardList } from '@/components/topics/VocabCardList';
 import { TopicPractice } from '@/components/topics/TopicPractice';
 import { topicCountsLine } from '@/components/topics/TopicCard';
@@ -19,6 +21,8 @@ export default function TopicPage() {
   const content = useTopicContents().find((c) => c.topic.id === id);
   const updateItem = useUpdateVocabItem();
   const [selected, setSelected] = useState<Tab | null>(null);
+  const removeItem = useRemoveVocabItem();
+  const [editing, setEditing] = useState<VocabItem | null>(null);
 
   if (!content) {
     return (
@@ -59,8 +63,8 @@ export default function TopicPage() {
         ))}
       </div>
 
-      {tab === 'words' && <VocabCardList items={words} />}
-      {tab === 'phrases' && <VocabCardList items={phrases} />}
+      {tab === 'words' && <VocabCardList items={words} onEdit={setEditing} />}
+      {tab === 'phrases' && <VocabCardList items={phrases} onEdit={setEditing} />}
       {tab === 'rule' && grammar.map((g) => <GrammarTopicCard key={g.id} topic={g} showExercises={false} />)}
       {tab === 'exercises' &&
         grammar.flatMap((g) =>
@@ -70,6 +74,21 @@ export default function TopicPage() {
             </div>
           ))
         )}
+
+      {editing && (
+        <EditVocabDialog
+          item={editing}
+          onSave={(item) => {
+            updateItem(item);
+            setEditing(null);
+          }}
+          onDelete={(id) => {
+            removeItem(id);
+            setEditing(null);
+          }}
+          onClose={() => setEditing(null)}
+        />
+      )}
 
       {practiceItems.length > 0 && (
         <section className="mt-8 border-t pt-4">

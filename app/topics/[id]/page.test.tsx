@@ -41,3 +41,42 @@ describe('TopicPage', () => {
     expect(screen.getByText('Тема не найдена.')).toBeInTheDocument();
   });
 });
+
+describe('TopicPage editing', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    useWordsStore.setState({ items: [], hydrated: true });
+    usePhrasesStore.setState({ items: [], hydrated: true });
+    useGrammarStore.setState({ items: [], hydrated: true });
+    mergeSeed();
+    params.id = 'home';
+  });
+
+  it('edits a word, keeps its progress and protects it from seed updates', () => {
+    const before = useWordsStore.getState().items.find((w) => w.id === 'seed-word-sofa')!;
+    render(<TopicPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Изменить sofa' }));
+    fireEvent.change(screen.getByLabelText('Перевод'), { target: { value: 'диван, софа' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    const after = useWordsStore.getState().items.find((w) => w.id === 'seed-word-sofa')!;
+    expect(after).toMatchObject({ translation: 'диван, софа', edited: true, review: before.review });
+    expect(screen.getByText('диван, софа')).toBeInTheDocument();
+  });
+
+  it('moves a word to another topic', () => {
+    render(<TopicPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Изменить sofa' }));
+    fireEvent.change(screen.getByLabelText('Тема'), { target: { value: 'my-words' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    expect(screen.queryByText('sofa')).not.toBeInTheDocument();
+    expect(useWordsStore.getState().items.find((w) => w.id === 'seed-word-sofa')?.category).toBe('my-words');
+  });
+
+  it('deletes a word after confirmation', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(<TopicPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Изменить sofa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Удалить' }));
+    expect(useWordsStore.getState().items.some((w) => w.id === 'seed-word-sofa')).toBe(false);
+  });
+});

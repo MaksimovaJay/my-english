@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { EyeOff, Eye } from 'lucide-react';
+import { EyeOff, Eye, Pencil } from 'lucide-react';
 import { VocabItem } from '@/types/models';
 import { ListenButton } from '@/components/shared/ListenButton';
 
-export function VocabCardList({ items }: { items: VocabItem[] }) {
+export function VocabCardList({ items, onEdit }: { items: VocabItem[]; onEdit?: (item: VocabItem) => void }) {
   const [hidden, setHidden] = useState(false);
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
 
@@ -39,6 +39,19 @@ export function VocabCardList({ items }: { items: VocabItem[] }) {
                   <ListenButton text={item.english} />
                 </span>
                 {item.ruPronunciation && <span className="text-xs text-gray-500">[{item.ruPronunciation}]</span>}
+                {onEdit && (
+                  <button
+                    type="button"
+                    aria-label={`Изменить ${item.english}`}
+                    className="ml-auto rounded-full p-1 text-gray-400 hover:text-violet-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(item);
+                    }}
+                  >
+                    <Pencil size={14} />
+                  </button>
+                )}
               </div>
               {showTranslation ? (
                 <p className="text-sm text-gray-700 dark:text-gray-300">{item.translation}</p>

@@ -72,7 +72,8 @@ export function mergeSeed(): void {
     for (const item of seed) {
       const current = store.getState().items.find((i) => i.id === item.id);
       if (current) {
-        if (CONTENT_FIELDS.some((f) => current[f] !== item[f])) {
+        // Hand-edited items keep the user's text.
+        if (!current.edited && CONTENT_FIELDS.some((f) => current[f] !== item[f])) {
           const refreshed = { ...current };
           for (const f of CONTENT_FIELDS) (refreshed as Record<string, unknown>)[f] = item[f];
           state.update(refreshed);

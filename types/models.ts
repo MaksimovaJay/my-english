@@ -23,6 +23,7 @@ export interface VocabItem {
   notes?: string;
   dateAdded: string; // ISO date
   review: ReviewState;
+  edited?: boolean; // changed by hand: seed updates no longer overwrite its text
 }
 
 export type Word = VocabItem;
