@@ -3,20 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
-import { FillBlankExercise } from '@/components/exercises/FillBlankExercise';
-import { MultipleChoiceExercise } from '@/components/exercises/MultipleChoiceExercise';
-import { FillBlankItem, Homework, MultipleChoiceItem, SentenceOrderItem, WordListItem } from '@/types/models';
-import { HomeworkWords } from '@/components/homework/HomeworkWords';
-import { WordBankExercise } from '@/components/exercises/WordBankExercise';
-import { syncWordListProgress } from '@/lib/learning/homeworkWords';
 import { useWordsStore } from '@/lib/storage/wordsStore';
-import { SentenceOrderExercise } from '@/components/exercises/SentenceOrderExercise';
-import { computeHomeworkScore, homeworkLabel, withFreeTextAnswer, withSentenceAnswer, withWordBankAnswer } from '@/lib/learning/homework';
+import { Homework } from '@/types/models';
+import { computeHomeworkScore, homeworkLabel } from '@/lib/learning/homework';
+import { syncWordListProgress } from '@/lib/learning/homeworkWords';
 import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
-import { ImagePicker } from '@/components/homework/ImagePicker';
-import { BackLink } from '@/components/shared/BackLink';
 import { toISODate } from '@/lib/learning/date';
-import { isFillBlankItemCorrect, isMultipleChoiceItemCorrect } from '@/lib/learning/checkAnswer';
+import { ImagePicker } from '@/components/homework/ImagePicker';
+import { HomeworkExercises } from '@/components/homework/HomeworkExercises';
+import { BackLink } from '@/components/shared/BackLink';
 
 export default function HomeworkRunnerPage() {
   const { id } = useParams<{ id: string }>();
@@ -50,43 +45,6 @@ export default function HomeworkRunnerPage() {
     }
   }
 
-  function persist(next: Homework) {
-    update(next.status === 'not-started' ? { ...next, status: 'in-progress' } : next);
-  }
-
-  function handleAnswerChange(exerciseId: string, itemIndex: number, blankIndex: number, value: string) {
-    const progress = homework!.progress[exerciseId];
-    const userAnswers = (progress.userAnswers as string[][]).map((a, idx) =>
-      idx === itemIndex ? a.map((b, bi) => (bi === blankIndex ? value : b)) : a
-    );
-    persist({ ...homework!, progress: { ...homework!.progress, [exerciseId]: { ...progress, userAnswers } } });
-  }
-
-  // Tapping an option answers it at once. It can be changed until right, but `correct` keeps the first try (that is the score).
-  function handleMcAnswer(exerciseId: string, itemIndex: number, optionIndex: number) {
-    const ex = homework!.exercises.find((e) => e.id === exerciseId)!;
-    const progress = homework!.progress[exerciseId];
-    const firstTry = !progress.checked[itemIndex];
-    const userAnswers = (progress.userAnswers as (number | null)[]).map((v, idx) => (idx === itemIndex ? optionIndex : v));
-    const checked = progress.checked.map((v, idx) => (idx === itemIndex ? true : v));
-    const correct = firstTry
-      ? progress.correct.map((v, idx) => (idx === itemIndex ? isMultipleChoiceItemCorrect(ex.items[itemIndex] as MultipleChoiceItem, optionIndex) : v))
-      : progress.correct;
-    persist({ ...homework!, progress: { ...homework!.progress, [exerciseId]: { ...progress, userAnswers, checked, correct } } });
-  }
-
-  function handleCheck(exerciseId: string, itemIndex: number) {
-    const ex = homework!.exercises.find((e) => e.id === exerciseId)!;
-    const progress = homework!.progress[exerciseId];
-    const item = ex.items[itemIndex];
-    const isCorrect = ex.type === 'fill-blank'
-      ? isFillBlankItemCorrect(item as FillBlankItem, progress.userAnswers[itemIndex] as string[])
-      : isMultipleChoiceItemCorrect(item as MultipleChoiceItem, progress.userAnswers[itemIndex] as number | null);
-    const checked = progress.checked.map((v, idx) => (idx === itemIndex ? true : v));
-    const correct = progress.correct.map((v, idx) => (idx === itemIndex ? isCorrect : v));
-    persist({ ...homework!, progress: { ...homework!.progress, [exerciseId]: { ...progress, checked, correct } } });
-  }
-
   function handleSubmit() {
     const score = computeHomeworkScore(homework!);
     update({ ...homework!, status: 'completed', score, completedDate: toISODate(new Date()) });
@@ -115,53 +73,7 @@ export default function HomeworkRunnerPage() {
           <ImagePicker images={homework.images ?? []} onChange={(images) => update({ ...homework, images })} />
         </div>
       )}
-      {homework.exercises.map((ex) => {
-        const progress = homework.progress[ex.id];
-        return (
-          <div key={ex.id} className="mb-6">
-            <p className="mb-2 font-medium">{ex.instruction}</p>
-            {ex.type === 'free-text' ? (
-              <textarea
-                aria-label={`Ответ: ${ex.instruction}`}
-                className="min-h-28 w-full rounded-lg border bg-transparent p-2"
-                placeholder="Ваш ответ…"
-                value={(progress.userAnswers[0] as string[])[0] ?? ''}
-                onChange={(e) => update(withFreeTextAnswer(homework, ex.id, 0, e.target.value))}
-              />
-            ) : ex.type === 'word-bank' ? (
-              <WordBankExercise
-                items={ex.items as FillBlankItem[]}
-                bank={ex.bank ?? []}
-                answers={progress.userAnswers as string[][]}
-                onChange={(i, answers) => update(withWordBankAnswer(homework, ex.id, i, answers))}
-              />
-            ) : ex.type === 'word-list' ? (
-              <HomeworkWords items={ex.items as WordListItem[]} checked={progress.checked} />
-            ) : ex.type === 'sentence-order' ? (
-              <SentenceOrderExercise
-                items={ex.items as SentenceOrderItem[]}
-                answers={progress.userAnswers as string[][]}
-                onChange={(i, placed) => update(withSentenceAnswer(homework, ex.id, i, placed))}
-              />
-            ) : ex.type === 'fill-blank' ? (
-              <FillBlankExercise
-                items={ex.items as FillBlankItem[]}
-                userAnswers={progress.userAnswers as string[][]}
-                checked={progress.checked}
-                onAnswerChange={(i, bi, v) => handleAnswerChange(ex.id, i, bi, v)}
-                onCheck={(i) => handleCheck(ex.id, i)}
-              />
-            ) : (
-              <MultipleChoiceExercise
-                items={ex.items as MultipleChoiceItem[]}
-                selected={progress.userAnswers as (number | null)[]}
-                checked={progress.checked}
-                onAnswer={(i, oi) => handleMcAnswer(ex.id, i, oi)}
-              />
-            )}
-          </div>
-        );
-      })}
+      <HomeworkExercises homework={homework} onUpdate={update} />
       {homework.status === 'completed' && (
         <p className="mb-3 font-medium">
           {hasAutoChecked && homework.score ? `Результат: ${homework.score.correct} / ${homework.score.total}` : '✅ Отправлено на проверку'}

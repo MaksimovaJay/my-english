@@ -9,6 +9,7 @@ vi.mock('next/navigation', () => ({
 const LINKS = [
   { href: '/', label: 'Главная' },
   { href: '/topics', label: 'Темы' },
+  { href: '/lessons', label: 'Уроки' },
   { href: '/review', label: 'Повторение' },
   { href: '/games', label: 'Игры' },
   { href: '/homework', label: 'Домашка' },
@@ -16,7 +17,7 @@ const LINKS = [
 ];
 
 describe('Nav', () => {
-  it('renders the six sections in desktop and mobile bars', () => {
+  it('renders the seven sections in desktop and mobile bars', () => {
     render(<Nav />);
     expect(screen.getAllByRole('link')).toHaveLength(LINKS.length * 2);
     LINKS.forEach(({ href, label }) => {

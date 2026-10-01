@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, RotateCcw, Gamepad2, ClipboardList, BarChart3 } from 'lucide-react';
+import { Home, BookOpen, GraduationCap, RotateCcw, Gamepad2, ClipboardList, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
 
 const LINKS = [
   { href: '/', label: 'Главная', icon: Home },
   { href: '/topics', label: 'Темы', icon: BookOpen },
+  { href: '/lessons', label: 'Уроки', icon: GraduationCap },
   { href: '/review', label: 'Повторение', icon: RotateCcw },
   { href: '/games', label: 'Игры', icon: Gamepad2 },
   { href: '/homework', label: 'Домашка', icon: ClipboardList },
@@ -55,7 +56,7 @@ export function Nav() {
               key={href}
               href={href}
               aria-current={active ? 'page' : undefined}
-              className={cn('flex flex-1 flex-col items-center gap-0.5 rounded-lg px-1 py-1 text-[11px]', active && 'text-violet-600 dark:text-pink-300')}
+              className={cn('flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg px-0.5 py-1 text-[10px] leading-tight', active && 'text-violet-600 dark:text-pink-300')}
             >
               <Icon size={20} />
               {label}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { VocabItem } from '@/types/models';
+import { GameId, VocabItem } from '@/types/models';
 import { FlashcardDeck } from '@/components/flashcards/FlashcardDeck';
 import { TypingPractice } from '@/components/exercises/TypingPractice';
 import { ListeningPractice } from '@/components/exercises/ListeningPractice';
@@ -14,9 +14,9 @@ import { SpeakPractice } from '@/components/exercises/SpeakPractice';
 import { WordBankGame } from '@/components/games/WordBankGame';
 import { cn } from '@/lib/utils';
 
-type Mode = 'flashcards' | 'typing' | 'listening' | 'speak' | 'sentence' | 'wordbank' | 'letters' | 'matching' | 'floating' | 'timed';
+type Mode = GameId;
 
-const MODES: { id: Mode; label: string }[] = [
+export const PRACTICE_MODES: { id: Mode; label: string }[] = [
   { id: 'flashcards', label: 'Карточки' },
   { id: 'typing', label: 'Написание' },
   { id: 'listening', label: 'На слух' },
@@ -32,15 +32,18 @@ const MODES: { id: Mode; label: string }[] = [
 interface TopicPracticeProps {
   items: VocabItem[];
   onUpdateItem: (item: VocabItem) => void;
+  /** Only these modes (e.g. the games ticked for a lesson); all by default. */
+  modes?: GameId[];
 }
 
-export function TopicPractice({ items, onUpdateItem }: TopicPracticeProps) {
-  const [mode, setMode] = useState<Mode>('flashcards');
+export function TopicPractice({ items, onUpdateItem, modes }: TopicPracticeProps) {
+  const available = modes?.length ? PRACTICE_MODES.filter((m) => modes.includes(m.id)) : PRACTICE_MODES;
+  const [mode, setMode] = useState<Mode>(available[0]?.id ?? 'flashcards');
 
   return (
     <div>
       <div className="mb-4 flex flex-wrap gap-2">
-        {MODES.map((m) => (
+        {available.map((m) => (
           <button
             key={m.id}
             type="button"

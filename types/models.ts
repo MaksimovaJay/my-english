@@ -125,3 +125,23 @@ export interface Homework {
   images?: string[]; // compressed JPEG data URLs of book pages / screenshots
   completedDate?: string; // YYYY-MM-DD of «Сдать домашку» (counts for the daily plan)
 }
+
+/** Game / practice modes, as offered in «Тренировать» and «Игры». */
+export type GameId = 'flashcards' | 'typing' | 'listening' | 'speak' | 'sentence' | 'wordbank' | 'letters' | 'matching' | 'floating' | 'timed';
+
+/** «Урок»: prepared by the teacher; on completion its material moves into a topic. */
+export interface Lesson {
+  id: string;
+  number: number; // Урок N
+  title: string;
+  date: string; // YYYY-MM-DD
+  description?: string;
+  images?: string[];
+  words: { english: string; translation: string }[]; // kept inside the lesson until completion
+  conditions?: string; // «Условия»: what we do and in what order
+  rules?: string; // «Правила»: grammar explanation
+  games: GameId[]; // games ticked for the lesson
+  practice: Homework; // exercises + progress, same engine and UI as homework
+  status: 'planned' | 'completed';
+  topicId?: string; // the topic created on completion
+}
