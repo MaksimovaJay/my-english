@@ -7,15 +7,17 @@ import { SentenceBuilder } from '@/components/games/SentenceBuilder';
 import { LetterGuess } from '@/components/games/LetterGuess';
 import { TimedQuiz } from '@/components/games/TimedQuiz';
 import { SpeakPractice } from '@/components/exercises/SpeakPractice';
+import { WordBankGame } from '@/components/games/WordBankGame';
 import { useTopicContents } from '@/components/topics/useTopicContents';
 import { cn } from '@/lib/utils';
 
-type Game = 'matching' | 'floating' | 'sentence' | 'letters' | 'timed' | 'speak';
+type Game = 'matching' | 'floating' | 'sentence' | 'wordbank' | 'letters' | 'timed' | 'speak';
 
 const GAMES: { id: Game; label: string }[] = [
   { id: 'matching', label: '🔗 Найди пару' },
   { id: 'floating', label: '🫧 Лови слова' },
   { id: 'sentence', label: '🧩 Собери предложение' },
+  { id: 'wordbank', label: '🔤 Вставь слово' },
   { id: 'letters', label: '🔤 Буквы' },
   { id: 'timed', label: '⏱ На время' },
   { id: 'speak', label: '🎤 Скажи' },
@@ -72,6 +74,7 @@ export default function GamesPage() {
       {game === 'letters' && <LetterGuess key={topicId} items={items} />}
       {game === 'timed' && <TimedQuiz key={topicId} items={items} />}
       {game === 'speak' && <SpeakPractice key={topicId} items={items} />}
+      {game === 'wordbank' && <WordBankGame key={topicId} items={items} />}
     </div>
   );
 }

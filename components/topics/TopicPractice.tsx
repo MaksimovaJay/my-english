@@ -11,9 +11,10 @@ import { SentenceBuilder } from '@/components/games/SentenceBuilder';
 import { LetterGuess } from '@/components/games/LetterGuess';
 import { TimedQuiz } from '@/components/games/TimedQuiz';
 import { SpeakPractice } from '@/components/exercises/SpeakPractice';
+import { WordBankGame } from '@/components/games/WordBankGame';
 import { cn } from '@/lib/utils';
 
-type Mode = 'flashcards' | 'typing' | 'listening' | 'speak' | 'sentence' | 'letters' | 'matching' | 'floating' | 'timed';
+type Mode = 'flashcards' | 'typing' | 'listening' | 'speak' | 'sentence' | 'wordbank' | 'letters' | 'matching' | 'floating' | 'timed';
 
 const MODES: { id: Mode; label: string }[] = [
   { id: 'flashcards', label: 'Карточки' },
@@ -21,6 +22,7 @@ const MODES: { id: Mode; label: string }[] = [
   { id: 'listening', label: 'На слух' },
   { id: 'speak', label: '🎤 Скажи' },
   { id: 'sentence', label: 'Собери предложение' },
+  { id: 'wordbank', label: 'Вставь слово' },
   { id: 'letters', label: 'Буквы' },
   { id: 'matching', label: 'Найди пару' },
   { id: 'floating', label: 'Лови слова' },
@@ -58,6 +60,7 @@ export function TopicPractice({ items, onUpdateItem }: TopicPracticeProps) {
       {mode === 'letters' && <LetterGuess items={items} />}
       {mode === 'timed' && <TimedQuiz items={items} />}
       {mode === 'speak' && <SpeakPractice items={items} />}
+      {mode === 'wordbank' && <WordBankGame items={items} />}
     </div>
   );
 }

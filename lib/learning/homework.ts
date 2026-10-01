@@ -2,6 +2,8 @@ import { Exercise, ExerciseProgress, FillBlankItem, Homework, MultipleChoiceItem
 import { initFillBlankAnswers, initMultipleChoiceAnswers, scoreFillBlank } from './exerciseProgress';
 import { generateId } from '@/lib/utils';
 import { parseSentenceLines, sentenceChips } from './sentenceOrder';
+import { buildBank, parseBankSentences } from './wordBank';
+import { isFillBlankItemCorrect } from './checkAnswer';
 import { isSentenceCorrect } from './games';
 
 export function initHomeworkProgress(exercises: Exercise[]): Record<string, ExerciseProgress> {
@@ -9,7 +11,9 @@ export function initHomeworkProgress(exercises: Exercise[]): Record<string, Exer
   for (const ex of exercises) {
     const count = ex.items.length;
     progress[ex.id] = {
-      userAnswers: ex.type === 'free-text'
+      userAnswers: ex.type === 'word-bank'
+        ? initFillBlankAnswers(ex.items as FillBlankItem[])
+        : ex.type === 'free-text'
         ? ex.items.map(() => [''])
         : ex.type === 'sentence-order'
         ? ex.items.map(() => [])
@@ -32,7 +36,7 @@ export function computeHomeworkScore(homework: Homework): { correct: number; tot
     const progress = homework.progress[ex.id];
     // Free-text answers have no answer key: the teacher checks them.
     if (!progress || ex.type === 'free-text' || ex.type === 'word-list') continue;
-    // Multiple choice and sentence order may be retried until right, so they score the first try (progress.correct).
+    // Multiple choice, sentence order and word bank may be retried until right, so they score the first try (progress.correct).
     const score = ex.type === 'fill-blank'
       ? scoreFillBlank(ex.items as FillBlankItem[], progress.userAnswers as string[][])
       : { correct: progress.correct.filter(Boolean).length, total: ex.items.length };
@@ -117,17 +121,22 @@ export interface AssignHomeworkInput {
   dueDate: string;
   /** «Собери предложение»: one sentence per line, optional «= перевод». */
   sentences?: string;
+  /** «Вставь слово»: sentences with [answers], plus extra words for the list. */
+  bankSentences?: string;
+  bankExtra?: string;
   /** Words to learn, one «english = перевод» per line (raw form input). */
   words?: string;
   /** Words to learn, already prepared (and added to the base) by prepareHomeworkWords. */
   wordItems?: WordListItem[];
 }
 
-function homeworkTitle(numbers: string[], hasSentences: boolean, hasWords: boolean): string {
-  const extras = [hasWords && '📚', hasSentences && '🧩'].filter(Boolean).join(' ');
-  if (numbers.length > 0) return `Упражнения ${numbers.join(', ')}${extras ? ` + ${extras}` : ''}`;
-  if (hasWords && hasSentences) return '📚 Слова + 🧩';
-  return hasWords ? '📚 Слова' : '🧩 Собери предложение';
+function homeworkTitle(numbers: string[], hasSentences: boolean, hasWords: boolean, hasBank: boolean): string {
+  const parts = [hasWords && '📚', hasBank && '🔤', hasSentences && '🧩'].filter(Boolean) as string[];
+  if (numbers.length > 0) return `Упражнения ${numbers.join(', ')}${parts.length ? ` + ${parts.join(' ')}` : ''}`;
+  if (parts.length > 1) return `Задания ${parts.join(' ')}`;
+  if (hasWords) return '📚 Слова';
+  if (hasBank) return '🔤 Вставь слово';
+  return '🧩 Собери предложение';
 }
 
 /** A homework recorded from the form: one free-text exercise per book exercise number. */
@@ -135,7 +144,10 @@ export function buildAssignedHomework(input: AssignHomeworkInput, number: number
   const numbers = input.bookNumbers.map((n) => n.trim()).filter(Boolean);
   const sentences = parseSentenceLines(input.sentences ?? '');
   const wordItems = input.wordItems ?? [];
-  if (numbers.length === 0 && sentences.length === 0 && wordItems.length === 0) throw new Error('Добавьте номер из книги, предложения для игры или слова.');
+  const bankItems = parseBankSentences(input.bankSentences ?? '');
+  if (numbers.length === 0 && sentences.length === 0 && wordItems.length === 0 && bankItems.length === 0) {
+    throw new Error('Добавьте номер из книги, предложения для игры или слова.');
+  }
   const id = generateId();
   const exercises: Exercise[] = numbers.map((n, i) => ({
     id: `${id}-ex${i + 1}`,
@@ -146,13 +158,16 @@ export function buildAssignedHomework(input: AssignHomeworkInput, number: number
   if (wordItems.length > 0) {
     exercises.push({ id: `${id}-words`, type: 'word-list', instruction: '📚 Выучите слова', items: wordItems });
   }
+  if (bankItems.length > 0) {
+    exercises.push({ id: `${id}-bank`, type: 'word-bank', instruction: '🔤 Вставьте слова из списка', items: bankItems, bank: buildBank(bankItems, input.bankExtra) });
+  }
   if (sentences.length > 0) {
     exercises.push({ id: `${id}-sentences`, type: 'sentence-order', instruction: '🧩 Соберите предложения из слов', items: sentences });
   }
   return {
     id,
     number,
-    title: homeworkTitle(numbers, sentences.length > 0, wordItems.length > 0),
+    title: homeworkTitle(numbers, sentences.length > 0, wordItems.length > 0, bankItems.length > 0),
     assignedDate: input.assignedDate,
     dueDate: input.dueDate || undefined,
     status: 'not-started',
@@ -233,6 +248,28 @@ export function withSentenceAnswer(homework: Homework, exerciseId: string, itemI
   let { checked, correct } = progress;
   if (placed.length === chips.length && !checked[itemIndex]) {
     const right = isSentenceCorrect(placed.map((k) => chips[Number(k)]), tokens);
+    checked = checked.map((c, i) => (i === itemIndex ? true : c));
+    correct = correct.map((c, i) => (i === itemIndex ? right : c));
+  }
+  return {
+    ...homework,
+    status: homework.status === 'not-started' ? 'in-progress' : homework.status,
+    progress: { ...homework.progress, [exerciseId]: { userAnswers, checked, correct } },
+  };
+}
+
+/**
+ * «Вставь слово»: saves the words put into a sentence's blanks. When all its blanks are filled for the
+ * first time the sentence is checked and that first try is the score; it can still be fixed afterwards.
+ */
+export function withWordBankAnswer(homework: Homework, exerciseId: string, itemIndex: number, answers: string[]): Homework {
+  const ex = homework.exercises.find((e) => e.id === exerciseId)!;
+  const progress = homework.progress[exerciseId];
+  const item = (ex.items as FillBlankItem[])[itemIndex];
+  const userAnswers = progress.userAnswers.map((a, i) => (i === itemIndex ? answers : a));
+  let { checked, correct } = progress;
+  if (answers.every((a) => a.trim()) && !checked[itemIndex]) {
+    const right = isFillBlankItemCorrect(item, answers);
     checked = checked.map((c, i) => (i === itemIndex ? true : c));
     correct = correct.map((c, i) => (i === itemIndex ? right : c));
   }

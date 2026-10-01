@@ -45,3 +45,15 @@ describe('AssignHomeworkForm sentences', () => {
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ sentences: 'Why were you late? = Почему ты опоздала?\nWe were at home.' }));
   });
 });
+
+describe('AssignHomeworkForm word bank', () => {
+  it('shows the generated word list and saves the sentences with extra words', () => {
+    const onSave = vi.fn();
+    render(<AssignHomeworkForm onSave={onSave} onCancel={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/Вставь слово из списка/), { target: { value: 'The streets were [noisy] in NY.' } });
+    fireEvent.change(screen.getByPlaceholderText('fast, spicy'), { target: { value: 'fast' } });
+    expect(screen.getByText(/Предложений: 1 · список:/)).toHaveTextContent(/noisy/);
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ bankSentences: 'The streets were [noisy] in NY.', bankExtra: 'fast' }));
+  });
+});

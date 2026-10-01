@@ -7,12 +7,15 @@ import { toISODate } from '@/lib/learning/date';
 import { ImagePicker } from './ImagePicker';
 import { parseSentenceLines } from '@/lib/learning/sentenceOrder';
 import { parseWordLines } from '@/lib/learning/homeworkWords';
+import { buildBank, parseBankSentences } from '@/lib/learning/wordBank';
 
 interface AssignHomeworkFormProps {
   onSave: (input: AssignHomeworkInput) => void;
   onCancel: () => void;
   compress?: (file: Blob) => Promise<string>;
 }
+
+const BANK_PLACEHOLDER = ['The streets were [noisy] in NY.', 'The kids in the room [were] quiet.', 'This car [is/was] red.'].join('\n');
 
 function WordsSummary({ text }: { text: string }) {
   const { words, skipped } = parseWordLines(text);
@@ -30,6 +33,8 @@ export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomewor
   const [teacherNotes, setTeacherNotes] = useState('');
   const [sentences, setSentences] = useState('');
   const [words, setWords] = useState('');
+  const [bankSentences, setBankSentences] = useState('');
+  const [bankExtra, setBankExtra] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [assignedDate, setAssignedDate] = useState(toISODate(new Date()));
   const [dueDate, setDueDate] = useState('');
@@ -41,12 +46,12 @@ export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomewor
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (bookNumbers.every((n) => n.trim() === '') && parseSentenceLines(sentences).length === 0 && parseWordLines(words).words.length === 0) {
+    if (bookNumbers.every((n) => n.trim() === '') && parseSentenceLines(sentences).length === 0 && parseWordLines(words).words.length === 0 && parseBankSentences(bankSentences).length === 0) {
       setError('Добавьте номер из книги, предложения для игры или слова.');
       return;
     }
     try {
-      onSave({ bookNumbers, teacherNotes, images, assignedDate, dueDate, sentences, words });
+      onSave({ bookNumbers, teacherNotes, images, assignedDate, dueDate, sentences, words, bankSentences, bankExtra });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не удалось сохранить.');
     }
@@ -98,6 +103,30 @@ export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomewor
         />
         <WordsSummary text={words} />
       </label>
+
+      <div className="flex flex-col gap-1 text-sm font-medium">
+        <label htmlFor="bank-sentences">🔤 Вставь слово из списка (необязательно)</label>
+        <span className="text-xs font-normal text-gray-500">
+          Одно предложение на строку, правильный ответ — в квадратных скобках. Несколько верных ответов — через «/».
+        </span>
+        <textarea
+          id="bank-sentences"
+          className="min-h-24 rounded border bg-transparent px-2 py-1 font-normal"
+          placeholder={BANK_PLACEHOLDER}
+          autoCapitalize="none"
+          value={bankSentences}
+          onChange={(e) => setBankSentences(e.target.value)}
+        />
+        <label className="mt-1 flex flex-col gap-1 text-xs font-normal text-gray-500">
+          Лишние слова для списка, через запятую (необязательно)
+          <input className="rounded border bg-transparent px-2 py-1 text-sm text-inherit" placeholder="fast, spicy" value={bankExtra} onChange={(e) => setBankExtra(e.target.value)} />
+        </label>
+        {parseBankSentences(bankSentences).length > 0 && (
+          <span className="text-xs font-normal text-gray-500">
+            Предложений: {parseBankSentences(bankSentences).length} · список: {buildBank(parseBankSentences(bankSentences), bankExtra).join(', ')}
+          </span>
+        )}
+      </div>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
         🧩 Собери предложение (необязательно)

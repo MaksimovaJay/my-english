@@ -68,7 +68,8 @@ export type ExerciseType =
   | 'image'
   | 'free-text'
   | 'sentence-order'
-  | 'word-list';
+  | 'word-list'
+  | 'word-bank';
 
 export interface Exercise {
   id: string;
@@ -77,6 +78,8 @@ export interface Exercise {
   items: FillBlankItem[] | MultipleChoiceItem[] | FreeTextItem[] | SentenceOrderItem[] | WordListItem[];
   explanation?: string;
   relatedGrammarTopicId?: string;
+  /** word-bank: the list of words to pick from (items are FillBlankItem). */
+  bank?: string[];
 }
 
 export interface Topic {
