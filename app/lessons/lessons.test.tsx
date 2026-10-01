@@ -10,7 +10,8 @@ import { useTopicsStore } from '@/lib/storage/topicsStore';
 import { buildLesson } from '@/lib/learning/lessons';
 
 const params = { id: '' };
-vi.mock('next/navigation', () => ({ useParams: () => params }));
+const push = vi.fn();
+vi.mock('next/navigation', () => ({ useParams: () => params, useRouter: () => ({ push }) }));
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -68,5 +69,23 @@ describe('LessonPage', () => {
     expect(useGrammarStore.getState().items[0]).toMatchObject({ topicId: topic.id, title: 'Правило: Past simple' });
     expect(useLessonsStore.getState().items[0].status).toBe('completed');
     expect(screen.getByRole('link', { name: /открыть тему/ })).toHaveAttribute('href', `/topics/${topic.id}`);
+  });
+
+  it('deleting a finished lesson removes everything it created, keeping words that existed before', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    seed();
+    useWordsStore.setState({ items: [{ id: 'old', english: 'quiet', translation: 'тихий', category: 'home', tags: [], dateAdded: '2026-09-25', review: { status: 'new', level: 0, lastReviewed: null, nextReviewDate: null, correctCount: 0, mistakeCount: 0 } }], hydrated: true });
+    const { unmount } = render(<LessonPage />);
+    fireEvent.click(screen.getByRole('button', { name: '✅ Завершить урок' }));
+    expect(useWordsStore.getState().items.map((w) => w.english).sort()).toEqual(['noisy', 'quiet']);
+    unmount();
+    render(<LessonPage />);
+    fireEvent.click(screen.getByRole('button', { name: /Удалить урок/ }));
+    expect(window.confirm).toHaveBeenLastCalledWith(expect.stringContaining('1 слово'));
+    expect(useLessonsStore.getState().items).toEqual([]);
+    expect(useTopicsStore.getState().items).toEqual([]);
+    expect(useGrammarStore.getState().items).toEqual([]);
+    expect(useWordsStore.getState().items.map((w) => w.id)).toEqual(['old']);
+    expect(push).toHaveBeenCalledWith('/lessons');
   });
 });

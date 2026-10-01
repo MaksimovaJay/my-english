@@ -87,5 +87,16 @@ export function completeLesson(lesson: Lesson, existingWords: Word[], topics: To
       ? { id: `lesson-${lesson.id}`, topicId: topic.id, title: `Правило: ${lesson.title}`, explanation, examples: [], practiceExercises: exercises, dateAdded }
       : null;
 
-  return { topic, newWords, phrases, grammar, lesson: { ...lesson, status: 'completed', topicId: topic.id } };
+  const created = { wordIds: newWords.map((w) => w.id), phraseIds: phrases.map((p) => p.id), grammarId: grammar?.id };
+  return { topic, newWords, phrases, grammar, lesson: { ...lesson, status: 'completed', topicId: topic.id, created } };
+}
+
+/** What deleting a lesson removes: the lesson and everything its completion created (words that existed before stay). */
+export function lessonDeletion(lesson: Lesson): { topicId?: string; wordIds: string[]; phraseIds: string[]; grammarId?: string } {
+  return {
+    topicId: lesson.topicId,
+    wordIds: lesson.created?.wordIds ?? [],
+    phraseIds: lesson.created?.phraseIds ?? [],
+    grammarId: lesson.created?.grammarId,
+  };
 }

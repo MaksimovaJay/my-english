@@ -144,4 +144,6 @@ export interface Lesson {
   practice: Homework; // exercises + progress, same engine and UI as homework
   status: 'planned' | 'completed';
   topicId?: string; // the topic created on completion
+  /** Everything completion added to the base, so deleting the lesson can remove it again. */
+  created?: { wordIds: string[]; phraseIds: string[]; grammarId?: string };
 }

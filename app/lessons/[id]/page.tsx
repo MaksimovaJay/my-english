@@ -2,14 +2,16 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { Trash2 } from 'lucide-react';
 import { Homework, SentenceOrderItem, VocabItem } from '@/types/models';
 import { useLessonsStore } from '@/lib/storage/lessonsStore';
 import { useWordsStore } from '@/lib/storage/wordsStore';
 import { usePhrasesStore } from '@/lib/storage/phrasesStore';
 import { useGrammarStore } from '@/lib/storage/grammarStore';
 import { useTopicsStore } from '@/lib/storage/topicsStore';
-import { completeLesson } from '@/lib/learning/lessons';
+import { completeLesson, lessonDeletion } from '@/lib/learning/lessons';
+import { pluralRu } from '@/lib/utils';
 import { createInitialReviewState } from '@/lib/learning/review';
 import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
 import { useTopics } from '@/components/topics/useTopicContents';
@@ -34,6 +36,7 @@ export default function LessonPage() {
   const updateLesson = useLessonsStore((s) => s.update);
   const topics = useTopics();
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   // Lesson words are not in the base yet: practice runs on temporary cards (answers here don't touch review).
   const practiceItems: VocabItem[] = useMemo(() => {
@@ -76,6 +79,33 @@ export default function LessonPage() {
     result.phrases.forEach((p) => usePhrasesStore.getState().add(p));
     if (result.grammar) useGrammarStore.getState().add(result.grammar);
     save(result.lesson);
+  }
+
+  function remove() {
+    const plan = lessonDeletion(lesson!);
+    const topicTitle = plan.topicId && topics.find((t) => t.id === plan.topicId)?.title;
+    const parts = [
+      topicTitle && `тема «${topicTitle}»`,
+      plan.wordIds.length > 0 && `${plan.wordIds.length} ${pluralRu(plan.wordIds.length, ['слово', 'слова', 'слов'])}`,
+      plan.phraseIds.length > 0 && `${plan.phraseIds.length} ${pluralRu(plan.phraseIds.length, ['фраза', 'фразы', 'фраз'])}`,
+      plan.grammarId && 'правило и упражнения урока',
+    ].filter(Boolean);
+    const extra = parts.length ? ` Вместе с ним удалятся: ${parts.join(', ')}.` : '';
+    if (!window.confirm(`Удалить урок «${lesson!.title}»?${extra} Это удалится на всех устройствах.`)) return;
+
+    const words = useWordsStore.getState();
+    const phrases = usePhrasesStore.getState();
+    plan.wordIds.forEach((wid) => words.items.some((w) => w.id === wid) && words.remove(wid));
+    plan.phraseIds.forEach((pid) => phrases.items.some((p) => p.id === pid) && phrases.remove(pid));
+    if (plan.grammarId && useGrammarStore.getState().items.some((g) => g.id === plan.grammarId)) useGrammarStore.getState().remove(plan.grammarId);
+    if (plan.topicId) {
+      // Words the learner moved into this topic by hand were not created by the lesson: keep them in «Мои слова».
+      useWordsStore.getState().items.filter((w) => w.category === plan.topicId).forEach((w) => useWordsStore.getState().update({ ...w, category: 'my-words', edited: true }));
+      usePhrasesStore.getState().items.filter((p) => p.category === plan.topicId).forEach((p) => usePhrasesStore.getState().update({ ...p, category: 'my-words', edited: true }));
+      if (useTopicsStore.getState().items.some((d) => d.id === plan.topicId)) useTopicsStore.getState().remove(plan.topicId);
+    }
+    useLessonsStore.getState().remove(lesson!.id);
+    router.push('/lessons');
   }
 
   const done = lesson.status === 'completed';
@@ -140,6 +170,10 @@ export default function LessonPage() {
           ✅ Завершить урок
         </button>
       )}
+
+      <button type="button" className="mt-8 flex items-center gap-1 text-sm text-gray-500 hover:text-red-600" onClick={remove}>
+        <Trash2 size={14} /> Удалить урок
+      </button>
     </div>
   );
 }

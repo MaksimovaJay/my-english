@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildLesson, completeLesson, nextLessonNumber, DEFAULT_LESSON_GAMES } from './lessons';
+import { buildLesson, completeLesson, nextLessonNumber, DEFAULT_LESSON_GAMES, lessonDeletion } from './lessons';
 import { createInitialReviewState } from './review';
 import { initHomeworkProgress } from './homework';
 import { Exercise, Lesson, Topic, Word } from '@/types/models';
@@ -60,5 +60,20 @@ describe('completeLesson', () => {
   it('skips the grammar topic when there is neither a rule nor a checkable exercise', () => {
     const l = buildLesson({ title: 'Words only', date: '2026-10-02', images: [], words: 'tree = дерево', games: [] }, 1);
     expect(completeLesson(l, [], topics, today).grammar).toBeNull();
+  });
+});
+
+describe('lessonDeletion', () => {
+  it('lists everything the completion created, but not words that existed before', () => {
+    const l = buildLesson({ title: 'L', date: '2026-10-02', images: [], words: 'noisy = шумный\nchair = стул', rules: 'r', games: [] }, 1);
+    const existing: Word = { id: 'w-chair', english: 'chair', translation: 'стул', category: 'home', tags: [], dateAdded: '2026-09-25', review: createInitialReviewState() };
+    const { lesson: done, newWords, topic, grammar } = completeLesson(l, [existing], topics, today);
+    expect(lessonDeletion(done)).toEqual({ topicId: topic.id, wordIds: newWords.map((w) => w.id), phraseIds: [], grammarId: grammar!.id });
+    expect(lessonDeletion(done).wordIds).not.toContain('w-chair');
+  });
+
+  it('is empty for a lesson that was never finished', () => {
+    const l = buildLesson({ title: 'L', date: '2026-10-02', images: [], words: '', games: [] }, 1);
+    expect(lessonDeletion(l)).toEqual({ topicId: undefined, wordIds: [], phraseIds: [], grammarId: undefined });
   });
 });
