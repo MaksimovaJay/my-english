@@ -39,6 +39,11 @@ export interface MultipleChoiceItem {
   correctIndex: number;
 }
 
+export interface SentenceOrderItem {
+  sentence: string; // the correct sentence; its words are shown shuffled
+  translation?: string;
+}
+
 export interface FreeTextItem {
   prompt: string; // optional extra hint; the exercise instruction names the book number
 }
@@ -54,13 +59,14 @@ export type ExerciseType =
   | 'writing'
   | 'reading'
   | 'image'
-  | 'free-text';
+  | 'free-text'
+  | 'sentence-order';
 
 export interface Exercise {
   id: string;
   type: ExerciseType;
   instruction: string;
-  items: FillBlankItem[] | MultipleChoiceItem[] | FreeTextItem[];
+  items: FillBlankItem[] | MultipleChoiceItem[] | FreeTextItem[] | SentenceOrderItem[];
   explanation?: string;
   relatedGrammarTopicId?: string;
 }

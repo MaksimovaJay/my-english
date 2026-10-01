@@ -51,3 +51,20 @@ describe('HomeworkRunnerPage with free-text homework', () => {
     expect(screen.getByText('✅ Отправлено на проверку')).toBeInTheDocument();
   });
 });
+
+describe('HomeworkRunnerPage with «Собери предложение»', () => {
+  it('builds the sentence by tapping words and checks it when complete', () => {
+    const hw = buildAssignedHomework({ bookNumbers: [], teacherNotes: '', images: [], assignedDate: '2026-10-01', dueDate: '', sentences: 'We were at home. = Мы были дома.' }, 3);
+    useHomeworkStore.setState({ items: [{ ...hw, id: 'hw1' }], hydrated: true });
+    render(<HomeworkRunnerPage />);
+    expect(screen.getByText('Мы были дома.')).toBeInTheDocument();
+    for (const w of ['We', 'were', 'at', 'home']) {
+      const answer = screen.getByLabelText('Ответ 1');
+      const chip = screen.getAllByRole('button', { name: w }).find((b) => !answer.contains(b))!;
+      fireEvent.click(chip);
+    }
+    expect(screen.getByText('✅ Верно!')).toBeInTheDocument();
+    const saved = useHomeworkStore.getState().items[0];
+    expect(saved.progress[saved.exercises[0].id]).toMatchObject({ checked: [true], correct: [true] });
+  });
+});

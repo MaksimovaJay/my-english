@@ -22,7 +22,7 @@ describe('AssignHomeworkForm', () => {
     render(<AssignHomeworkForm onSave={onSave} onCancel={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
     expect(onSave).not.toHaveBeenCalled();
-    expect(screen.getByText('Добавьте хотя бы один номер из книги.')).toBeInTheDocument();
+    expect(screen.getByText('Добавьте номер из книги или предложения для игры.')).toBeInTheDocument();
   });
 
   it('attaches a picked screenshot', async () => {
@@ -32,5 +32,16 @@ describe('AssignHomeworkForm', () => {
     await waitFor(() => expect(screen.getByAltText('Скриншот 1')).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'Удалить скриншот 1' }));
     expect(screen.queryByAltText('Скриншот 1')).not.toBeInTheDocument();
+  });
+});
+
+describe('AssignHomeworkForm sentences', () => {
+  it('saves a homework made only of «Собери предложение» sentences', () => {
+    const onSave = vi.fn();
+    render(<AssignHomeworkForm onSave={onSave} onCancel={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/Собери предложение/), { target: { value: 'Why were you late? = Почему ты опоздала?\nWe were at home.' } });
+    expect(screen.getByText('Предложений: 2')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ sentences: 'Why were you late? = Почему ты опоздала?\nWe were at home.' }));
   });
 });

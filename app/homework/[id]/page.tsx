@@ -5,8 +5,9 @@ import { useParams } from 'next/navigation';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { FillBlankExercise } from '@/components/exercises/FillBlankExercise';
 import { MultipleChoiceExercise } from '@/components/exercises/MultipleChoiceExercise';
-import { FillBlankItem, Homework, MultipleChoiceItem } from '@/types/models';
-import { computeHomeworkScore, homeworkLabel, withFreeTextAnswer } from '@/lib/learning/homework';
+import { FillBlankItem, Homework, MultipleChoiceItem, SentenceOrderItem } from '@/types/models';
+import { SentenceOrderExercise } from '@/components/exercises/SentenceOrderExercise';
+import { computeHomeworkScore, homeworkLabel, withFreeTextAnswer, withSentenceAnswer } from '@/lib/learning/homework';
 import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
 import { ImagePicker } from '@/components/homework/ImagePicker';
 import { BackLink } from '@/components/shared/BackLink';
@@ -114,6 +115,12 @@ export default function HomeworkRunnerPage() {
                 placeholder="Ваш ответ…"
                 value={(progress.userAnswers[0] as string[])[0] ?? ''}
                 onChange={(e) => update(withFreeTextAnswer(homework, ex.id, 0, e.target.value))}
+              />
+            ) : ex.type === 'sentence-order' ? (
+              <SentenceOrderExercise
+                items={ex.items as SentenceOrderItem[]}
+                answers={progress.userAnswers as string[][]}
+                onChange={(i, placed) => update(withSentenceAnswer(homework, ex.id, i, placed))}
               />
             ) : ex.type === 'fill-blank' ? (
               <FillBlankExercise

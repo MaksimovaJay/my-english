@@ -1,6 +1,8 @@
-import { Exercise, ExerciseProgress, FillBlankItem, Homework, MultipleChoiceItem } from '@/types/models';
+import { Exercise, ExerciseProgress, FillBlankItem, Homework, MultipleChoiceItem, SentenceOrderItem } from '@/types/models';
 import { initFillBlankAnswers, initMultipleChoiceAnswers, scoreFillBlank } from './exerciseProgress';
 import { generateId } from '@/lib/utils';
+import { parseSentenceLines, sentenceChips } from './sentenceOrder';
+import { isSentenceCorrect } from './games';
 
 export function initHomeworkProgress(exercises: Exercise[]): Record<string, ExerciseProgress> {
   const progress: Record<string, ExerciseProgress> = {};
@@ -9,6 +11,8 @@ export function initHomeworkProgress(exercises: Exercise[]): Record<string, Exer
     progress[ex.id] = {
       userAnswers: ex.type === 'free-text'
         ? ex.items.map(() => [''])
+        : ex.type === 'sentence-order'
+        ? ex.items.map(() => [])
         : ex.type === 'fill-blank'
           ? initFillBlankAnswers(ex.items as FillBlankItem[])
           : initMultipleChoiceAnswers(ex.items as MultipleChoiceItem[]),
@@ -26,7 +30,7 @@ export function computeHomeworkScore(homework: Homework): { correct: number; tot
     const progress = homework.progress[ex.id];
     // Free-text answers have no answer key: the teacher checks them.
     if (!progress || ex.type === 'free-text') continue;
-    // Multiple choice may be retried until right, so it scores the first try (progress.correct).
+    // Multiple choice and sentence order may be retried until right, so they score the first try (progress.correct).
     const score = ex.type === 'fill-blank'
       ? scoreFillBlank(ex.items as FillBlankItem[], progress.userAnswers as string[][])
       : { correct: progress.correct.filter(Boolean).length, total: ex.items.length };
@@ -53,8 +57,8 @@ export function parseHomeworkImport(raw: string): Homework {
     throw new Error('Invalid homework file: expected { title, exercises: [...] } with at least one exercise.');
   }
   for (const ex of data.exercises) {
-    if (ex.type !== 'fill-blank' && ex.type !== 'multiple-choice' && ex.type !== 'free-text') {
-      throw new Error(`Unsupported exercise type "${ex.type}". Only "fill-blank", "multiple-choice" and "free-text" are supported.`);
+    if (!['fill-blank', 'multiple-choice', 'free-text', 'sentence-order'].includes(ex.type)) {
+      throw new Error(`Unsupported exercise type "${ex.type}". Only "fill-blank", "multiple-choice", "free-text" and "sentence-order" are supported.`);
     }
     if (!Array.isArray(ex.items) || ex.items.length === 0) {
       throw new Error(`Exercise "${ex.instruction ?? '(untitled)'}" has no items.`);
@@ -109,12 +113,15 @@ export interface AssignHomeworkInput {
   images: string[];
   assignedDate: string;
   dueDate: string;
+  /** «Собери предложение»: one sentence per line, optional «= перевод». */
+  sentences?: string;
 }
 
 /** A homework recorded from the form: one free-text exercise per book exercise number. */
 export function buildAssignedHomework(input: AssignHomeworkInput, number: number): Homework {
   const numbers = input.bookNumbers.map((n) => n.trim()).filter(Boolean);
-  if (numbers.length === 0) throw new Error('Добавьте хотя бы один номер из книги.');
+  const sentences = parseSentenceLines(input.sentences ?? '');
+  if (numbers.length === 0 && sentences.length === 0) throw new Error('Добавьте номер из книги или предложения для игры.');
   const id = generateId();
   const exercises: Exercise[] = numbers.map((n, i) => ({
     id: `${id}-ex${i + 1}`,
@@ -122,10 +129,13 @@ export function buildAssignedHomework(input: AssignHomeworkInput, number: number
     instruction: `Упражнение ${n}`,
     items: [{ prompt: '' }],
   }));
+  if (sentences.length > 0) {
+    exercises.push({ id: `${id}-sentences`, type: 'sentence-order', instruction: '🧩 Соберите предложения из слов', items: sentences });
+  }
   return {
     id,
     number,
-    title: `Упражнения ${numbers.join(', ')}`,
+    title: numbers.length === 0 ? '🧩 Собери предложение' : `Упражнения ${numbers.join(', ')}${sentences.length ? ' + 🧩' : ''}`,
     assignedDate: input.assignedDate,
     dueDate: input.dueDate || undefined,
     status: 'not-started',
@@ -192,4 +202,26 @@ export function homeworkMistakes(homeworks: Homework[]): Exercise[] {
       return [{ id: `mistakes-${hw.id}-${ex.id}`, type: ex.type, instruction: `${prefix} · ${ex.instruction}`, items: wrong as Exercise['items'] }];
     })
   );
+}
+
+/**
+ * Saves the words placed so far (indices into the shuffled chips). When the sentence is complete for the
+ * first time it is checked and that first try is the score; it can still be rearranged until right.
+ */
+export function withSentenceAnswer(homework: Homework, exerciseId: string, itemIndex: number, placed: string[]): Homework {
+  const ex = homework.exercises.find((e) => e.id === exerciseId)!;
+  const progress = homework.progress[exerciseId];
+  const { chips, tokens } = sentenceChips((ex.items as SentenceOrderItem[])[itemIndex]);
+  const userAnswers = progress.userAnswers.map((a, i) => (i === itemIndex ? placed : a));
+  let { checked, correct } = progress;
+  if (placed.length === chips.length && !checked[itemIndex]) {
+    const right = isSentenceCorrect(placed.map((k) => chips[Number(k)]), tokens);
+    checked = checked.map((c, i) => (i === itemIndex ? true : c));
+    correct = correct.map((c, i) => (i === itemIndex ? right : c));
+  }
+  return {
+    ...homework,
+    status: homework.status === 'not-started' ? 'in-progress' : homework.status,
+    progress: { ...homework.progress, [exerciseId]: { userAnswers, checked, correct } },
+  };
 }

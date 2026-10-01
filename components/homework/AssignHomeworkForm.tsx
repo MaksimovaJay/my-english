@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import { AssignHomeworkInput } from '@/lib/learning/homework';
 import { toISODate } from '@/lib/learning/date';
 import { ImagePicker } from './ImagePicker';
+import { parseSentenceLines } from '@/lib/learning/sentenceOrder';
 
 interface AssignHomeworkFormProps {
   onSave: (input: AssignHomeworkInput) => void;
@@ -15,6 +16,7 @@ interface AssignHomeworkFormProps {
 export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomeworkFormProps) {
   const [bookNumbers, setBookNumbers] = useState<string[]>(['', '']);
   const [teacherNotes, setTeacherNotes] = useState('');
+  const [sentences, setSentences] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [assignedDate, setAssignedDate] = useState(toISODate(new Date()));
   const [dueDate, setDueDate] = useState('');
@@ -26,12 +28,12 @@ export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomewor
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (bookNumbers.every((n) => n.trim() === '')) {
-      setError('Добавьте хотя бы один номер из книги.');
+    if (bookNumbers.every((n) => n.trim() === '') && parseSentenceLines(sentences).length === 0) {
+      setError('Добавьте номер из книги или предложения для игры.');
       return;
     }
     try {
-      onSave({ bookNumbers, teacherNotes, images, assignedDate, dueDate });
+      onSave({ bookNumbers, teacherNotes, images, assignedDate, dueDate, sentences });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не удалось сохранить.');
     }
@@ -68,6 +70,23 @@ export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomewor
           + ещё номер
         </button>
       </fieldset>
+
+      <label className="flex flex-col gap-1 text-sm font-medium">
+        🧩 Собери предложение (необязательно)
+        <span className="text-xs font-normal text-gray-500">
+          Одно предложение на строку. Перевод можно дописать через «=». Слова в каждом предложении перемешаются сами.
+        </span>
+        <textarea
+          className="min-h-24 rounded border bg-transparent px-2 py-1 font-normal"
+          placeholder={'Why were you late? = Почему ты опоздала?\nWe were at home yesterday.'}
+          autoCapitalize="none"
+          value={sentences}
+          onChange={(e) => setSentences(e.target.value)}
+        />
+        {parseSentenceLines(sentences).length > 0 && (
+          <span className="text-xs font-normal text-gray-500">Предложений: {parseSentenceLines(sentences).length}</span>
+        )}
+      </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
         Заметки учителя
