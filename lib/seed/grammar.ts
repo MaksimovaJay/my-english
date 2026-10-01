@@ -52,7 +52,7 @@ export const seedGrammarTopics: GrammarTopic[] = [
     topicId: 'pronouns-to-be',
     title: 'to be: am / is / are',
     explanation:
-      'am — с I.\nis — с he / she / it.\nare — с you / we / they.\n\nI am · you are · he is · she is · it is · we are · they are',
+      'Единственное число (один человек или предмет):\nI am — я\nyou are — ты\nhe is — он · she is — она · it is — оно / это\n\nМножественное число (несколько):\nwe are — мы\nyou are — вы\nthey are — они\n\nЗапомни: am — только с I; is — с одним (he / she / it); are — со всеми во множественном числе.\nyou всегда с are — и «ты» (один), и «вы» (несколько).',
     examples: ['I am at home.', 'He is 4 years old.', 'We are from Kyrgyzstan.'],
     practiceExercises: [
       {
