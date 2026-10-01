@@ -28,7 +28,7 @@ describe('Flashcard', () => {
     expect(screen.getByText('ˈmʌðər')).toBeInTheDocument();
   });
 
-  it('calls onOutcome with "know" / "hard" / "again" and resets reveal', () => {
+  it('calls onOutcome with "know" and resets reveal', () => {
     const onOutcome = vi.fn();
     render(<Flashcard item={item} direction="en-ru" onOutcome={onOutcome} />);
     fireEvent.click(screen.getByText(/показать ответ/i));
@@ -60,8 +60,7 @@ describe('Flashcard', () => {
     expect(onOutcome).toHaveBeenCalledWith('again');
 
     fireEvent.click(screen.getByText(/показать ответ/i));
-    fireEvent.click(screen.getByRole('button', { name: '🤔 Сложно' }));
-    expect(onOutcome).toHaveBeenCalledWith('hard');
+    expect(screen.queryByRole('button', { name: /Сложно/ })).not.toBeInTheDocument();
   });
 
   it('shows english+ipa (not translation as the primary line) after reveal in ru-en direction', () => {

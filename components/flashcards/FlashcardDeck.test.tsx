@@ -66,3 +66,24 @@ describe('FlashcardDeck', () => {
     expect(screen.getByText(/на сегодня всё/i)).toBeInTheDocument();
   });
 });
+
+describe('FlashcardDeck «Не знаю»', () => {
+  it('brings an unknown card back once more at the end of the session', () => {
+    const onUpdateItem = vi.fn();
+    const two = [
+      { id: 'a', english: 'chair', translation: 'стул', category: 'home', tags: [], dateAdded: '2026-10-01', review: { status: 'new' as const, level: 0, lastReviewed: null, nextReviewDate: null, correctCount: 0, mistakeCount: 0 } },
+      { id: 'b', english: 'table', translation: 'стол', category: 'home', tags: [], dateAdded: '2026-10-01', review: { status: 'new' as const, level: 0, lastReviewed: null, nextReviewDate: null, correctCount: 0, mistakeCount: 0 } },
+    ];
+    render(<FlashcardDeck items={two} onUpdateItem={onUpdateItem} />);
+    const answer = (name: string) => {
+      fireEvent.click(screen.getByText(/показать ответ/i));
+      fireEvent.click(screen.getByRole('button', { name }));
+    };
+    answer('❌ Не знаю'); // chair
+    expect(screen.getByText('2 / 3')).toBeInTheDocument();
+    answer('✅ Знаю'); // table
+    expect(screen.getByText('chair')).toBeInTheDocument();
+    answer('✅ Знаю'); // chair again
+    expect(screen.getByText('На сегодня всё! 🎉')).toBeInTheDocument();
+  });
+});

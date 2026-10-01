@@ -14,12 +14,15 @@ interface FlashcardDeckProps {
 
 export function FlashcardDeck({ items, onUpdateItem }: FlashcardDeckProps) {
   const [index, setIndex] = useState(0);
+  // Cards answered «Не знаю» come back once more at the end of this session.
+  const [retry, setRetry] = useState<VocabItem[]>([]);
+  const queue = [...items, ...retry];
   const [direction, setDirection] = useState<'en-ru' | 'ru-en'>('en-ru');
 
   if (items.length === 0) return <p className="text-sm text-gray-500">Здесь пока нет карточек.</p>;
-  if (index >= items.length) return <p className="text-lg font-medium">На сегодня всё! 🎉</p>;
+  if (index >= queue.length) return <p className="text-lg font-medium">На сегодня всё! 🎉</p>;
 
-  const current = items[index];
+  const current = queue[index];
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -41,12 +44,14 @@ export function FlashcardDeck({ items, onUpdateItem }: FlashcardDeckProps) {
         item={current}
         direction={direction}
         onOutcome={(outcome) => {
-          onUpdateItem({ ...current, review: updateReviewState(current.review, outcome) });
+          const updated = { ...current, review: updateReviewState(current.review, outcome) };
+          onUpdateItem(updated);
+          if (outcome === 'again') setRetry((r) => [...r, updated]);
           useSettingsStore.getState().bumpDaily('reviewed');
           setIndex((i) => i + 1);
         }}
       />
-      <p className="text-xs text-gray-400">{index + 1} / {items.length}</p>
+      <p className="text-xs text-gray-400">{index + 1} / {queue.length}</p>
     </div>
   );
 }
