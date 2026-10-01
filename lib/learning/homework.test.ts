@@ -116,7 +116,7 @@ describe('assigned homework (free-text)', () => {
   });
 
   it('rejects an assignment with no book numbers', () => {
-    expect(() => buildAssignedHomework({ ...base, bookNumbers: ['', ' '] }, 1)).toThrow('Добавьте номер из книги или предложения для игры.');
+    expect(() => buildAssignedHomework({ ...base, bookNumbers: ['', ' '] }, 1)).toThrow('Добавьте номер из книги, предложения для игры или слова.');
   });
 
   it('marks a free-text item done when the answer is non-empty and leaves score to the teacher', () => {

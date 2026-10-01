@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import HomeworkPage from './page';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
+import { useWordsStore } from '@/lib/storage/wordsStore';
 import { initHomeworkProgress } from '@/lib/learning/homework';
 
 const exercises = [{ id: 'ex1', type: 'fill-blank' as const, instruction: 'Fill was/were.', items: [{ text: 'She ___ 22.', blanks: [['was']] }] }];
@@ -59,5 +60,19 @@ describe('HomeworkPage assign', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
     expect(screen.getByRole('link', { name: 'ДЗ 2 · Упражнения 12.1' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Сохранить' })).not.toBeInTheDocument();
+  });
+});
+
+describe('HomeworkPage assign with words', () => {
+  it('adds the new words to the base and makes a «📚 Слова» homework', () => {
+    useWordsStore.setState({ items: [], hydrated: true });
+    useHomeworkStore.setState({ items: [], hydrated: true });
+    render(<HomeworkPage />);
+    fireEvent.click(screen.getByRole('button', { name: '+ Задать домашку' }));
+    fireEvent.change(screen.getByLabelText(/Слова для изучения/), { target: { value: 'window = окно\ndoor' } });
+    expect(screen.getByText(/без перевода, не добавятся: door/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    expect(useWordsStore.getState().items).toEqual([expect.objectContaining({ english: 'window', translation: 'окно', category: 'homework-words' })]);
+    expect(screen.getByRole('link', { name: 'ДЗ 1 · 📚 Слова' })).toBeInTheDocument();
   });
 });

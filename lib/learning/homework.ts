@@ -1,4 +1,4 @@
-import { Exercise, ExerciseProgress, FillBlankItem, Homework, MultipleChoiceItem, SentenceOrderItem } from '@/types/models';
+import { Exercise, ExerciseProgress, FillBlankItem, Homework, MultipleChoiceItem, SentenceOrderItem, WordListItem } from '@/types/models';
 import { initFillBlankAnswers, initMultipleChoiceAnswers, scoreFillBlank } from './exerciseProgress';
 import { generateId } from '@/lib/utils';
 import { parseSentenceLines, sentenceChips } from './sentenceOrder';
@@ -13,6 +13,8 @@ export function initHomeworkProgress(exercises: Exercise[]): Record<string, Exer
         ? ex.items.map(() => [''])
         : ex.type === 'sentence-order'
         ? ex.items.map(() => [])
+        : ex.type === 'word-list'
+        ? ex.items.map(() => null)
         : ex.type === 'fill-blank'
           ? initFillBlankAnswers(ex.items as FillBlankItem[])
           : initMultipleChoiceAnswers(ex.items as MultipleChoiceItem[]),
@@ -29,7 +31,7 @@ export function computeHomeworkScore(homework: Homework): { correct: number; tot
   for (const ex of homework.exercises) {
     const progress = homework.progress[ex.id];
     // Free-text answers have no answer key: the teacher checks them.
-    if (!progress || ex.type === 'free-text') continue;
+    if (!progress || ex.type === 'free-text' || ex.type === 'word-list') continue;
     // Multiple choice and sentence order may be retried until right, so they score the first try (progress.correct).
     const score = ex.type === 'fill-blank'
       ? scoreFillBlank(ex.items as FillBlankItem[], progress.userAnswers as string[][])
@@ -115,13 +117,25 @@ export interface AssignHomeworkInput {
   dueDate: string;
   /** «Собери предложение»: one sentence per line, optional «= перевод». */
   sentences?: string;
+  /** Words to learn, one «english = перевод» per line (raw form input). */
+  words?: string;
+  /** Words to learn, already prepared (and added to the base) by prepareHomeworkWords. */
+  wordItems?: WordListItem[];
+}
+
+function homeworkTitle(numbers: string[], hasSentences: boolean, hasWords: boolean): string {
+  const extras = [hasWords && '📚', hasSentences && '🧩'].filter(Boolean).join(' ');
+  if (numbers.length > 0) return `Упражнения ${numbers.join(', ')}${extras ? ` + ${extras}` : ''}`;
+  if (hasWords && hasSentences) return '📚 Слова + 🧩';
+  return hasWords ? '📚 Слова' : '🧩 Собери предложение';
 }
 
 /** A homework recorded from the form: one free-text exercise per book exercise number. */
 export function buildAssignedHomework(input: AssignHomeworkInput, number: number): Homework {
   const numbers = input.bookNumbers.map((n) => n.trim()).filter(Boolean);
   const sentences = parseSentenceLines(input.sentences ?? '');
-  if (numbers.length === 0 && sentences.length === 0) throw new Error('Добавьте номер из книги или предложения для игры.');
+  const wordItems = input.wordItems ?? [];
+  if (numbers.length === 0 && sentences.length === 0 && wordItems.length === 0) throw new Error('Добавьте номер из книги, предложения для игры или слова.');
   const id = generateId();
   const exercises: Exercise[] = numbers.map((n, i) => ({
     id: `${id}-ex${i + 1}`,
@@ -129,13 +143,16 @@ export function buildAssignedHomework(input: AssignHomeworkInput, number: number
     instruction: `Упражнение ${n}`,
     items: [{ prompt: '' }],
   }));
+  if (wordItems.length > 0) {
+    exercises.push({ id: `${id}-words`, type: 'word-list', instruction: '📚 Выучите слова', items: wordItems });
+  }
   if (sentences.length > 0) {
     exercises.push({ id: `${id}-sentences`, type: 'sentence-order', instruction: '🧩 Соберите предложения из слов', items: sentences });
   }
   return {
     id,
     number,
-    title: numbers.length === 0 ? '🧩 Собери предложение' : `Упражнения ${numbers.join(', ')}${sentences.length ? ' + 🧩' : ''}`,
+    title: homeworkTitle(numbers, sentences.length > 0, wordItems.length > 0),
     assignedDate: input.assignedDate,
     dueDate: input.dueDate || undefined,
     status: 'not-started',

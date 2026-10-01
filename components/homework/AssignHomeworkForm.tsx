@@ -6,6 +6,7 @@ import { AssignHomeworkInput } from '@/lib/learning/homework';
 import { toISODate } from '@/lib/learning/date';
 import { ImagePicker } from './ImagePicker';
 import { parseSentenceLines } from '@/lib/learning/sentenceOrder';
+import { parseWordLines } from '@/lib/learning/homeworkWords';
 
 interface AssignHomeworkFormProps {
   onSave: (input: AssignHomeworkInput) => void;
@@ -13,10 +14,22 @@ interface AssignHomeworkFormProps {
   compress?: (file: Blob) => Promise<string>;
 }
 
+function WordsSummary({ text }: { text: string }) {
+  const { words, skipped } = parseWordLines(text);
+  if (words.length === 0 && skipped.length === 0) return null;
+  return (
+    <span className="text-xs font-normal text-gray-500">
+      Слов: {words.length}
+      {skipped.length > 0 && <span className="text-amber-600"> · без перевода, не добавятся: {skipped.join(', ')}</span>}
+    </span>
+  );
+}
+
 export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomeworkFormProps) {
   const [bookNumbers, setBookNumbers] = useState<string[]>(['', '']);
   const [teacherNotes, setTeacherNotes] = useState('');
   const [sentences, setSentences] = useState('');
+  const [words, setWords] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [assignedDate, setAssignedDate] = useState(toISODate(new Date()));
   const [dueDate, setDueDate] = useState('');
@@ -28,12 +41,12 @@ export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomewor
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (bookNumbers.every((n) => n.trim() === '') && parseSentenceLines(sentences).length === 0) {
-      setError('Добавьте номер из книги или предложения для игры.');
+    if (bookNumbers.every((n) => n.trim() === '') && parseSentenceLines(sentences).length === 0 && parseWordLines(words).words.length === 0) {
+      setError('Добавьте номер из книги, предложения для игры или слова.');
       return;
     }
     try {
-      onSave({ bookNumbers, teacherNotes, images, assignedDate, dueDate, sentences });
+      onSave({ bookNumbers, teacherNotes, images, assignedDate, dueDate, sentences, words });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не удалось сохранить.');
     }
@@ -70,6 +83,21 @@ export function AssignHomeworkForm({ onSave, onCancel, compress }: AssignHomewor
           + ещё номер
         </button>
       </fieldset>
+
+      <label className="flex flex-col gap-1 text-sm font-medium">
+        📚 Слова для изучения (необязательно)
+        <span className="text-xs font-normal text-gray-500">
+          Одно слово на строку: слово = перевод. Слова сразу добавятся в базу и в повторение.
+        </span>
+        <textarea
+          className="min-h-24 rounded border bg-transparent px-2 py-1 font-normal"
+          placeholder={'window = окно\nbathroom = ванная'}
+          autoCapitalize="none"
+          value={words}
+          onChange={(e) => setWords(e.target.value)}
+        />
+        <WordsSummary text={words} />
+      </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium">
         🧩 Собери предложение (необязательно)

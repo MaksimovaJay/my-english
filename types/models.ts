@@ -44,6 +44,12 @@ export interface SentenceOrderItem {
   translation?: string;
 }
 
+export interface WordListItem {
+  wordId: string; // the word in the base (words collection)
+  english: string;
+  translation: string;
+}
+
 export interface FreeTextItem {
   prompt: string; // optional extra hint; the exercise instruction names the book number
 }
@@ -60,13 +66,14 @@ export type ExerciseType =
   | 'reading'
   | 'image'
   | 'free-text'
-  | 'sentence-order';
+  | 'sentence-order'
+  | 'word-list';
 
 export interface Exercise {
   id: string;
   type: ExerciseType;
   instruction: string;
-  items: FillBlankItem[] | MultipleChoiceItem[] | FreeTextItem[] | SentenceOrderItem[];
+  items: FillBlankItem[] | MultipleChoiceItem[] | FreeTextItem[] | SentenceOrderItem[] | WordListItem[];
   explanation?: string;
   relatedGrammarTopicId?: string;
 }

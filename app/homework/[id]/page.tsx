@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { FillBlankExercise } from '@/components/exercises/FillBlankExercise';
 import { MultipleChoiceExercise } from '@/components/exercises/MultipleChoiceExercise';
-import { FillBlankItem, Homework, MultipleChoiceItem, SentenceOrderItem } from '@/types/models';
+import { FillBlankItem, Homework, MultipleChoiceItem, SentenceOrderItem, WordListItem } from '@/types/models';
+import { HomeworkWords } from '@/components/homework/HomeworkWords';
+import { syncWordListProgress } from '@/lib/learning/homeworkWords';
+import { useWordsStore } from '@/lib/storage/wordsStore';
 import { SentenceOrderExercise } from '@/components/exercises/SentenceOrderExercise';
 import { computeHomeworkScore, homeworkLabel, withFreeTextAnswer, withSentenceAnswer } from '@/lib/learning/homework';
 import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
@@ -19,6 +22,14 @@ export default function HomeworkRunnerPage() {
   const homework = useHomeworkStore((s) => s.items.find((h) => h.id === id));
   const updateStore = useHomeworkStore((s) => s.update);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const words = useWordsStore((s) => s.items);
+
+  // Words learned anywhere in the app (flashcards «Знаю») tick off the homework's word list.
+  useEffect(() => {
+    if (!homework) return;
+    const synced = syncWordListProgress(homework, words);
+    if (synced !== homework) updateStore(synced);
+  }, [homework, words, updateStore]);
 
   if (!homework) {
     return (
@@ -116,6 +127,8 @@ export default function HomeworkRunnerPage() {
                 value={(progress.userAnswers[0] as string[])[0] ?? ''}
                 onChange={(e) => update(withFreeTextAnswer(homework, ex.id, 0, e.target.value))}
               />
+            ) : ex.type === 'word-list' ? (
+              <HomeworkWords items={ex.items as WordListItem[]} checked={progress.checked} />
             ) : ex.type === 'sentence-order' ? (
               <SentenceOrderExercise
                 items={ex.items as SentenceOrderItem[]}

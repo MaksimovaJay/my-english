@@ -22,7 +22,7 @@ describe('AssignHomeworkForm', () => {
     render(<AssignHomeworkForm onSave={onSave} onCancel={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
     expect(onSave).not.toHaveBeenCalled();
-    expect(screen.getByText('Добавьте номер из книги или предложения для игры.')).toBeInTheDocument();
+    expect(screen.getByText('Добавьте номер из книги, предложения для игры или слова.')).toBeInTheDocument();
   });
 
   it('attaches a picked screenshot', async () => {

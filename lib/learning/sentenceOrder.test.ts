@@ -48,7 +48,7 @@ describe('homework with «Собери предложение»', () => {
   });
 
   it('needs book numbers or sentences', () => {
-    expect(() => buildAssignedHomework({ ...input, sentences: '  ' }, 3)).toThrow('Добавьте номер из книги или предложения для игры.');
+    expect(() => buildAssignedHomework({ ...input, sentences: '  ' }, 3)).toThrow('Добавьте номер из книги, предложения для игры или слова.');
   });
 
   it('checks a completed sentence, scores the first try, and allows fixing it', () => {

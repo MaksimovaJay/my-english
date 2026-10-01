@@ -6,6 +6,8 @@ import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { parseHomeworkImport, homeworkProgressFraction, homeworkLabel, buildAssignedHomework, groupHomeworkByWeek, nextHomeworkNumber, AssignHomeworkInput } from '@/lib/learning/homework';
 import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
 import { AssignHomeworkForm } from '@/components/homework/AssignHomeworkForm';
+import { prepareHomeworkWords } from '@/lib/learning/homeworkWords';
+import { useWordsStore } from '@/lib/storage/wordsStore';
 import { Homework } from '@/types/models';
 
 // jsdom's File/Blob implementation does not provide `.text()` (or `.arrayBuffer()`/`.stream()`),
@@ -42,8 +44,11 @@ export default function HomeworkPage() {
   const [assigning, setAssigning] = useState(false);
 
   function handleAssign(input: AssignHomeworkInput) {
-    const homework = buildAssignedHomework(input, nextHomeworkNumber(homeworks));
+    // Words go into the base right away (new ones only), so they are in topics and review even before the homework is opened.
+    const { items: wordItems, newWords } = prepareHomeworkWords(input.words ?? '', useWordsStore.getState().items);
+    const homework = buildAssignedHomework({ ...input, wordItems }, nextHomeworkNumber(homeworks));
     try {
+      newWords.forEach((w) => useWordsStore.getState().add(w));
       addHomework(homework);
     } catch (err) {
       throw isQuotaError(err) ? new Error(QUOTA_MESSAGE) : err;

@@ -4,6 +4,7 @@ import { Topic } from '@/types/models';
 export const TOPICS: Topic[] = [
   // Пройдено на уроках
   { id: 'my-words', title: 'Мои слова', emoji: '✍️', group: 'class', order: 0 }, // added with «+ слово»; hidden while empty
+  { id: 'homework-words', title: 'Слова из домашки', emoji: '📚', group: 'class', order: 0.5 }, // added with homework; hidden while empty
   { id: 'pronouns-to-be', title: 'Местоимения и to be', emoji: '🙋', group: 'class', order: 1 },
   { id: 'about-me', title: 'О себе', emoji: '🪪', group: 'class', order: 2 },
   { id: 'home', title: 'Дом и квартира', emoji: '🏠', group: 'class', order: 3 },
