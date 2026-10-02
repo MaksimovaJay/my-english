@@ -42,7 +42,7 @@ export default function LessonPage() {
   const practiceItems: VocabItem[] = useMemo(() => {
     if (!lesson) return [];
     const words = lesson.words.map((w, i) => ({
-      id: `${lesson.id}-w${i}`, english: w.english, translation: w.translation, category: 'lesson', tags: [], dateAdded: lesson.date, review: createInitialReviewState(),
+      id: `${lesson.id}-w${i}`, english: w.english, translation: w.translation, example: w.example, exampleTranslation: w.exampleTranslation, category: 'lesson', tags: [], dateAdded: lesson.date, review: createInitialReviewState(),
     }));
     const sentences = lesson.practice.exercises
       .filter((ex) => ex.type === 'sentence-order')

@@ -66,14 +66,14 @@ function topicExercises(exercises: Exercise[]): Exercise[] {
 export function completeLesson(lesson: Lesson, existingWords: Word[], topics: Topic[], today: Date = new Date()): LessonCompletion {
   const topic = { ...newTopicDoc({ title: lesson.title, emoji: '🎓', group: 'class' }, topics) };
   const dateAdded = toISODate(today);
-  const fresh = (english: string, translation: string) => ({
-    id: generateId(), english, translation, category: topic.id, tags: [], dateAdded, review: createInitialReviewState(today),
+  const fresh = (english: string, translation: string, example?: string, exampleTranslation?: string) => ({
+    id: generateId(), english, translation, example, exampleTranslation, category: topic.id, tags: [], dateAdded, review: createInitialReviewState(today),
   });
 
   const newWords: Word[] = [];
   for (const w of lesson.words) {
     const known = [...existingWords, ...newWords].some((e) => e.english.toLowerCase() === w.english.toLowerCase());
-    if (!known) newWords.push(fresh(w.english, w.translation));
+    if (!known) newWords.push(fresh(w.english, w.translation, w.example, w.exampleTranslation));
   }
 
   const phrases: Phrase[] = lesson.practice.exercises

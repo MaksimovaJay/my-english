@@ -77,3 +77,11 @@ describe('lessonDeletion', () => {
     expect(lessonDeletion(l)).toEqual({ topicId: undefined, wordIds: [], phraseIds: [], grammarId: undefined });
   });
 });
+
+describe('completeLesson word examples', () => {
+  it('carries word examples into the topic', () => {
+    const l = buildLesson({ title: 'L', date: '2026-10-02', images: [], words: 'hot = жаркий', games: [] }, 1);
+    const withExample = { ...l, words: [{ ...l.words[0], example: 'It was hot.', exampleTranslation: 'Было жарко.' }] };
+    expect(completeLesson(withExample, [], topics, today).newWords[0]).toMatchObject({ example: 'It was hot.', exampleTranslation: 'Было жарко.' });
+  });
+});

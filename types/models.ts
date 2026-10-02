@@ -137,7 +137,7 @@ export interface Lesson {
   date: string; // YYYY-MM-DD
   description?: string;
   images?: string[];
-  words: { english: string; translation: string }[]; // kept inside the lesson until completion
+  words: { english: string; translation: string; example?: string; exampleTranslation?: string }[]; // kept inside the lesson until completion
   conditions?: string; // «Условия»: what we do and in what order
   rules?: string; // «Правила»: grammar explanation
   games: GameId[]; // games ticked for the lesson
