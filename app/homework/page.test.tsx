@@ -76,3 +76,28 @@ describe('HomeworkPage assign with words', () => {
     expect(screen.getByRole('link', { name: 'ДЗ 1 · 📚 Слова' })).toBeInTheDocument();
   });
 });
+
+describe('HomeworkPage sections', () => {
+  const mk = (id: string, number: number, status: 'not-started' | 'completed', score?: { correct: number; total: number }) => ({
+    id, number, title: `Unit ${number}`, assignedDate: '2026-10-01', status, exercises, progress: initHomeworkProgress(exercises), score,
+  });
+
+  it('splits homework into «Задано» and «Сделано» and announces the one just handed in', () => {
+    window.history.pushState({}, '', '/homework?done=h2');
+    useHomeworkStore.setState({ items: [mk('h1', 1, 'not-started'), mk('h2', 2, 'completed', { correct: 1, total: 1 })], hydrated: true });
+    render(<HomeworkPage />);
+    const todo = screen.getByRole('heading', { name: '📝 Задано' });
+    const done = screen.getByRole('heading', { name: '✅ Сделано' });
+    expect(todo.compareDocumentPosition(done) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole('status')).toHaveTextContent('ДЗ 2 · Unit 2 сдано и перенесено в «Сделано».');
+    expect(screen.getByText(/Результат 1 \/ 1/)).toBeInTheDocument();
+    window.history.pushState({}, '', '/');
+  });
+
+  it('celebrates when nothing is left to do', () => {
+    useHomeworkStore.setState({ items: [mk('h2', 2, 'completed')], hydrated: true });
+    render(<HomeworkPage />);
+    expect(screen.getByText('🎉 Все домашки сделаны!')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '📝 Задано' })).not.toBeInTheDocument();
+  });
+});

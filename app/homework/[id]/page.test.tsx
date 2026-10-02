@@ -4,8 +4,10 @@ import HomeworkRunnerPage from './page';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { initHomeworkProgress, buildAssignedHomework } from '@/lib/learning/homework';
 
+const { push } = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock('next/navigation', () => ({
   useParams: () => ({ id: 'hw1' }),
+  useRouter: () => ({ push }),
 }));
 
 const exercises = [{ id: 'ex1', type: 'fill-blank' as const, instruction: 'Fill was/were.', items: [{ text: 'She ___ 22.', blanks: [['was']] }] }];
@@ -66,5 +68,17 @@ describe('HomeworkRunnerPage with «Собери предложение»', () =
     expect(screen.getByText('✅ Верно!')).toBeInTheDocument();
     const saved = useHomeworkStore.getState().items[0];
     expect(saved.progress[saved.exercises[0].id]).toMatchObject({ checked: [true], correct: [true] });
+  });
+});
+
+describe('HomeworkRunnerPage submit', () => {
+  it('goes to the list, into «Сделано», after handing in', () => {
+    const hw = buildAssignedHomework({ bookNumbers: ['1'], teacherNotes: '', images: [], assignedDate: '2026-10-01', dueDate: '' }, 4);
+    useHomeworkStore.setState({ items: [{ ...hw, id: 'hw1' }], hydrated: true });
+    render(<HomeworkRunnerPage />);
+    fireEvent.change(screen.getByLabelText('Ответ: Упражнение 1'), { target: { value: 'done' } });
+    fireEvent.click(screen.getByRole('button', { name: /сдать домашку/i }));
+    expect(useHomeworkStore.getState().items[0].status).toBe('completed');
+    expect(push).toHaveBeenCalledWith('/homework?done=hw1');
   });
 });

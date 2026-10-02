@@ -1,7 +1,8 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { parseHomeworkImport, homeworkProgressFraction, homeworkLabel, buildAssignedHomework, groupHomeworkByWeek, nextHomeworkNumber, AssignHomeworkInput } from '@/lib/learning/homework';
 import { isQuotaError, QUOTA_MESSAGE } from '@/lib/learning/images';
@@ -42,6 +43,55 @@ export default function HomeworkPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
+  const [justDone, setJustDone] = useState<string | null>(null);
+  const active = homeworks.filter((h) => h.status !== 'completed');
+  const finished = homeworks.filter((h) => h.status === 'completed');
+  const justDoneHomework = finished.find((h) => h.id === justDone);
+
+  // After «Сдать домашку» the runner sends us to /homework?done=<id>: say so and show where it went.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('done');
+    if (!id) return;
+    setJustDone(id);
+    requestAnimationFrame(() => document.getElementById(`hw-${id}`)?.scrollIntoView?.({ behavior: 'smooth', block: 'center' }));
+  }, []);
+
+  function resultText(hw: Homework): string {
+    if (hw.status !== 'completed') return STATUS_LABELS[hw.status];
+    return hw.score && hw.score.total > 0 ? `Результат ${hw.score.correct} / ${hw.score.total}` : 'Сдано на проверку';
+  }
+
+  function renderWeeks(list: Homework[]) {
+    return groupHomeworkByWeek(list).map((week) => (
+      <section key={week.label} className="mb-6">
+        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">{week.label}</h3>
+        <ul className="flex flex-col gap-2">
+          {week.items.map((hw) => {
+            const { done, total } = homeworkProgressFraction(hw);
+            return (
+              <li key={hw.id} id={`hw-${hw.id}`} className={cn('flex items-center gap-3 rounded-lg border p-3', hw.id === justDone && 'border-green-500 ring-2 ring-green-500/40')}>
+                <div className="min-w-0 flex-1">
+                  <Link href={`/homework/${hw.id}`} className="font-medium text-violet-600 underline">{homeworkLabel(hw)}</Link>
+                  <p className="text-xs text-gray-500">
+                    {formatShortDate(hw.assignedDate)} · {hw.status === 'completed' ? resultText(hw) : `${done} / ${total} · ${resultText(hw)}`}
+                  </p>
+                </div>
+                <button
+                  aria-label="Удалить"
+                  className="text-gray-400 hover:text-red-600"
+                  onClick={() => {
+                    if (window.confirm(`Удалить «${homeworkLabel(hw)}»? Она удалится на всех устройствах.`)) removeHomework(hw.id);
+                  }}
+                >
+                  🗑
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ));
+  }
 
   function handleAssign(input: AssignHomeworkInput) {
     // Words go into the base right away (new ones only), so they are in topics and review even before the homework is opened.
@@ -91,35 +141,26 @@ export default function HomeworkPage() {
       {homeworks.length === 0 && (
         <p className="text-sm text-gray-500">Домашек пока нет — пришлите фото задания в чат Claude.</p>
       )}
-      {groupHomeworkByWeek(homeworks).map((week) => (
-        <section key={week.label} className="mb-6">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">{week.label}</h2>
-          <ul className="flex flex-col gap-2">
-            {week.items.map((hw) => {
-              const { done, total } = homeworkProgressFraction(hw);
-              return (
-                <li key={hw.id} className="flex items-center gap-3 rounded-lg border p-3">
-                  <div className="min-w-0 flex-1">
-                    <Link href={`/homework/${hw.id}`} className="font-medium text-violet-600 underline">{homeworkLabel(hw)}</Link>
-                    <p className="text-xs text-gray-500">
-                      {formatShortDate(hw.assignedDate)} · {done} / {total} · {STATUS_LABELS[hw.status]}
-                    </p>
-                  </div>
-                  <button
-                    aria-label="Удалить"
-                    className="text-gray-400 hover:text-red-600"
-                    onClick={() => {
-                      if (window.confirm(`Удалить «${homeworkLabel(hw)}»? Она удалится на всех устройствах.`)) removeHomework(hw.id);
-                    }}
-                  >
-                    🗑
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
+      {justDoneHomework && (
+        <p role="status" className="card mb-4 border-green-500 p-3 text-sm">
+          ✅ {homeworkLabel(justDoneHomework)} сдано и перенесено в «Сделано».
+        </p>
+      )}
+
+      {active.length > 0 && (
+        <>
+          <h2 className="mb-3 text-lg font-bold">📝 Задано</h2>
+          {renderWeeks(active)}
+        </>
+      )}
+      {homeworks.length > 0 && active.length === 0 && <p className="mb-6 text-sm text-gray-500">🎉 Все домашки сделаны!</p>}
+
+      {finished.length > 0 && (
+        <>
+          <h2 className="mb-3 mt-8 text-lg font-bold">✅ Сделано</h2>
+          {renderWeeks(finished)}
+        </>
+      )}
     </div>
   );
 }

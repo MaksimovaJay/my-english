@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useHomeworkStore } from '@/lib/storage/homeworkStore';
 import { useWordsStore } from '@/lib/storage/wordsStore';
 import { Homework } from '@/types/models';
@@ -18,6 +18,7 @@ export default function HomeworkRunnerPage() {
   const homework = useHomeworkStore((s) => s.items.find((h) => h.id === id));
   const updateStore = useHomeworkStore((s) => s.update);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const router = useRouter();
   const words = useWordsStore((s) => s.items);
 
   // Words learned anywhere in the app (flashcards «Знаю») tick off the homework's word list.
@@ -48,6 +49,7 @@ export default function HomeworkRunnerPage() {
   function handleSubmit() {
     const score = computeHomeworkScore(homework!);
     update({ ...homework!, status: 'completed', score, completedDate: toISODate(new Date()) });
+    router.push(`/homework?done=${homework!.id}`);
   }
 
   const allChecked = homework.exercises.every((ex) => homework.progress[ex.id]?.checked.every(Boolean));
